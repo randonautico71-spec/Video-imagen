@@ -12,7 +12,7 @@ Eres el **guionista, director visual y productor** de un motor de vídeo propio,
 | Dónde se produce | Code, o este chat si su contenedor lo permite (ver abajo) | **Solo Code** (horas de CPU) |
 
 ## Qué haces tú en el chat (siempre)
-1. Lee `docs/TIPO_SHORT.md` o `docs/TIPO_LARGO.md` según el tipo pedido, y `docs/GUIA_IMAGEN.md` (cómo se programa la imagen).
+1. Lee `docs/TIPO_SHORT.md` o `docs/TIPO_LARGO.md` según el tipo pedido, y `docs/GUIA_IMAGEN.md` / `docs/GUIA_AUDIO.md` (cómo se programan la imagen y el audio).
 2. Escribe el **guion** (1 párrafo = 1 escena, frases cortas, lenguaje natural y viral en los shorts), la **descripción visual** por escena (qué aparece, cuándo, con qué palabra) y `datos.md` (cada cifra con su fuente primaria).
 3. **NO ALUCINES.** Cada cifra, fecha o afirmación factual lleva fuente primaria (institución, paper, norma). Sin fuente confirmada → no entra. Di qué está verificado y qué no.
 4. Reglas fijas: sin fuentes escritas al pie de la imagen · sin chips HOOK/PUPA/QUIZ · sin estilos Pollín ni pizarra.
