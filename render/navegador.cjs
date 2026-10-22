@@ -1,8 +1,27 @@
 /* Lanzamiento de Chromium con la configuracion que este contenedor necesita.
    Los flags de red no son decorativos: sin ellos Chromium intenta hablar con
    google.com y gvt1.com, el proxy los rechaza y cada arranque pierde segundos. */
-const PW = '/opt/node-tools/node_modules/playwright';
-const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const fs = require('fs'), path = require('path'), cp = require('child_process');
+
+/* Localiza Playwright y Chromium en CUALQUIER contenedor (Code, chat de un Project, otro). Orden: variables de entorno PW_MODULE / CHROME_PATH,
+   rutas conocidas, busqueda en PLAYWRIGHT_BROWSERS_PATH / ~/.cache/ms-playwright, y binarios del sistema. Si no hay nada, falla con instrucciones. */
+function primero(cands) { for (const c of cands) { if (c && fs.existsSync(c)) return c; } return null; }
+function glob1(dir, re, sub) { try { for (const d of fs.readdirSync(dir).filter(n => re.test(n)).sort().reverse()) { const p = path.join(dir, d, sub); if (fs.existsSync(p)) return p; } } catch (e) {} return null; }
+function resolverPW() {
+  const g = (() => { try { return cp.execSync('npm root -g', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch (e) { return null; } })();
+  return primero([process.env.PW_MODULE, '/opt/node-tools/node_modules/playwright', path.join(__dirname, '../node_modules/playwright'), g && path.join(g, 'playwright'), g && path.join(g, 'playwright-core')]);
+}
+function resolverChrome() {
+  const home = process.env.HOME || '/root', base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
+  const bin = (n) => { try { return cp.execSync('command -v ' + n, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch (e) { return null; } };
+  return primero([process.env.CHROME_PATH, glob1(base, /^chromium-\d+$/, 'chrome-linux/chrome'), glob1(path.join(home, '.cache/ms-playwright'), /^chromium-\d+$/, 'chrome-linux/chrome'),
+                  bin('chromium'), bin('chromium-browser'), bin('google-chrome'), bin('google-chrome-stable')]);
+}
+const PW = resolverPW(), EXE = resolverChrome();
+if (!PW || !EXE) {
+  console.error('No se encuentra ' + (!PW ? 'Playwright' : 'Chromium') + '. Prueba: bash chat/bootstrap.sh  (o define PW_MODULE y CHROME_PATH).');
+  if (require.main !== module) throw new Error('Playwright/Chromium no encontrados');
+}
 
 const FLAGS = [
   '--no-sandbox', '--disable-dev-shm-usage',

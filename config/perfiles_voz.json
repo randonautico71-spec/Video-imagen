@@ -107,6 +107,83 @@
       "reverb_mezcla": 0.0,
       "reverb_seg": 0.0,
       "nivel_lufs": -16
-    }
+    },
+    "lote": 8
+  },
+  "serena_meditacion": {
+    "descripcion": "Serena (Qwen3-TTS) para meditacion: misma voz, pausas largas entre frases y parrafos (el ritmo lo ponen las pausas), filtros suaves. Perfil NUEVO, sin oir por el usuario en meditacion.",
+    "motor": "qwen",
+    "modelo_hf": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "idioma": "Spanish",
+    "speaker": "Serena",
+    "instruct": null,
+    "hilos": 4,
+    "sintesis": {
+      "modelo": "Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "dtype": "bf16"
+    },
+    "pausa_frase_s": 0.65,
+    "pausa_parrafo_s": 1.5,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 65,
+      "lowpass_hz": 16000,
+      "calidez_db": 1.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -19
+    },
+    "lote": 8
+  },
+  "serena_largo": {
+    "descripcion": "Serena (Qwen3-TTS) para videos LARGOS en general: pausas medias. Meditacion usa 'serena_meditacion' (pausas mas largas).",
+    "motor": "qwen",
+    "modelo_hf": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "idioma": "Spanish",
+    "speaker": "Serena",
+    "instruct": null,
+    "hilos": 4,
+    "sintesis": {
+      "modelo": "Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "dtype": "bf16"
+    },
+    "pausa_frase_s": 0.5,
+    "pausa_parrafo_s": 1.1,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 65,
+      "lowpass_hz": 16000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    },
+    "lote": 8
+  },
+  "carmen": {
+    "descripcion": "Carmen - Bold and Magnetic (ElevenLabs, voz profesional, acento peninsular, joven, para redes sociales). Se genera con la herramienta creative_generate_speech del conector de ElevenLabs (NO desde el codigo del motor: consume creditos) y se IMPORTA con `vid.py voz-importar`. Sin musica en la voz: la mezcla la hace el motor.",
+    "motor": "elevenlabs",
+    "voice_id": "iHGx33VgO2KQ1Fdw6noG",
+    "voice_nombre": "Carmen - Bold and Magnetic",
+    "modelo_el": "eleven_v4",
+    "generations_count": 1,
+    "pausa_frase_s": 0.0,
+    "pausa_parrafo_s": 0.0,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 70,
+      "lowpass_hz": 16000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -14
+    },
+    "nota": "El ID viene de creative_list_voices (busqueda 'Carmen', es). Otras 'Carmen' de la biblioteca son latinoamericanas: NO usarlas para peninsular."
   }
 }

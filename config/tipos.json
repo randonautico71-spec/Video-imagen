@@ -1,0 +1,62 @@
+{
+  "_nota": "Dos tipos de video predeterminados. El usuario dice LARGO o SHORT y `vid.py nuevo <tema> --tipo largo|short` rellena meta.json con esto; las guias de diseno estan en docs/TIPO_LARGO.md y docs/TIPO_SHORT.md.",
+  "marca": {
+    "handle": "@randonautico",
+    "letrero_final": "SIGUE A @randonautico"
+  },
+  "largo": {
+    "descripcion": "Video largo de YouTube 16:9, 30-60 min, voz Serena (Qwen3-TTS local), musica ambiental.",
+    "formato": "youtube",
+    "lienzo": "yt",
+    "voz": "serena_largo",
+    "musica": "meditacion",
+    "duracion_s": [
+      1800,
+      3600
+    ],
+    "capitulos_min_s": [
+      180,
+      300
+    ],
+    "fps": 24,
+    "ss": 1.0,
+    "salida_escala": 1.0,
+    "crf": 20,
+    "calidad_jpeg": 0.95,
+    "lufs": -16,
+    "cola_s": 3.5,
+    "ligero_MB": 60,
+    "ligero_lado": 360,
+    "subtitulos": false,
+    "guia": "docs/TIPO_LARGO.md",
+    "viable_en": "Code (4 CPU): voz ~4.4 s de calculo por s de voz (34 min de voz = ~2 h) + render ~1 min por min de video. En un chat de Project (2 CPU) NO es viable."
+  },
+  "short": {
+    "descripcion": "Short vertical 9:16 de 1-3 min, voz Carmen peninsular (ElevenLabs), musica con ritmo, subtitulos y letrero final.",
+    "formato": "short",
+    "lienzo": "vertical",
+    "voz": "carmen",
+    "musica": "curiosos",
+    "duracion_s": [
+      60,
+      180
+    ],
+    "limite_plataforma_s": 180,
+    "fps": 30,
+    "ss": 1.5,
+    "salida_escala": 1.0,
+    "crf": 17,
+    "calidad_jpeg": 0.97,
+    "lufs": -14,
+    "cola_s": 2.0,
+    "ligero_MB": 9.5,
+    "subtitulos": {
+      "palabras": 4,
+      "tam": 74
+    },
+    "gancho_s": 3,
+    "letrero_final": true,
+    "guia": "docs/TIPO_SHORT.md",
+    "viable_en": "Code y, si el contenedor del chat tiene Chromium y ffmpeg, tambien un chat de Project (ver chat/bootstrap.sh). Render medido: ~6 fotogramas/s con 4 procesos."
+  }
+}

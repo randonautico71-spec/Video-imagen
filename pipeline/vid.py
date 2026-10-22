@@ -11,6 +11,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / 'pipeline'))
 import entrega  # noqa: E402
 
+TIPOS = json.loads((RAIZ / 'config/tipos.json').read_text())
 COLA_S = {'meditacion': 3.5}          # segundos tras la ultima palabra (la musica de meditacion se apaga lenta)
 
 
@@ -38,25 +39,58 @@ def duracion(ruta):
 
 
 # ------------------------------------------------------------------ nuevo
+def meta_de_tipo(tipo):
+    """meta.json inicial segun el TIPO de video (config/tipos.json): el usuario dice largo o short y el motor ya sabe formato, voz, calidad, etc."""
+    t = TIPOS[tipo]; fmt = entrega.FORMATOS[t['formato']]
+    m = {'titulo': '', 'tipo': tipo, 'formato': t['formato'], 'lienzo': fmt['lienzo'], 'voz': t['voz'], 'musica': t['musica'], 'semilla': 1, 'estilo': 'LAB',
+         'dings_en_palabras': [], 'cola_s': t['cola_s'], 'fps': t['fps'], 'ss': t['ss'], 'crf': t['crf'], 'calidad_jpeg': t['calidad_jpeg'], 'lufs': t['lufs'],
+         'duracion_objetivo_s': t['duracion_s']}
+    if t.get('salida_escala', 1) != 1: m['salida_escala'] = t['salida_escala']
+    if t.get('ligero_MB'): m['ligero_MB'] = t['ligero_MB']
+    if t.get('ligero_lado'): m['ligero_lado'] = t['ligero_lado']
+    return m
+
+
+def avisar_rango(meta, total_s):
+    """Avisa si la duracion se sale del rango del TIPO (largo 30-60 min, short 1-3 min)."""
+    r = meta.get('duracion_objetivo_s')
+    if not r: return
+    if total_s < r[0] or total_s > r[1]:
+        print(f"  ! Duracion {total_s / 60:.1f} min fuera del rango del tipo '{meta.get('tipo')}' ({r[0] / 60:g}-{r[1] / 60:g} min): "
+              f"{'alarga' if total_s < r[0] else 'recorta'} el guion.")
+
+
 def cmd_nuevo(a):
     d = RAIZ / 'proyectos' / a.tema
     if d.exists():
         raise SystemExit(f'proyectos/{a.tema} ya existe.')
     (d / 'salida').mkdir(parents=True)
-    fmt = entrega.FORMATOS[a.formato]
-    (d / 'meta.json').write_text(json.dumps({
-        'titulo': a.tema, 'formato': a.formato, 'lienzo': fmt['lienzo'], 'voz': a.voz, 'musica': a.musica,
-        'semilla': 1, 'estilo': 'LAB', 'dings_en_palabras': [], 'cola_s': COLA_S.get(a.musica, 1.2)}, indent=2, ensure_ascii=False))
+    if a.tipo:
+        meta = meta_de_tipo(a.tipo); meta['titulo'] = a.tema
+        if a.voz: meta['voz'] = a.voz
+        if a.musica: meta['musica'] = a.musica
+        if a.formato: meta['formato'] = a.formato; meta['lienzo'] = entrega.FORMATOS[a.formato]['lienzo']
+        sub = TIPOS[a.tipo].get('subtitulos', False)
+        guia = TIPOS[a.tipo]['guia']
+    else:                                                        # modo manual (sin tipo)
+        a.formato = a.formato or 'short'; a.voz = a.voz or 'curiosos'; a.musica = a.musica or 'curiosos'
+        meta = {'titulo': a.tema, 'formato': a.formato, 'lienzo': entrega.FORMATOS[a.formato]['lienzo'], 'voz': a.voz, 'musica': a.musica,
+                'semilla': 1, 'estilo': 'LAB', 'dings_en_palabras': [], 'cola_s': COLA_S.get(a.musica, 1.2)}
+        sub, guia = False, None
+    (d / 'meta.json').write_text(json.dumps(meta, indent=2, ensure_ascii=False))
     (d / 'guion.md').write_text('Primer parrafo = primera escena.\n\nSegundo parrafo = segunda escena.\n')
-    (d / 'escenas.js').write_text("""VE.proyecto({
+    (d / 'escenas.js').write_text("""/* Diseno visual de este video. Herramientas: VE.real (paisajes y objetos), VE.short (rotulos, pastillas, letrero final), VE.trazo/VE.med (luz). */
+VE.proyecto({
   estilo: 'LAB',
+  subtitulos: %s,
   escenas: [
     (esc, t, ctx) => { /* escena 1: dibujar con las herramientas del motor */ },
     (esc, t, ctx) => { /* escena 2 */ },
   ],
 });
-""")
-    print(f'Creado proyectos/{a.tema}  (formato {a.formato}, voz {a.voz}, musica {a.musica})')
+""" % json.dumps(sub))
+    print(f'Creado proyectos/{a.tema}  (tipo {a.tipo or "manual"}, formato {meta["formato"]}, voz {meta["voz"]}, musica {meta["musica"]})')
+    if guia: print(f'  Guia de diseno de este tipo: {guia}')
 
 
 # ------------------------------------------------------------------ voz + linea de tiempo
@@ -101,13 +135,37 @@ def cmd_voz(a):
     pars = parrafos_de(d)
     (s / 'locucion.txt').write_text('\n\n'.join(pars))
     print(f'Voz "{meta["voz"]}" para {len(pars)} escenas...')
-    m = voz.generar('\n\n'.join(pars), meta['voz'], s, whisper=a.whisper)
+    perfil = voz.cargar_perfil(meta['voz'])
+    if perfil['motor'] == 'elevenlabs':                          # la voz se genera FUERA del motor (herramienta del conector) y se importa
+        audios = sorted(s.glob('locucion_eleven.*'))
+        if not audios:
+            raise SystemExit(f'La voz "{meta["voz"]}" es de ElevenLabs: genera el audio con la herramienta creative_generate_speech '
+                             f'(voice_id {perfil["voice_id"]}, generations_count 1; texto = salida/locucion.txt) y guardalo como salida/locucion_eleven.mp3; '
+                             f'despues repite este comando (o usa: vid.py voz-importar {a.tema} <audio>).')
+        m = voz.importar(audios[0], '\n\n'.join(pars), s, whisper=a.whisper, perfil_nombre=meta['voz'])
+    else:
+        m = voz.generar('\n\n'.join(pars), meta['voz'], s, whisper=a.whisper)
     tl = compilar_timeline(d, meta)
     print(f'  voz {m["duracion_s"]} s | alineado {m["alineado"]} ({m["cobertura_alineado"] * 100:.0f} % palabras casadas) | '
           f'total con cola {tl["duracion_total"]} s | calculo {m["segundos_calculo"]}')
+    avisar_rango(meta, tl['duracion_total'])
     vs, av = entrega.plan(meta['formato'], tl['duracion_total'])
     print('  versiones:', [f"{v['nombre']}/{v['lienzo']}" for v in vs])
     for x in av: print('  !', x)
+
+
+def cmd_voz_importar(a):
+    """Importa una locucion ya generada (ElevenLabs u otra): la guarda como salida/locucion_eleven.<ext> y la alinea con el guion."""
+    d = dir_proyecto(a.tema); s = d / 'salida'; s.mkdir(exist_ok=True)
+    for viejo in s.glob('locucion_eleven.*'): viejo.unlink()
+    if str(a.audio).startswith('http'):                       # URL firmada que devuelve creative_get_flow_run_status (caduca en ~2 h; dominio storage.googleapis.com)
+        import urllib.request
+        urllib.request.urlretrieve(a.audio, s / 'locucion_eleven.mp3')
+    else:
+        origen = Path(a.audio)
+        if not origen.exists(): raise SystemExit(f'No existe {origen}')
+        shutil.copy(origen, s / ('locucion_eleven' + origen.suffix))
+    cmd_voz(argparse.Namespace(tema=a.tema, whisper=a.whisper))
 
 
 # ------------------------------------------------------------------ musica + mezcla
@@ -170,9 +228,10 @@ def cmd_estimar(a):
     print(f"  Render       ~{fmt(t_ren)}  (reanudable por trozos)")
     print(f"  Disco        pesado ~{mb:.0f} MB; durante el render ~{mb * cal['salida']['copias_en_disco_durante_render']:.0f} MB")
     print(f"  TOTAL        ~{fmt(t_voz + t_mus + t_ren)} de proceso")
+    avisar_rango(meta, total)
     vs, av = entrega.plan(meta['formato'], total)
     for x in av: print('  !', x)
-    if total > 600: print('  ! El MP4 ligero (<10 MB) no es viable a esta duracion; se entrega solo el pesado.')
+    if total > 600 and 'ligero_MB' not in meta: print('  ! El MP4 ligero (<10 MB) no es viable a esta duracion; se entrega solo el pesado.')
     print('  Certeza: las constantes vienen de config/calibracion.json (medidas con videos CORTOS; en uno largo pueden variar).')
 
 
@@ -210,7 +269,7 @@ def cmd_qa(a):
 def ligero(pesado, salida, dur, objetivo_MB=9.5, lado=None, tope_MB=10):
     """MP4 ligero: bitrate calculado para quedar bajo 'objetivo_MB'. Por defecto <10 MB (la app no reproduce MP4 > ~12 MB).
     Para videos largos se pide un objetivo mayor en meta.json ('ligero_MB') y, si se quiere, la altura ('ligero_lado')."""
-    objetivo = objetivo_MB * 1e6 * 8; audio_k = 40 if dur > 240 else 64
+    objetivo = objetivo_MB * 1e6 * 8; audio_k = 64      # 40 kbps en un video largo suena a codec (medido: pico +5 dBFS tras AAC); 64 kbps + limitador
     v = objetivo / dur - audio_k * 1000 * 1.04
     if v < 70e3:
         return None, f'No cabe: a {dur:.0f} s harian falta {v / 1000:.0f} kbps de video (< 70). Con ese objetivo solo es viable hasta ~{objetivo / (70e3 + audio_k * 1040):.0f} s.'
@@ -220,7 +279,7 @@ def ligero(pesado, salida, dur, objetivo_MB=9.5, lado=None, tope_MB=10):
     esc = f'scale={lado}:-2' if h > w else f'scale=-2:{lado}'
     for intento in range(3):
         sh(['ffmpeg', '-v', 'error', '-y', '-i', str(pesado), '-vf', esc, '-c:v', 'libx264', '-b:v', str(int(v)), '-maxrate', str(int(v * 1.15)),
-            '-bufsize', str(int(v * 2)), '-preset', 'slow', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', f'{audio_k}k', '-ac', '1',
+            '-bufsize', str(int(v * 2)), '-preset', 'slow', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-af', 'volume=-4dB,alimiter=limit=0.6:level=disabled', '-c:a', 'aac', '-b:a', f'{audio_k}k', '-ac', '1',
             '-movflags', '+faststart', str(salida)])
         if os.path.getsize(salida) <= objetivo_MB * 1.05e6:
             return salida, f'{lado}p a {v / 1000:.0f} kbps (objetivo {objetivo_MB} MB)'
@@ -247,6 +306,7 @@ def cmd_render(a):
                '--ss', str(v['ss']), '--salida', str(out), '--workers', str(a.workers)]
         if a.hasta: cmd += ['--hasta', str(a.hasta)]
         if 'crf' in meta: cmd += ['--crf', str(meta['crf'])]
+        if 'calidad_jpeg' in meta: cmd += ['--calidad', str(meta['calidad_jpeg'])]
         if 'salida_escala' in meta: cmd += ['--so', str(meta['salida_escala'])]
         sh(cmd)
         dur = min(float(a.hasta), tl['duracion_total']) if a.hasta else tl['duracion_total']
@@ -277,8 +337,9 @@ def cmd_plan(a):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
-    p = sp.add_parser('nuevo'); p.add_argument('tema'); p.add_argument('--formato', default='short', choices=['short', 'youtube', 'instagram'])
-    p.add_argument('--voz', default='curiosos', choices=['curiosos', 'aprender', 'meditacion', 'serena']); p.add_argument('--musica', default='curiosos', choices=['curiosos', 'aprender', 'meditacion']); p.set_defaults(f=cmd_nuevo)
+    p = sp.add_parser('nuevo'); p.add_argument('tema'); p.add_argument('--tipo', choices=[k for k in TIPOS if not k.startswith('_') and k != 'marca'], help='largo | short: rellena formato, voz, musica y calidad')
+    p.add_argument('--formato', choices=['short', 'youtube', 'instagram']); p.add_argument('--voz'); p.add_argument('--musica', choices=['curiosos', 'aprender', 'meditacion']); p.set_defaults(f=cmd_nuevo)
+    p = sp.add_parser('voz-importar'); p.add_argument('tema'); p.add_argument('audio'); p.add_argument('--whisper', default='small'); p.set_defaults(f=cmd_voz_importar)
     for nombre, f in (('voz', cmd_voz), ('musica', cmd_musica), ('mezcla', cmd_mezcla)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     p = sp.add_parser('qa'); p.add_argument('tema'); p.add_argument('--paso', type=float, default=0.5); p.add_argument('--stills'); p.set_defaults(f=cmd_qa)

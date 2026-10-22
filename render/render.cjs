@@ -20,7 +20,12 @@ const calidad = parseFloat(A.calidad || 0.92), crf = A.crf || 17, workers = pars
 
 function codificador(salida) {
   return spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps), '-vcodec', 'mjpeg', '-i', '-',
-    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', String(crf), '-pix_fmt', 'yuv420p', '-r', String(fps),
+    // COLOR: el JPEG del canvas es sRGB/BT.601 de rango completo; sin conversion explicita los reproductores (que asumen BT.709 en HD) lo
+    // veian desviado (medido: rojo 191,0,0 -> 207,17,0; error medio de verde 13 niveles). Aqui se convierte a BT.709 y se etiqueta.
+    // aq-mode=3 reduce las bandas en degradados oscuros (cielos nocturnos). 'medium' en vez de 'veryfast': el codificador no es el cuello de botella.
+    '-vf', 'scale=in_range=pc:in_color_matrix=bt601:out_range=tv:out_color_matrix=bt709,format=yuv420p',
+    '-c:v', 'libx264', '-preset', 'medium', '-crf', String(crf), '-x264-params', 'aq-mode=3', '-r', String(fps),
+    '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv',
     '-g', String(Math.round(fps * 2)), '-movflags', '+faststart', salida], { stdio: ['pipe', 'inherit', 'inherit'] });
 }
 
@@ -50,7 +55,7 @@ async function trabajador() {
 function huella(dirProy) {
   const h = crypto.createHash('sha1');
   for (const f of ['escenas.js', 'salida/timeline.json', 'salida/palabras.json', 'meta.json']) { try { h.update(fs.readFileSync(path.join(dirProy, f))); } catch (e) { h.update('falta:' + f); } }
-  h.update(JSON.stringify([A.lienzo, fps, ss, so, calidad, crf, trozo]));
+  h.update(JSON.stringify([A.lienzo, fps, ss, so, calidad, crf, trozo, 'enc-bt709-v2']));
   for (const f of fs.readdirSync(path.join(RAIZ, 'engine'), { recursive: true })) if (/\.js$/.test(f)) h.update(fs.readFileSync(path.join(RAIZ, 'engine', f)));   // el motor tambien cuenta
   return h.digest('hex').slice(0, 16);
 }

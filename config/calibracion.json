@@ -6,20 +6,27 @@
       "curiosos": 190,
       "aprender": 190,
       "certeza": "meditacion y curiosos medidos con 2 y 1 proyectos de prueba (50-74 palabras); 'aprender' NO medido, se asume igual a curiosos",
-      "serena": 148
+      "serena": 148,
+      "serena_meditacion": 138,
+      "serena_largo": 138,
+      "carmen": 171,
+      "certeza_carmen": "171 wpm medido en UNA frase real de Carmen (18 palabras en 6,32 s); recalibrar con un corto entero"
     },
     "calculo_s_por_s_de_habla": {
       "melo": 0.42,
       "piper": 0.22,
       "certeza": "medido en textos de 12-32 s de habla; melo ademas carga el modelo en ~15 s",
-      "qwen": 6.0
+      "qwen": 4.4,
+      "elevenlabs": 0.0,
+      "certeza_qwen": "4.4 s de calculo por s de voz con LOTES de 8 (medido en 34 min de meditacion, 4 CPU); 5.4 sin lotes. En 2 CPU sera ~2x mas lento."
     },
     "alineado_s_por_s_de_audio": 0.3,
     "alineado_certeza": "medido entre 0.18 y 0.35 en 3 pruebas cortas; faster-whisper small, CPU",
     "carga_modelo_s": {
       "melo": 15,
       "piper": 1.5,
-      "qwen": 10
+      "qwen": 10,
+      "elevenlabs": 0
     }
   },
   "musica": {

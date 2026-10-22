@@ -16,6 +16,12 @@ print(json.dumps({'listo': True}), flush=True)
 for linea in sys.stdin:
     try:
         p = json.loads(linea)
+        if 'lote' in p:                                           # varias frases a la vez: ~30% menos tiempo de calculo por segundo de voz
+            n = len(p['lote']); kw = dict(text=[q['texto'] for q in p['lote']], language=[p.get('idioma', 'Spanish')] * n, speaker=[p.get('speaker', 'Serena')] * n)
+            if p.get('instruct'): kw['instruct'] = [p['instruct']] * n
+            wavs, sr = m.generate_custom_voice(**kw)
+            for q, w in zip(p['lote'], wavs): np.save(q['salida'], np.asarray(w, dtype=np.float32))
+            print(json.dumps({'ok': True, 'sr': int(sr)}), flush=True); continue
         kw = dict(text=p['texto'], language=p.get('idioma', 'Spanish'), speaker=p.get('speaker', 'Serena'))
         if p.get('instruct'): kw['instruct'] = p['instruct']
         wavs, sr = m.generate_custom_voice(**kw)

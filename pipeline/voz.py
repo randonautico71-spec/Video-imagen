@@ -93,7 +93,7 @@ class Qwen:
             if not primera and self.proc.poll() is not None:
                 raise RuntimeError('El proceso de Qwen no arranco (red: huggingface.co / us.aws.cdn.hf.co; detalle en ' + tempfile.gettempdir() + '/qwen_worker.log)')
 
-    def sintetizar(self, frase):
+    def _una(self, frase):
         with tempfile.TemporaryDirectory() as d:
             sal = Path(d) / 'a.npy'
             self.proc.stdin.write(json.dumps({'texto': frase, 'salida': str(sal), 'speaker': self.p['speaker'],
@@ -103,6 +103,36 @@ class Qwen:
             if not r.get('ok'):
                 raise RuntimeError('Qwen fallo: ' + r.get('error', ''))
             return np.load(sal).astype(np.float32), int(r['sr'])
+
+    def sintetizar(self, frase, intentos=3):
+        """Qwen muestrea (resultados distintos cada vez) y a veces se pasa o se queda corto. Como no se puede oir cada frase, se
+        comprueba que la duracion sea razonable para el numero de palabras (0.55x-1.9x de 0.42 s/palabra) y, si no, se repite;
+        se queda con el intento mas cercano a lo esperado."""
+        esperado = max(0.8, len(frase.split()) * 0.42); mejor = None
+        for i in range(intentos):
+            a, sr = self._una(frase); dur = len(a) / sr; razon = dur / esperado
+            if mejor is None or abs(np.log(razon)) < abs(np.log(mejor[2])): mejor = (a, sr, razon)
+            if 0.55 <= razon <= 1.9 and float(np.abs(a).max()) > 0.02: break
+        if not (0.55 <= mejor[2] <= 1.9): print(f'  ! duracion rara ({mejor[2]:.2f}x) en: {frase[:60]}', flush=True)
+        return mejor[0], mejor[1]
+
+    def sintetizar_lote(self, frases, tam=8):
+        """Sintetiza varias frases a la vez (se reparten en lotes de 'tam'; conviene pasarlas ordenadas por longitud: cada lote cuesta lo que
+        la mas larga). Las que salen con duracion rara se repiten una a una. Devuelve {frase: (audio, sr)}."""
+        res = {}
+        for i in range(0, len(frases), tam):
+            grupo = frases[i:i + tam]
+            with tempfile.TemporaryDirectory() as d:
+                items = [{'texto': f, 'salida': str(Path(d) / f'{k}.npy')} for k, f in enumerate(grupo)]
+                self.proc.stdin.write(json.dumps({'lote': items, 'speaker': self.p['speaker'], 'idioma': self.p.get('idioma', 'Spanish'),
+                                                  'instruct': self.p.get('instruct')}) + '\n'); self.proc.stdin.flush()
+                r = json.loads(self.proc.stdout.readline() or '{"ok": false, "error": "el proceso de Qwen termino"}')
+                if not r.get('ok'): raise RuntimeError('Qwen (lote) fallo: ' + r.get('error', ''))
+                for f, it in zip(grupo, items): res[f] = (np.load(it['salida']).astype(np.float32), int(r['sr']))
+        for f, (a, sr) in list(res.items()):
+            esperado = max(0.8, len(f.split()) * 0.42); razon = len(a) / sr / esperado
+            if not (0.55 <= razon <= 1.9) or float(np.abs(a).max()) <= 0.02: res[f] = self.sintetizar(f)
+        return res
 
     def cerrar(self):
         try: self.proc.stdin.close(); self.proc.wait(timeout=10)
@@ -239,9 +269,8 @@ def normalizar_lufs(a, objetivo):
 
 
 # ---------- alineado ----------
-def alinear(audio, frases, tiempos_frase, modelo='small'):
-    """Tiempos por palabra: faster-whisper + acotado por frase + relleno proporcional."""
-    palabras = []
+def transcribir(audio, modelo='small'):
+    """faster-whisper sobre un audio ya decodificado (44.1 kHz mono). Devuelve ([(palabra_normalizada, ini, fin)], metodo)."""
     try:
         from faster_whisper import WhisperModel
         wm = WhisperModel(modelo, device='cpu', compute_type='int8')
@@ -250,10 +279,16 @@ def alinear(audio, frases, tiempos_frase, modelo='small'):
         a16 = remuestrear(audio, SR, 16000)
         segs, _ = wm.transcribe(a16, language='es', word_timestamps=True, beam_size=1,
                                 vad_filter=False, condition_on_previous_text=False)
-        hip = [(normalizar(w.word), w.start, w.end) for s in segs for w in s.words if normalizar(w.word)]
-        metodo = f'faster-whisper-{modelo}'
+        return [(normalizar(w.word), w.start, w.end) for s in segs for w in s.words if normalizar(w.word)], f'faster-whisper-{modelo}'
     except Exception as e:
-        hip, metodo = [], f'proporcional (whisper no disponible: {type(e).__name__})'
+        return [], f'proporcional (whisper no disponible: {type(e).__name__})'
+
+
+def alinear(audio, frases, tiempos_frase, modelo='small', hip=None, metodo=None):
+    """Tiempos por palabra: faster-whisper + acotado por frase + relleno proporcional."""
+    palabras = []
+    if hip is None:
+        hip, metodo = transcribir(audio, modelo)
 
     todas = []                                     # (frase_idx, palabra_original)
     for i, (fr, _) in enumerate(frases):
@@ -293,6 +328,54 @@ def alinear(audio, frases, tiempos_frase, modelo='small'):
     return palabras, metodo, (cobertura / max(1, len(todas)))
 
 
+def importar(audio_ruta, texto, salida, whisper='small', perfil_nombre='carmen'):
+    """Importa una locucion YA generada fuera del motor (p. ej. ElevenLabs con la herramienta creative_generate_speech) y produce los mismos
+    ficheros que `generar`: locucion.wav, palabras.json, frases.json, envolvente.json, voz_meta.json.
+    Como no se conocen los limites de frase, se transcribe TODO el audio con faster-whisper, se casa con el guion y de ahi salen los tiempos
+    de frase y de palabra (las frases sin ninguna palabra casada se reparten entre sus vecinas segun su numero de palabras)."""
+    t0 = time.time(); salida = Path(salida); salida.mkdir(parents=True, exist_ok=True)
+    perfil = cargar_perfil(perfil_nombre); frases = partir_frases(texto)
+    if not frases: raise SystemExit('El guion esta vacio.')
+    with tempfile.TemporaryDirectory() as d:
+        w = Path(d) / 'e.wav'
+        r = subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(audio_ruta), '-ar', str(SR), '-ac', '1', '-c:a', 'pcm_s16le', str(w)], capture_output=True, text=True)
+        if r.returncode: raise SystemExit('ffmpeg no pudo leer el audio importado: ' + r.stderr[-300:])
+        audio = leer_wav(w)
+    dur = len(audio) / SR
+    hip, metodo = transcribir(audio, whisper)
+    if not hip: raise SystemExit('No se pudo transcribir el audio (faster-whisper no disponible): sin eso no hay tiempos por palabra.')
+    todas = [normalizar(p) for fr, _ in frases for p in fr.split()]
+    pares = {}
+    sm = difflib.SequenceMatcher(a=todas, b=[h[0] for h in hip], autojunk=False)
+    for bl in sm.get_matching_blocks():
+        for k in range(bl.size): pares[bl.a + k] = (hip[bl.b + k][1], hip[bl.b + k][2])
+    n = len(frases); ini = [None] * n; fin = [None] * n; cur = 0; nw = []
+    for i, (fr, _) in enumerate(frases):
+        k = len(fr.split()); nw.append(k); ts = [pares[j] for j in range(cur, cur + k) if j in pares]; cur += k
+        if ts: ini[i], fin[i] = min(t[0] for t in ts), max(t[1] for t in ts)
+    i = 0
+    while i < n:                                   # huecos: se reparten entre la ultima frase conocida y la siguiente
+        if ini[i] is not None: i += 1; continue
+        j = i
+        while j < n and ini[j] is None: j += 1
+        a0 = max([fin[k] for k in range(i) if fin[k] is not None], default=0.0); a1 = min([ini[k] for k in range(j, n) if ini[k] is not None], default=dur)
+        tot = sum(nw[i:j]); c = a0
+        for k in range(i, j): ini[k] = c; c += (a1 - a0) * nw[k] / max(1, tot); fin[k] = c
+        i = j
+    for i in range(1, n): ini[i] = max(ini[i], fin[i - 1] - 0.02 if fin[i - 1] > ini[i] else ini[i])
+    tiempos = [(ini[i], max(fin[i], ini[i] + 0.1)) for i in range(n)]
+    audio = procesar(audio, perfil['fx'])
+    palabras, metodo, cob = alinear(audio, frases, tiempos, whisper, hip=hip, metodo=metodo)
+    escribir_wav(salida / 'locucion.wav', audio)
+    (salida / 'palabras.json').write_text(json.dumps(palabras, ensure_ascii=False))
+    (salida / 'frases.json').write_text(json.dumps([{'texto': f, 'ini': round(a, 3), 'fin': round(b, 3), 'parrafo_fin': pf} for (f, pf), (a, b) in zip(frases, tiempos)], ensure_ascii=False, indent=1))
+    (salida / 'envolvente.json').write_text(json.dumps({'tasa': 60, 'valores': envolvente(audio)}))
+    meta = {'perfil': perfil_nombre, 'motor': perfil['motor'], 'duracion_s': round(dur, 2), 'frases': n, 'palabras': len(palabras), 'alineado': metodo,
+            'cobertura_alineado': round(cob, 3), 'origen': str(audio_ruta), 'segundos_calculo': round(time.time() - t0, 1)}
+    (salida / 'voz_meta.json').write_text(json.dumps(meta, indent=1, ensure_ascii=False))
+    return meta
+
+
 def envolvente(a, tasa=60):
     paso = SR // tasa
     n = len(a) // paso
@@ -316,6 +399,14 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
     # La clave incluye motor, modelo, hablante, parametros de sintesis y el texto: cambiar cualquiera de ellos la invalida.
     cache_dir = salida / 'voz_cache'; cache_dir.mkdir(exist_ok=True)
     base_clave = json.dumps([perfil['motor'], perfil.get('modelo', perfil.get('idioma')), perfil['speaker'], perfil['sintesis']], sort_keys=True)
+    def ruta_cache(txt): return cache_dir / (hashlib.sha1((base_clave + '|' + txt).encode()).hexdigest()[:20] + '.npz')
+    if hasattr(motor, 'sintetizar_lote'):                   # motores con lotes (Qwen): se sintetiza todo lo pendiente por lotes, guardando cada 40 frases
+        pend = sorted({fr for fr, _ in frases if not ruta_cache(fr).exists()}, key=len)
+        if pend: print(f'  lotes: {len(pend)} frases por sintetizar', flush=True)
+        for i in range(0, len(pend), 40):
+            for f, (a, sr) in motor.sintetizar_lote(pend[i:i + 40], tam=perfil.get('lote', 8)).items():
+                np.savez(str(ruta_cache(f)) + '.tmp.npz', a=a, sr=sr); os.replace(str(ruta_cache(f)) + '.tmp.npz', ruta_cache(f))
+            print(f'  lotes {min(i + 40, len(pend))}/{len(pend)}  ({time.time() - t0:.0f} s)', flush=True)
     aciertos = 0
     trozos, tiempos, cursor = [], [], 0
     for i, (fr, fin_parrafo) in enumerate(frases):

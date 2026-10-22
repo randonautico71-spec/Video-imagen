@@ -34,3 +34,6 @@ La búsqueda devolvió resúmenes y fuentes secundarias; NO se leyeron los artí
 | Edad del universo; cifras de GPS en microsegundos | X | — | Omitidos |
 | Simbolismo de cada animal (valor, paciencia...) | T | Tradiciones simbólicas en general | Se dice "en muchas tradiciones"; no atribuido a ningún pueblo concreto |
 | "Fluidez" (flow) | V* | Concepto de psicología, no buscado | Redactado como "se suele describir" |
+
+## Versión con voz Serena y «toque místico» (guion.md actual)
+Se añadieron 43 frases cortas, poéticas, de misterio e ilusión (p. ej. «Una luz antigua te espera al otro lado del silencio», «El cosmos entero respira contigo»). **Son metáforas e invitaciones, no afirmaciones factuales**: no introducen cifras, fechas, nombres ni estudios nuevos. Todas las frases y datos originales se conservan tal cual (la tabla de arriba sigue siendo válida). El guion anterior está en `voz_melo_B/guion_original.md` (no versionado).
