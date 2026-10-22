@@ -1,0 +1,22 @@
+{
+  "titulo": "psoe",
+  "tipo": "short",
+  "formato": "short",
+  "lienzo": "vertical",
+  "voz": "carmen",
+  "musica": "curiosos",
+  "semilla": 1,
+  "estilo": "LAB",
+  "dings_en_palabras": [],
+  "cola_s": 2.0,
+  "fps": 30,
+  "ss": 1.5,
+  "crf": 17,
+  "calidad_jpeg": 0.97,
+  "lufs": -14,
+  "duracion_objetivo_s": [
+    60,
+    180
+  ],
+  "ligero_MB": 9.5
+}
