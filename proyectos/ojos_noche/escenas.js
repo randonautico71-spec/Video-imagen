@@ -126,6 +126,11 @@ function polilla(esc, px, py, s, t, a, trompa = 0) {              // polilla esf
   x.strokeStyle = '#4c4d20'; x.lineWidth = 3; [-1, 1].forEach((l) => { x.beginPath(); x.moveTo(l * 6, -74); x.quadraticCurveTo(l * 40, -120, l * 52, -140); x.stroke(); });
   if (trompa > 0) { x.strokeStyle = '#d8d3a8'; x.lineWidth = 4; x.beginPath(); x.moveTo(0, -76); x.quadraticCurveTo(24, -100 - 60 * trompa, 4, -76 - 150 * trompa); x.stroke(); } x.restore();
 }
+function lunaLlena(esc, cx, cy, r, a = 1) {                       // luna llena con crateres (S.luna del motor deja un disco negro sobre el fondo)
+  if (a <= 0 || r <= 0) return; const x = esc.ctx; x.save(); x.globalAlpha *= Math.min(1, a); brillo(esc, cx, cy, r * 3.2, '#BFD0FF', 0.55, 0.3);
+  R.bola(x, cx, cy, r, '#FFFFFF', '#C9D3EC', -0.3, -0.3); x.fillStyle = 'rgba(150,162,196,0.38)';
+  [[-0.3, -0.2, 0.2], [0.25, 0.1, 0.26], [-0.05, 0.4, 0.14], [0.38, -0.4, 0.12]].forEach(([dx, dy, k]) => { x.beginPath(); x.arc(cx + dx * r, cy + dy * r, k * r, 0, 7); x.fill(); }); x.restore();
+}
 function silueta(esc, cx, cy, r, a) {                            // sombra de un animal entre las ramas
   if (a <= 0) return; const x = esc.ctx; x.save(); x.globalAlpha *= a * 0.9; x.fillStyle = '#04060a'; x.beginPath(); x.ellipse(cx, cy + 20, r, r * 0.82, 0, 0, 7); x.fill();
   [-1, 1].forEach((l) => { x.beginPath(); x.moveTo(cx + l * r * 0.35, cy - r * 0.5); x.lineTo(cx + l * r * 0.95, cy - r * 1.15); x.lineTo(cx + l * r * 0.98, cy - r * 0.2); x.closePath(); x.fill(); }); x.restore();
@@ -160,7 +165,7 @@ const cuadroTit = (esc, ctx, t, txt, col, y = 215, o = {}) => rotulo(esc, ctx, t
 function escena1(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, x = esc.ctx;
   fondo(esc, ctx, 'bosque', 'noche'); velo(esc, 0, esc.H * 0.42, 0.5, 0); estrellas(esc, ctx, 36, 90, 760, 'e1');
-  luna(esc, 880, 560, 64, tr(t, 0.2, 0.9, E.suave)); const kT = tr(t, 0, 0.7, E.expoSalida);
+  lunaLlena(esc, 880, 560, 64, tr(t, 0.2, 0.9, E.suave)); const kT = tr(t, 0, 0.7, E.expoSalida);
   R.objeto(esc, 'pino', { x: 100, y: 1250, tam: 700, hora: 'noche', semilla: 3, alfa: kT });
   R.objeto(esc, 'arbol', { x: 995, y: 1262, tam: 620, hora: 'noche', semilla: 5, alfa: kT });
   R.objeto(esc, 'roca', { x: 330, y: 1262, tam: 130, hora: 'noche', semilla: 2, alfa: kT }); R.objeto(esc, 'roca', { x: 760, y: 1266, tam: 100, hora: 'noche', semilla: 7, alfa: kT });
@@ -168,11 +173,10 @@ function escena1(esc, t, ctx) {
   rotulo(esc, ctx, '¿POR QUÉ BRILLAN SUS OJOS?', cx, 215, { a: tr(t, 0.05, 0.6, E.elastico), color: '#fff', max: T.mega, lineas: 2 });
   const tO = at(ctx, 'ojos', 1.7), kO = tr(t, tO, 0.5, E.elastico), tB = at(ctx, 'oscuridad', 3.4);
   silueta(esc, cx, 850, 170, kO); ojos(esc, cx, 830, 250, 58, kO, t, VERDE, 1);
-  ojos(esc, 215, 1050, 120, 24, tr(t, tB, 0.5, E.atrasSalida), t, AMBAR, 2); ojos(esc, 850, 1085, 110, 22, tr(t, tB + 0.35, 0.5, E.atrasSalida), t, AZUL, 3); ojos(esc, 600, 1185, 90, 18, tr(t, tB + 0.7, 0.5, E.atrasSalida), t, ROSA, 4);
+  ojos(esc, 215, 1050, 120, 24, tr(t, tB, 0.5, E.atrasSalida), t, AMBAR, 2); ojos(esc, 850, 1085, 110, 22, tr(t, tB + 0.35, 0.5, E.atrasSalida), t, AZUL, 3); ojos(esc, 600, 1215, 90, 18, tr(t, tB + 0.7, 0.5, E.atrasSalida), t, ROSA, 4);
   destello(esc, cx - 200, 760, 26, tr(t, tO + 0.2, 0.3, E.suave) * (0.6 + 0.4 * Math.sin(t * 6)), t); destello(esc, cx + 215, 905, 20, tr(t, tO + 0.4, 0.3, E.suave) * (0.6 + 0.4 * Math.sin(t * 5)), -t);
   const tE = at(ctx, 'encendidos', 6.2), kE = tr(t, tE, 0.5, E.elastico);
-  if (kE > 0) { pastilla(esc, 'NO ESTÁN ENCENDIDOS', cx, 1135, { a: kE, color: COL.rojo, tam: 40, fondo: 'rgba(120,10,20,0.92)' });
-    x.save(); x.globalAlpha *= c01(kE); x.strokeStyle = COL.rojo; x.lineWidth = 14; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx - 70, 745); x.lineTo(cx + 70, 915); x.moveTo(cx + 70, 745); x.lineTo(cx - 70, 915); x.stroke(); x.restore(); }
+  if (kE > 0) { pastilla(esc, 'NO ESTÁN ENCENDIDOS', cx, 1135, { a: kE, color: COL.rojo, tam: 40, fondo: 'rgba(120,10,20,0.92)' }); }
   pastilla(esc, '2 SUPERPODERES MÁS', cx, 1230, { a: tr(t, at(ctx, 'superpoderes', 8.2), 0.5, E.elastico), color: COL.dorado, tam: 36 });
 }
 
@@ -216,18 +220,19 @@ function escena3(esc, t, ctx) {
 // =====================================================================
 function escena4(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx; fondo(esc, ctx, 'llanura', 'noche', { horizonte: 0.7 }); velo(esc, 0, esc.H * 0.5, 0.55, 0.05); estrellas(esc, ctx, 40, 90, 800, 'e4');
-  luna(esc, 880, 470, 54, tr(t, 0.2, 0.8, E.suave)); cuadroTit(esc, ctx, t, '¿QUIÉN LO TIENE?', COL.dorado, 215, { max: 108 }); vuelo(esc, ctx, 4, 560, 130, 0.6);
+  lunaLlena(esc, 880, 470, 54, tr(t, 0.2, 0.8, E.suave)); cuadroTit(esc, ctx, t, '¿QUIÉN LO TIENE?', COL.dorado, 215, { max: 108 }); vuelo(esc, ctx, 4, 560, 130, 0.6);
   R.objeto(esc, 'arbol', { x: 80, y: 1236, tam: 560, hora: 'noche', semilla: 9, alfa: tr(t, 0, 0.6, E.suave) }); R.objeto(esc, 'pino', { x: 1010, y: 1240, tam: 600, hora: 'noche', semilla: 4, alfa: tr(t, 0, 0.6, E.suave) });
   const kC = tr(t, at(ctx, 'gatos', 1.2), 0.7, E.expoSalida), kP = tr(t, at(ctx, 'perros', 1.9), 0.7, E.expoSalida), tCol = at(ctx, 'color', 9.0), ciclo = Math.floor(Math.max(0, t - tCol) / 1.2) % 3;
   const cols = [VERDE, AMBAR, AZUL], cA = t > tCol ? cols[ciclo] : VERDE, cB = t > tCol ? cols[(ciclo + 1) % 3] : AMBAR;
-  gato(esc, 285, 1120 + (1 - kC) * 160, 0.95, t, kC, cA, 1); perro(esc, 800, 1120 + (1 - kP) * 160, 0.95, t, kP, cB, 2);
-  pastilla(esc, 'GATOS', 285, 650, { a: tr(t, at(ctx, 'gatos', 1.2) + 0.2, 0.5, E.elastico), color: cA, tam: 40 }); pastilla(esc, 'PERROS', 800, 650, { a: tr(t, at(ctx, 'perros', 1.9) + 0.2, 0.5, E.elastico), color: cB, tam: 40 });
+  gato(esc, 235, 1110 + (1 - kC) * 160, 0.85, t, kC, cA, 1); perro(esc, 825, 1110 + (1 - kP) * 160, 0.85, t, kP, cB, 2);
+  { const xx = esc.ctx, gh = xx.createLinearGradient(0, 1060, 0, 1230); gh.addColorStop(0, 'rgba(8,14,14,0)'); gh.addColorStop(0.4, 'rgba(8,14,14,0.96)'); gh.addColorStop(1, 'rgba(8,14,14,0)'); xx.fillStyle = gh; xx.fillRect(0, 1060, esc.W, 170); }
+  pastilla(esc, 'GATOS', 235, 700, { a: tr(t, at(ctx, 'gatos', 1.2) + 0.2, 0.5, E.elastico), color: cA, tam: 40 }); pastilla(esc, 'PERROS', 825, 700, { a: tr(t, at(ctx, 'perros', 1.9) + 0.2, 0.5, E.elastico), color: cB, tam: 40 });
   pastilla(esc, 'Y MUCHOS MÁS', cx, 480, { a: tr(t, at(ctx, 'muchos', 3.2), 0.5, E.atrasSalida), color: '#fff', tam: 34 });
   pastilla(esc, 'EL COLOR CAMBIA SEGÚN LA ESPECIE', cx, 560, { a: tr(t, tCol - 0.2, 0.5, E.atrasSalida), color: COL.cian, tam: 28 });
   const tN = at(ctx, 'nosotros', 12.4), kN = tr(t, tN, 0.6, E.elastico);
-  if (kN > 0) { const x = esc.ctx; x.save(); x.globalAlpha *= c01(kN); x.translate(cx + 8, 960); const s = 0.8 + 0.2 * Math.min(1, kN); x.scale(s, s);
+  if (kN > 0) { const x = esc.ctx; x.save(); x.globalAlpha *= c01(kN); x.translate(cx, 940); const s = 0.8 + 0.2 * Math.min(1, kN); x.scale(s, s);
     R.bola(x, 0, 0, 66, '#f0c9a0', '#9a6c48'); x.fillStyle = '#1a120c'; [-1, 1].forEach((l) => { x.beginPath(); x.ellipse(l * 24, -6, 7, 9, 0, 0, 7); x.fill(); }); x.strokeStyle = '#7a4a3a'; x.lineWidth = 5; x.beginPath(); x.arc(0, 18, 20, 0.2, PI - 0.2); x.stroke();
-    x.strokeStyle = COL.rojo; x.lineWidth = 13; x.beginPath(); x.moveTo(-90, -96); x.lineTo(90, 96); x.moveTo(90, -96); x.lineTo(-90, 96); x.stroke(); x.restore();
+    x.strokeStyle = COL.rojo; x.lineWidth = 13; x.beginPath(); x.moveTo(-76, -80); x.lineTo(76, 80); x.moveTo(76, -80); x.lineTo(-76, 80); x.stroke(); x.restore();
     pastilla(esc, 'NOSOTROS: SIN ESPEJO', cx, 1230, { a: kN, color: COL.rojo, tam: 36, fondo: 'rgba(120,10,20,0.92)' }); }
 }
 
@@ -236,7 +241,7 @@ function escena4(esc, t, ctx) {
 // =====================================================================
 function escena5(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, x = esc.ctx; fondo(esc, ctx, 'montanas', 'noche'); velo(esc, 0, esc.H * 0.5, 0.55, 0.1); estrellas(esc, ctx, 50, 90, 900, 'e5');
-  luna(esc, 800, 620, 80, tr(t, 0.1, 0.9, E.suave)); cuadroTit(esc, ctx, t, '¿CAZAR SIN VER?', '#fff', 215, { max: 118 });
+  lunaLlena(esc, 800, 620, 80, tr(t, 0.1, 0.9, E.suave)); cuadroTit(esc, ctx, t, '¿CAZAR SIN VER?', '#fff', 215, { max: 118 });
   for (let i = 0; i < 5; i++) vuelo(esc, ctx, 10 + i, 760 + i * 95, 90 + i * 25, 0.55 + 0.12 * (i % 3)); luciernagas(esc, ctx, 8, 'f5', 900, 1220, AMBAR);
   [[-1.1, 330, 0.0], [1.0, 360, 0.25], [-0.45, 285, 0.5]].forEach(([an, rr, d], i) => { const k = tr(t, 0.5 + d, 0.5, E.atrasSalida); if (k <= 0) return; esc.tipo(130 - i * 18, 700); x.save(); x.globalAlpha *= k;
     VE.texto.trazar(esc, '?', cx + Math.sin(an) * rr, 905 - Math.cos(an) * rr * 0.55 + Math.sin(t * 2 + i * 2) * 14, { color: COL.dorado, contornoAncho: 10, registrar: false }); x.restore(); });
@@ -250,21 +255,22 @@ function escena5(esc, t, ctx) {
 // =====================================================================
 function escena6(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, x = esc.ctx; fondo(esc, ctx, 'bosque', 'noche'); velo(esc, 0, esc.H * 0.5, 0.6, 0.1); estrellas(esc, ctx, 34, 90, 560, 'e6');
-  const tD = at(ctx, 'oscuridad', 8.0), osc = tr(t, tD, 0.8, E.suave); luna(esc, 905, 470, 46, tr(t, 0.2, 0.8, E.suave) * (1 - 0.7 * osc));
-  cuadroTit(esc, ctx, t, 'SUPERPODER 1', COL.dorado, 205, { max: 112 }); rotulo(esc, ctx, 'LA LECHUZA COMÚN', cx, 320, { a: tr(t, 0.3, 0.6, E.elastico), color: '#fff', max: 80, lineas: 1 });
+  const tD = at(ctx, 'oscuridad', 8.0), osc = tr(t, tD, 0.8, E.suave); lunaLlena(esc, 905, 470, 46, tr(t, 0.2, 0.8, E.suave) * (1 - 0.7 * osc));
   R.objeto(esc, 'pino', { x: 70, y: 1250, tam: 760, hora: 'noche', semilla: 11, alfa: tr(t, 0, 0.6, E.suave) }); R.objeto(esc, 'arbol', { x: 1020, y: 1262, tam: 640, hora: 'noche', semilla: 12, alfa: tr(t, 0, 0.6, E.suave) });
   const rg = x.createLinearGradient(0, 880, 0, 930); rg.addColorStop(0, '#6d5233'); rg.addColorStop(1, '#2a1d11'); x.strokeStyle = rg; x.lineWidth = 46; x.lineCap = 'round'; x.beginPath(); x.moveTo(110, 925); x.bezierCurveTo(330, 905, 700, 935, 980, 900); x.stroke();
   x.strokeStyle = '#8c6c44'; x.lineWidth = 6; x.beginPath(); x.moveTo(120, 910); x.bezierCurveTo(330, 890, 700, 918, 970, 886); x.stroke();
+  if (osc > 0) { x.save(); x.globalAlpha = osc * 0.4; x.fillStyle = '#000'; x.fillRect(0, 0, esc.W, esc.H); x.restore(); }
+  cuadroTit(esc, ctx, t, 'SUPERPODER 1', COL.dorado, 205, { max: 112 }); rotulo(esc, ctx, 'LA LECHUZA COMÚN', cx, 320, { a: tr(t, 0.3, 0.6, E.elastico), color: '#fff', max: 80, lineas: 1 });
   const tS = at(ctx, 'sonido', 4.6), tZ = at(ctx, 'zas', 14.5), kEsc = at(ctx, 'escucha', 12.4);
   const mx = cx + 170 + (t < tZ ? Math.sin(t * 1.3) * 120 : 0), my = 1215, atrap = t > tZ + 0.15, kL = tr(t, 0.4, 0.7, E.expoSalida);
   const dirR = Math.cos(t * 1.3) >= 0 ? 1 : -1; const giro = t < kEsc ? 0.5 * Math.sin(t * 1.6) : lerp(0.5 * Math.sin(kEsc * 1.6), Math.atan2(mx - cx, 400) * 0.6, c01((t - kEsc) / 0.5));
   const picado = t > tZ ? E.expoSalida(c01((t - tZ) / 0.35)) : 0, vuelta = c01((t - tZ - 1.2) / 0.8);
-  if (!atrap) raton(esc, mx, my, 0.8, t, kL, dirR);
-  const kO = tr(t, tS, 0.6, E.suave); if (kO > 0 && !atrap) { x.save(); x.lineWidth = 6; for (let i = 0; i < 4; i++) { const f = ((t * 0.5 + i * 0.25) % 1), rr = 40 + f * 330; x.globalAlpha = kO * (1 - f) * 0.8; x.strokeStyle = '#8FE3FF'; x.beginPath(); x.arc(mx, my - 15, rr, PI * 1.12, PI * 1.88); x.stroke(); } x.restore(); }
+  if (!atrap) raton(esc, mx, my, 1.05, t, kL, dirR);
+  const kO = tr(t, tS, 0.6, E.suave); if (kO > 0 && !atrap) { x.save(); x.lineWidth = 9; for (let i = 0; i < 4; i++) { const f = ((t * 0.5 + i * 0.25) % 1), rr = 40 + f * 330; x.globalAlpha = kO * (1 - f) * 0.8; x.strokeStyle = '#9FEFFF'; x.beginPath(); x.arc(mx, my - 15, rr, PI * 1.12, PI * 1.88); x.stroke(); } x.restore(); }
   lechuza(esc, cx - 90, 912, 1.0, t, kL, t > tZ ? 0 : giro, picado * 270 * (1 - vuelta));
-  pastilla(esc, 'CAZA POR EL SONIDO', cx, 520, { a: tr(t, tS, 0.5, E.elastico), color: COL.cian, tam: 38 });
-  const kT = tr(t, tD, 0.6, E.elastico); if (osc > 0) { x.save(); x.globalAlpha = osc * 0.35; x.fillStyle = '#000'; x.fillRect(0, 0, esc.W, esc.H); x.restore(); }
-  pastilla(esc, 'OSCURIDAD TOTAL', cx, 1060, { a: kT, color: '#fff', tam: 36 });
+  pastilla(esc, 'CAZA POR EL SONIDO', cx + 230, 470, { a: tr(t, tS, 0.5, E.elastico), color: COL.cian, tam: 38 });
+  const kT = tr(t, tD, 0.6, E.elastico);
+  pastilla(esc, 'OSCURIDAD TOTAL', cx, 1060, { a: kT * (1 - c01((t - tZ + 0.1) / 0.3)), color: '#fff', tam: 36 });
   const kZ = tr(t, tZ, 0.35, E.elastico); if (kZ > 0) { x.save(); x.globalAlpha = c01(1 - (t - tZ) * 1.4) * 0.6; x.fillStyle = '#fff'; x.fillRect(0, 0, esc.W, esc.H); x.restore(); rotulo(esc, ctx, '¡ZAS!', cx, 560, { a: kZ * (1 - 0.8 * vuelta), color: COL.rojo, max: 190, lineas: 1, contorno: 16 }); }
 }
 
@@ -273,16 +279,16 @@ function escena6(esc, t, ctx) {
 // =====================================================================
 function escena7(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, x = esc.ctx; fondo(esc, ctx, 'llanura', 'noche', { horizonte: 0.62 }); velo(esc, 0, esc.H * 0.5, 0.6, 0.1); estrellas(esc, ctx, 40, 90, 700, 'e7');
-  luna(esc, 890, 500, 52, tr(t, 0.2, 0.8, E.suave)); cuadroTit(esc, ctx, t, 'SUPERPODER 2', COL.dorado, 205, { max: 112 }); rotulo(esc, ctx, 'LA POLILLA ESFINGE', cx, 320, { a: tr(t, 0.3, 0.6, E.elastico), color: '#fff', max: 78, lineas: 1 });
+  lunaLlena(esc, 890, 500, 52, tr(t, 0.2, 0.8, E.suave)); cuadroTit(esc, ctx, t, 'SUPERPODER 2', COL.dorado, 205, { max: 112 }); rotulo(esc, ctx, 'LA POLILLA ESFINGE', cx, 320, { a: tr(t, 0.3, 0.6, E.elastico), color: '#fff', max: 78, lineas: 1 });
   const tC = at(ctx, 'viendolos', 13.2), kC = tr(t, tC, 1.0, E.suave), kF = tr(t, 0.3, 0.8, E.expoSalida);
   const flores = [[200, 1215, 0.9, '#FF5C9E', '#FFE45C'], [420, 1235, 1.05, '#B27DFF', '#FFF2A0'], [660, 1225, 0.95, '#FFB347', '#7A3B14'], [880, 1240, 1.0, '#5CC8FF', '#FFE45C']];
   flores.forEach((f, i) => flor(esc, f[0], f[1] + (1 - kF) * 200, f[2], f[3], f[4], kC, t * 1.3 + i * 1.7));
   const tG = at(ctx, 'perderiamos', 8.6), kG = tr(t, tG, 0.5, E.elastico);
-  pastilla(esc, 'NOSOTROS: SIN COLOR', cx, 600, { a: kG * (1 - c01(kC * 2)), color: '#C9CED6', tam: 36 });
-  pastilla(esc, 'ELLA: CON COLOR', cx, 600, { a: tr(t, tC, 0.5, E.elastico), color: ROSA, tam: 36 });
-  polilla(esc, cx + 20 + Math.sin(t * 0.8) * 50, 860 + Math.sin(t * 1.1) * 25, 1.15, t, tr(t, 0.5, 0.7, E.suave), c01((t - 3) / 1.2) * 0.8);
+  pastilla(esc, 'NOSOTROS: SIN COLOR', cx, 520, { a: kG * (1 - c01(kC * 2)), color: '#C9CED6', tam: 36 });
+  pastilla(esc, 'ELLA: CON COLOR', cx, 520, { a: tr(t, tC, 0.5, E.elastico), color: ROSA, tam: 36 });
+  polilla(esc, cx + 20 + Math.sin(t * 0.8) * 50, 850 + Math.sin(t * 1.1) * 25, 1.1, t, tr(t, 0.5, 0.7, E.suave), 0);
   if (kC > 0) for (let i = 0; i < 7; i++) destello(esc, 140 + i * 130, 1000 + Math.sin(t * 3 + i) * 40, 16 + (i % 3) * 5, kC * (0.5 + 0.5 * Math.sin(t * 6 + i * 2)), t * 2 + i, ['#FF5C9E', '#B27DFF', '#FFE45C', '#5CC8FF'][i % 4]);
-  pastilla(esc, 'ESTUDIO EN LA REVISTA NATURE · 2002', cx, 700, { a: tr(t, at(ctx, 'nature', 17.2), 0.5, E.elastico), color: COL.cian, tam: 30 });
+  pastilla(esc, 'ESTUDIO EN LA REVISTA NATURE · 2002', cx, 610, { a: tr(t, at(ctx, 'nature', 17.2), 0.5, E.elastico), color: COL.cian, tam: 30 });
 }
 
 // =====================================================================
