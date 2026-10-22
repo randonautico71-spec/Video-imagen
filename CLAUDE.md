@@ -19,7 +19,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **`VE.real`** (`engine/realismo/`): paisajes y objetos pintados con volumen y luz por hora del día. **Estilo general** (shorts, largos de divulgación).
 - **`VE.short`** (`engine/estilos/shorts.js`): rótulos, pastillas, flechas, iconos y el letrero final.
 - **`VE.trazo` / `VE.med` / `VE.paisaje`**: estilo LUZ (contornos sin relleno) para meditación.
-- Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
+- **Cómo se programa la imagen (resumen, con mediciones): `docs/GUIA_IMAGEN.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 
 ## Reglas del usuario (no reabrir)
 - **NO ALUCINES**: cifra sin fuente primaria no entra; di qué está verificado (`datos.md` con niveles V / V* / X).
