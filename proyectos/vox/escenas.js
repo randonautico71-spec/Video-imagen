@@ -116,7 +116,7 @@ function escena4(esc, t, ctx) {
 // ============================ 5. PRIORIDAD NACIONAL ============================
 function escena5(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx; fondo(esc, ctx, 'llanura', 'dia'); velo(esc, 0, esc.H * 0.8, 0.6, 0.4);
-  rotulo(esc, ctx, 'PRIORIDAD NACIONAL', cx, 200, { a: tr(t, 0.05, 0.6, E.elastico), color: COL.dorado, max: 120, lineas: 2 });
+  rotulo(esc, ctx, 'PRIORIDAD NACIONAL', cx, 200, { a: tr(t, 0.05, 0.6, E.elastico), color: COL.dorado, max: 120, lineas: 1 });
   pastilla(esc, 'EJE 2 DE 3', cx, 395, { a: tr(t, at(ctx, 'segundo', 0.6), 0.5, E.atrasSalida), color: COL.cian, tam: 40 });
   pastilla(esc, 'MOCIÓN EN EL CONGRESO · JUNIO', cx, 490, { a: tr(t, at(ctx, 'junio', 8.0), 0.5, E.atrasSalida), color: COL.verde, tam: 36 });
   [['VIVIENDA PROTEGIDA', at(ctx, 'protegida', 10.8)], ['ALQUILER SOCIAL', at(ctx, 'alquiler', 12.0)], ['AYUDAS A LA VIVIENDA', at(ctx, 'ayudas', 13.2)]].forEach(([tx, tt], i) => {
@@ -132,8 +132,8 @@ function escena6(esc, t, ctx) {
   pastilla(esc, 'EJE 3 DE 3 · ACABAR CON…', cx, 385, { a: tr(t, at(ctx, 'tercero', 0.6), 0.5, E.atrasSalida), color: COL.cian, tam: 38 });
   [['TRABAS ADMINISTRATIVAS', at(ctx, 'trabas', 3.2)], ['LEYES IDEOLÓGICAS', at(ctx, 'ideologicas', 5.2)]].forEach(([tx, tt], i) => {
     const y = 560 + i * 160, a = tr(t, tt - 0.2, 0.5, E.atrasSalida); tarjeta(esc, cx, y, 860, 130, a, { borde: COL.rojo }); aspa(esc, cx - 360, y, 32 * Math.min(1, a), a); texto(esc, tx, cx + 30, y + 2, tx.length > 18 ? 40 : 46, '#fff', a, 5); });
-  const kv = tr(t, at(ctx, 'encarecen', 7.6) - 0.2, 0.5, E.atrasSalida); pastilla(esc, 'SEGÚN ÉL: ENCARECEN LA VIVIENDA', cx, 800, { a: kv, color: COL.dorado, tam: 30 });
-  pastilla(esc, 'Y FRENAN CREAR EMPRESAS', cx, 880, { a: tr(t, at(ctx, 'empresas', 9.4) - 0.3, 0.5, E.atrasSalida), color: COL.dorado, tam: 30 });
+  const kv = tr(t, at(ctx, 'encarecen', 7.6) - 0.2, 0.5, E.atrasSalida); pastilla(esc, 'SEGÚN ÉL: ENCARECEN LA VIVIENDA', cx, 835, { a: kv, color: COL.dorado, tam: 30 });
+  pastilla(esc, 'Y FRENAN CREAR EMPRESAS', cx, 910, { a: tr(t, at(ctx, 'empresas', 9.4) - 0.3, 0.5, E.atrasSalida), color: COL.dorado, tam: 30 });
   const km = tr(t, at(ctx, 'menos', 12.0) - 0.4, 0.7, E.elastico); tarjeta(esc, cx, 1080, 860, 200, km, { borde: COL.verde });
   texto(esc, 'IMPUESTOS', cx, 1035, 40, '#fff', km, 5); texto(esc, '«LOS MENOS»', cx, 1115, 62, COL.verde, km, 8);
 }
@@ -157,7 +157,7 @@ function escena8(esc, t, ctx) {
   const base = 880, w = 200, gap = 40, x0 = cx - (3 * w + 2 * gap) / 2; [['SIN HIJOS', 15, 0], ['1 HIJO', 11, 1], ['2 HIJOS', 7, 2]].forEach(([n, p, i]) => {
     const a = tr(t, tc + 0.5 + i * 0.7, 0.6, E.elastico); if (a <= 0) return; const h = p * 22 * Math.min(1, a), px = x0 + i * (w + gap);
     const g = x.createLinearGradient(0, base - h, 0, base); g.addColorStop(0, '#FFE27A'); g.addColorStop(1, '#C98A14'); x.fillStyle = g; VE.ruta.redondeado(x, px, base - h, w, h, 14); x.fill(); x.lineWidth = 4; x.strokeStyle = '#fff'; x.stroke();
-    texto(esc, p + ' %', px + w / 2, base - h + 46, 54, '#3A2400', a, 0); texto(esc, n, px + w / 2, base + 38, 30, '#fff', a, 4); });
+    texto(esc, p + ' %', px + w / 2, base - h + 46, 54, '#fff', a, 7); texto(esc, n, px + w / 2, base + 38, 30, '#fff', a, 4); });
   const ks = tr(t, at(ctx, 'simulador', 9.4) - 0.3, 0.7, E.elastico); tarjeta(esc, cx, 1090, 860, 190, ks, { borde: COL.cian });
   texto(esc, 'SIMULADOR DE SUELDO', cx, 1050, 46, COL.cian, ks, 6); texto(esc, 'CALCULA CUÁNTO SUBIRÍA TU SUELDO', cx, 1120, 28, '#fff', ks, 4);
 }
@@ -165,7 +165,7 @@ function escena8(esc, t, ctx) {
 // ============================ 9. PENSIONES Y VIVIENDA ============================
 function escena9(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx; fondo(esc, ctx, 'llanura', 'atardecer'); velo(esc, 0, esc.H * 0.8, 0.6, 0.4);
-  rotulo(esc, ctx, 'PENSIONES Y VIVIENDA', cx, 200, { a: tr(t, 0.05, 0.6, E.elastico), color: COL.dorado, max: 120, lineas: 2 });
+  rotulo(esc, ctx, 'PENSIONES Y VIVIENDA', cx, 200, { a: tr(t, 0.05, 0.6, E.elastico), color: COL.dorado, max: 120, lineas: 1 });
   pastilla(esc, 'NEGÓ QUERER PRIVATIZARLAS', cx, 410, { a: tr(t, at(ctx, 'privatizarlas', 3.0), 0.5, E.atrasSalida), color: COL.cian, tam: 36 });
   const k1 = tr(t, at(ctx, 'sea', 5.4) - 0.3, 0.7, E.elastico), k2 = tr(t, at(ctx, 'vivienda', 8.6) - 0.3, 0.7, E.elastico);
   tarjeta(esc, cx, 650, 860, 220, k1, { borde: COL.dorado }); texto(esc, 'PENSIONES', cx, 600, 40, COL.dorado, k1, 5); texto(esc, '«SE VAN A PAGAR COMO SEA»', cx, 685, 40, '#fff', k1, 5);
