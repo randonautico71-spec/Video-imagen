@@ -95,8 +95,8 @@
       "modelo": "Qwen3-TTS-12Hz-0.6B-CustomVoice",
       "dtype": "bf16"
     },
-    "pausa_frase_s": 0.4,
-    "pausa_parrafo_s": 0.8,
+    "pausa_frase_s": 0.3,
+    "pausa_parrafo_s": 0.55,
     "fx": {
       "pitch_semitonos": 0.0,
       "highpass_hz": 70,

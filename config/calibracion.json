@@ -5,18 +5,21 @@
       "meditacion": 132,
       "curiosos": 190,
       "aprender": 190,
-      "certeza": "meditacion y curiosos medidos con 2 y 1 proyectos de prueba (50-74 palabras); 'aprender' NO medido, se asume igual a curiosos"
+      "certeza": "meditacion y curiosos medidos con 2 y 1 proyectos de prueba (50-74 palabras); 'aprender' NO medido, se asume igual a curiosos",
+      "serena": 148
     },
     "calculo_s_por_s_de_habla": {
       "melo": 0.42,
       "piper": 0.22,
-      "certeza": "medido en textos de 12-32 s de habla; melo ademas carga el modelo en ~15 s"
+      "certeza": "medido en textos de 12-32 s de habla; melo ademas carga el modelo en ~15 s",
+      "qwen": 6.0
     },
     "alineado_s_por_s_de_audio": 0.3,
     "alineado_certeza": "medido entre 0.18 y 0.35 en 3 pruebas cortas; faster-whisper small, CPU",
     "carga_modelo_s": {
       "melo": 15,
-      "piper": 1.5
+      "piper": 1.5,
+      "qwen": 10
     }
   },
   "musica": {

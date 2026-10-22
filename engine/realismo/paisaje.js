@@ -11,11 +11,11 @@
   // ---------- cielo ----------
   R.cielo = function (esc, o) {
     const H = R.hora(o.hora), W = esc.W, Ht = esc.H, hz = (o.horizonte || 0.62) * Ht;
-    return R.hornear(esc, 'cielo|' + (o.hora || 'dia') + '|' + hz + '|' + (o.semilla || ''), W, Ht, (x) => {
+    return R.hornear(esc, 'cielo|' + (o.hora || 'dia') + '|' + hz + '|' + (o.semilla || '') + '|' + (o.sinSol ? 1 : 0), W, Ht, (x) => {
       const g = x.createLinearGradient(0, 0, 0, hz); g.addColorStop(0, H.cielo[0]); g.addColorStop(0.55, H.cielo[1]); g.addColorStop(1, H.cielo[2]); x.fillStyle = g; x.fillRect(0, 0, W, Ht);
       const r = VE.rng((o.semilla || 'c') + o.hora);
       if (H.estrellas > 0) for (let i = 0; i < 260 * H.estrellas; i++) { const sx = r() * W, sy = r() * hz * 0.92, b = Math.pow(r(), 3); x.fillStyle = `rgba(255,255,255,${(0.25 + b * 0.75) * H.estrellas})`; x.beginPath(); x.arc(sx, sy, 0.6 + b * 1.4, 0, 7); x.fill(); }
-      if (H.sol) { const sx = H.sol.x * W, sy = H.sol.y * Ht, rr = H.sol.r * Ht; x.save(); x.globalCompositeOperation = 'lighter';
+      if (H.sol && !o.sinSol) { const sx = H.sol.x * W, sy = H.sol.y * Ht, rr = H.sol.r * 1080 * esc.k; x.save(); x.globalCompositeOperation = 'lighter';
         const gg = x.createRadialGradient(sx, sy, 0, sx, sy, rr * 9); gg.addColorStop(0, R.alfa(H.luz, 0.55)); gg.addColorStop(0.18, R.alfa(H.luz, 0.22)); gg.addColorStop(1, R.alfa(H.luz, 0)); x.fillStyle = gg; x.fillRect(0, 0, W, Ht); x.restore();
         if (H.sol.luna) { R.bola(x, sx, sy, rr, '#fbfbf2', '#c9cfdd', -0.3, -0.3); x.fillStyle = 'rgba(120,130,150,0.28)'; [[-0.3, -0.1, 0.22], [0.25, 0.2, 0.17], [0.05, -0.4, 0.12], [-0.1, 0.45, 0.1]].forEach(([dx, dy, k]) => { x.beginPath(); x.arc(sx + dx * rr, sy + dy * rr, k * rr, 0, 7); x.fill(); }); }
         else { R.bola(x, sx, sy, rr, '#ffffff', H.sol.color, 0, 0); }
@@ -27,9 +27,9 @@
 
   // ---------- cordillera: silueta fractal + relieve 2D (crestas y barrancos) sombreado por el gradiente en la direccion de la luz ----------
   R.cordillera = function (esc, o) {
-    const H = R.hora(o.hora), Ht = esc.H, w = esc.W * ANCHO, d = o.dist == null ? 0.3 : o.dist;
-    return R.hornear(esc, 'cord|' + [o.hora || 'dia', o.semilla, o.y, o.alto, o.dist, o.roca, o.nieve, o.freq].join('|'), w, Ht, (x) => {
-      const n = R.ruido2(o.semilla), paso = 3, N = Math.ceil(w / paso), yb = o.y * Ht, amp = o.alto * Ht, f = o.freq || 2.4, alt = [];
+    const H = R.hora(o.hora), Ht = esc.H, w = esc.W * ANCHO, d = o.dist == null ? 0.3 : o.dist, ASP = esc.vertical ? 0.4 : 1;
+    return R.hornear(esc, 'cord|' + [o.hora || 'dia', o.semilla, o.y, o.alto, o.dist, o.roca, o.nieve, o.freq, ASP].join('|'), w, Ht, (x) => {
+      const n = R.ruido2(o.semilla), paso = 3, N = Math.ceil(w / paso), yb = o.y * Ht, amp = o.alto * Ht * ASP, f = o.freq || 2.4, alt = [];
       for (let i = 0; i <= N; i++) { const u = i * paso / w * f * 3; const v = n.fbm(u, 3.1, 5, 0.52), cresta = 1 - Math.abs(2 * n.fbm(u * 1.7 + 9, 1.3, 4, 0.5) - 1); alt.push(yb - amp * (Math.pow(v, 1.5) * 0.6 + Math.pow(cresta, 1.8) * 0.5)); }
       const P = R.tonos(o.roca || '#6f7b8c', H), blanco = R.mezcla('#ffffff', H.luz, 0.3), blancoSombra = R.mezcla('#cdd8ea', H.sombra, 0.5), fondo = Ht * (o.base || 1), top = Math.min.apply(null, alt), fin = Ht * (o.base || 1);
       const Z = (px, py, ai, sg) => { const warp = (n(py * 0.012, 5.3) - 0.5) * 70, q = (px + warp + (py - ai) * 0.5 * sg) * 0.011, r1 = 1 - Math.abs(2 * n.fbm(q, py * 0.0045, 4, 0.55) - 1), r2 = 1 - Math.abs(2 * n(q * 3.1 + 4, py * 0.013) - 1); return (yb - ai) * (1 - (py - ai) / (fin - ai) * 0.6) * 0.5 + amp * (r1 * 0.55 + r2 * 0.18); };
@@ -54,9 +54,9 @@
 
   // ---------- colinas verdes/arena con hierba, motas y luz ----------
   R.colinas = function (esc, o) {
-    const H = R.hora(o.hora), Ht = esc.H, w = esc.W * ANCHO, d = o.dist == null ? 0.2 : o.dist;
-    return R.hornear(esc, 'col|' + [o.hora || 'dia', o.semilla, o.y, o.amp, o.dist, o.color].join('|'), w, Ht, (x) => {
-      const n = R.ruido2(o.semilla), r = VE.rng(o.semilla + 'h'), P = R.tonos(o.color || '#5f9a46', H), paso = 3, N = Math.ceil(w / paso), yb = o.y * Ht, amp = o.amp * Ht, alt = [];
+    const H = R.hora(o.hora), Ht = esc.H, w = esc.W * ANCHO, d = o.dist == null ? 0.2 : o.dist, ASP = esc.vertical ? 0.4 : 1;
+    return R.hornear(esc, 'col|' + [o.hora || 'dia', o.semilla, o.y, o.amp, o.dist, o.color, ASP].join('|'), w, Ht, (x) => {
+      const n = R.ruido2(o.semilla), r = VE.rng(o.semilla + 'h'), P = R.tonos(o.color || '#5f9a46', H), paso = 3, N = Math.ceil(w / paso), yb = o.y * Ht, amp = o.amp * Ht * ASP, alt = [];
       for (let i = 0; i <= N; i++) alt.push(yb - amp * (n.fbm(i * paso / w * (o.freq || 3), 7.7, 4, 0.5) * 1.1 - 0.35));
       for (let i = 1; i < N; i++) { const xx = i * paso, pend = (alt[i + 1] - alt[i - 1]) / (2 * paso), cara = c01(0.55 + pend * H.dir * 1.2 * -1);
         const g = x.createLinearGradient(0, alt[i], 0, Ht); const lit = R.mezcla(R.mezcla(P.sh, P.lit, c01(cara + 0.1)), H.niebla, d), bajo = R.mezcla(R.oscurecer(P.sh, 0.25), H.niebla, d * 0.8);
@@ -136,7 +136,7 @@
 
   R.paisaje = function (esc, tg, o) {
     const H = R.hora(o.hora), tipo = o.tipo || 'montanas', cap = (o.capas || PRESETS[tipo](o)), a = o.a == null ? 1 : o.a, W = esc.W, Ht = esc.H, hz = (o.horizonte || 0.62);
-    const x = esc.ctx; R.pegar(esc, R.cielo(esc, { hora: o.hora, horizonte: hz, semilla: o.semilla }), 0, Ht, { ax: 0, ay: 1 });
+    const x = esc.ctx; R.pegar(esc, R.cielo(esc, { hora: o.hora, horizonte: hz, semilla: o.semilla, sinSol: o.sinSol }), 0, Ht, { ax: 0, ay: 1 });
     const nu = o.nubes == null ? 4 : o.nubes;                                                    // nubes a la deriva, ANTES de las montanas
     for (let i = 0; i < nu; i++) { const r = VE.rng((o.semilla || 'n') + 'nb' + i), v = lerp(3, 9, r()), px = ((r() * W * 1.4 + tg * v) % (W * 1.4)) - W * 0.2, py = lerp(0.1, 0.34, r()) * Ht, t = lerp(130, 230, r());
       R.objeto(esc, 'nube', { x: px, y: py + t * 0.5, tam: t, hora: o.hora, semilla: 'n' + (i % 3), alfa: 0.92 * E(a * 2) }); }
