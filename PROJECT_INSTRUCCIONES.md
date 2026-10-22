@@ -14,3 +14,14 @@ Reglas fijas del usuario:
 6. No pidas ver videos de prueba salvo que el usuario lo quiera.
 
 Describe lo visual por parrafo o por acto: que aparece, de que color, cuando (al decir que palabra). Las herramientas son fijas; el diseno se escribe por video.
+
+## Objetos nuevos desde el Project (solo ESCRIBIR el codigo; se prueba en Code)
+El Project puede leer `engine/realismo/objetos.js` y escribir un objeto nuevo, pero NO puede ejecutarlo ni verlo. Formato:
+
+    VE.real.definirObjeto('torre', { w: 200, h: 420, dibujar(x, w, h, H, T, o) {
+      const P = T('#b9a07a', H);               // tonos del material segun la hora: P.lit, P.mid, P.sh, P.rim
+      // x = contexto 2D; (0,0) arriba-izquierda, base en y = h; la luz viene SIEMPRE de la izquierda
+      // helpers: VE.real.cara(x, pts, claro, oscuro, angulo), .textura, .bola, .sombraSuelo, .ruta, .mezcla, .aclarar, .oscurecer
+    } });
+
+Entregar el bloque de codigo + una descripcion de como debe verse. En Code se pega, se revisa en imagen (`demo/realismo.html?modo=objetos`), se corrige y se sube al repo.

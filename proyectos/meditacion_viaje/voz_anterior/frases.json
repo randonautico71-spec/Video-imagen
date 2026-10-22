@@ -1,0 +1,1868 @@
+[
+ {
+  "texto": "Bienvenido.",
+  "ini": 0.0,
+  "fin": 2.07,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Antes de empezar, acomódate, suelta los hombros, y deja que tu respiración se vuelva lenta.",
+  "ini": 3.37,
+  "fin": 10.571,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Este viaje va hacia dentro de ti, y también hacia todo lo que te rodea.",
+  "ini": 11.871,
+  "fin": 17.632,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Empecemos por la pregunta más grande: ¿qué es la meditación?",
+  "ini": 20.232,
+  "fin": 25.378,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es la práctica de entrenar la atención, y de aprender a observar lo que ocurre dentro de ti, sin salir corriendo detrás de ello.",
+  "ini": 26.678,
+  "fin": 35.76,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Quizás te preguntes: ¿tengo que dejar la mente en blanco?",
+  "ini": 38.36,
+  "fin": 43.088,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No.",
+  "ini": 44.388,
+  "fin": 45.947,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "La mente piensa, igual que el corazón late.",
+  "ini": 47.247,
+  "fin": 51.418,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Meditar no es detener los pensamientos, sino mirarlos pasar, como nubes en un cielo amplio.",
+  "ini": 52.718,
+  "fin": 60.035,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Otra duda frecuente: ¿es algo nuevo?",
+  "ini": 62.635,
+  "fin": 66.307,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Todo lo contrario.",
+  "ini": 67.607,
+  "fin": 69.967,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Los Institutos Nacionales de Salud de Estados Unidos recuerdan que la meditación tiene una historia de miles de años, y que muchas de sus técnicas nacieron en tradiciones de Oriente.",
+  "ini": 71.267,
+  "fin": 83.773,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "¿Existe una sola manera de meditar?",
+  "ini": 86.373,
+  "fin": 90.045,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Tampoco.",
+  "ini": 91.345,
+  "fin": 93.194,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Hay muchos caminos, y hoy vamos a recorrer tres: la visualización, los mudras, y la respiración.",
+  "ini": 94.494,
+  "fin": 102.276,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Primero, la visualización.",
+  "ini": 104.876,
+  "fin": 107.909,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Consiste en imaginar con detalle un lugar, una imagen o una luz, y quedarte con ella.",
+  "ini": 109.209,
+  "fin": 115.922,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cierra los ojos.",
+  "ini": 117.222,
+  "fin": 119.628,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Piensa en un sitio donde te sientas en paz.",
+  "ini": 120.928,
+  "fin": 124.763,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Mira sus colores, y escucha sus sonidos.",
+  "ini": 126.063,
+  "fin": 130.199,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "¿Y para qué sirve?",
+  "ini": 132.799,
+  "fin": 135.112,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Muchas personas descubren que un lugar tranquilo, visualizado con calma, afloja la tensión del cuerpo.",
+  "ini": 136.412,
+  "fin": 144.287,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No hace falta creer nada.",
+  "ini": 145.587,
+  "fin": 148.585,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Solo imaginar, y notar qué cambia en ti.",
+  "ini": 149.885,
+  "fin": 153.858,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Segundo formato: los mudras.",
+  "ini": 156.458,
+  "fin": 159.735,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "La palabra viene del sánscrito, y significa sello, o gesto.",
+  "ini": 161.035,
+  "fin": 166.309,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Son posiciones de las manos que, en tradiciones de la India, acompañan la meditación.",
+  "ini": 167.609,
+  "fin": 174.334,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Prueba ahora.",
+  "ini": 176.934,
+  "fin": 178.969,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Junta las palmas frente al pecho, en el gesto llamado anjali.",
+  "ini": 180.269,
+  "fin": 185.241,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Después une la yema del pulgar con la del índice, y deja los demás dedos sueltos.",
+  "ini": 186.541,
+  "fin": 192.918,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Para muchos practicantes, sentir las manos es un ancla que devuelve la atención al presente.",
+  "ini": 194.218,
+  "fin": 201.245,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Tercer formato, y quizás el más sencillo: la respiración.",
+  "ini": 203.845,
+  "fin": 208.759,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "¿Qué haces?",
+  "ini": 210.059,
+  "fin": 211.954,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Observas cómo entra el aire, y cómo sale.",
+  "ini": 213.254,
+  "fin": 217.193,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuando la mente se va, la traes de vuelta, sin reproche, una y otra vez.",
+  "ini": 218.493,
+  "fin": 224.243,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "¿Y si me distraigo mil veces?",
+  "ini": 226.843,
+  "fin": 229.934,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Entonces estás practicando bien.",
+  "ini": 231.234,
+  "fin": 234.673,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada vez que notas la distracción y regresas, haces una repetición, como levantar una pesa pequeña con la atención.",
+  "ini": 235.973,
+  "fin": 244.718,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Última pregunta: ¿cuánto tiempo necesito?",
+  "ini": 247.318,
+  "fin": 251.513,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Empieza con pocos minutos, pero con constancia.",
+  "ini": 252.813,
+  "fin": 257.343,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Importa más volver cada día, que lograr una sesión perfecta.",
+  "ini": 258.643,
+  "fin": 263.917,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Ahora ya sabes qué es.",
+  "ini": 265.217,
+  "fin": 267.902,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo demás se aprende respirando.",
+  "ini": 269.202,
+  "fin": 272.444,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora déjame guiarte.",
+  "ini": 275.044,
+  "fin": 277.717,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Siéntate con la espalda erguida y cómoda, los pies firmes en el suelo, y cierra los ojos.",
+  "ini": 279.017,
+  "fin": 285.963,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Vamos a recorrer tres lugares de tu cuerpo: la mente, el corazón, y el centro del abdomen.",
+  "ini": 287.263,
+  "fin": 294.162,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Empecemos por la mente.",
+  "ini": 296.762,
+  "fin": 299.54,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lleva la atención a la cabeza, un poco por encima de las cejas, detrás de la frente.",
+  "ini": 300.84,
+  "fin": 307.403,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "En la tradición del yoga, ese punto se llama ajna, el centro de la percepción.",
+  "ini": 308.703,
+  "fin": 315.021,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Dentro de tu cabeza trabaja una de las estructuras más complejas que se conocen: el cerebro.",
+  "ini": 317.621,
+  "fin": 324.706,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Se estima que tiene unos ochenta y seis mil millones de neuronas, conectándose entre sí mientras me escuchas.",
+  "ini": 326.006,
+  "fin": 334.009,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Imagina una luz suave, del color que prefieras, encendiéndose detrás de tu frente.",
+  "ini": 336.609,
+  "fin": 343.101,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Con cada respiración se vuelve más clara, y los pensamientos se vuelven pequeños, como estrellas lejanas.",
+  "ini": 344.401,
+  "fin": 352.52,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora baja despacio hacia el corazón.",
+  "ini": 355.12,
+  "fin": 358.71,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Coloca una mano en el centro del pecho, ligeramente a la izquierda.",
+  "ini": 360.01,
+  "fin": 365.249,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Siente su latido.",
+  "ini": 366.549,
+  "fin": 369.002,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lleva toda tu vida marcando el compás, sin que se lo pidas.",
+  "ini": 370.302,
+  "fin": 375.227,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "En la tradición, el centro del pecho es anahata, el chakra del corazón.",
+  "ini": 377.827,
+  "fin": 383.67,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "La palabra chakra significa rueda.",
+  "ini": 384.97,
+  "fin": 388.561,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y anahata se suele traducir como lo no golpeado, el sonido que surge sin chocar con nada.",
+  "ini": 389.861,
+  "fin": 396.829,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Visualiza una luz cálida, dorada, creciendo en tu pecho con cada latido.",
+  "ini": 399.429,
+  "fin": 405.504,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Se expande hacia los brazos, hacia las manos, hacia la espalda.",
+  "ini": 406.804,
+  "fin": 411.997,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No hay prisa.",
+  "ini": 413.297,
+  "fin": 415.483,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Solo calor, y compañía.",
+  "ini": 416.783,
+  "fin": 419.758,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Respirar despacio también le habla a tu corazón.",
+  "ini": 422.358,
+  "fin": 426.575,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Una gran revisión de estudios encontró que respirar lento aumenta la variabilidad de la frecuencia cardíaca, un indicador relacionado con cómo se regula tu sistema nervioso.",
+  "ini": 427.875,
+  "fin": 440.405,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Desciende ahora hasta el abdomen, entre el ombligo y la base de las costillas.",
+  "ini": 443.005,
+  "fin": 449.092,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "En la tradición se llama manipura, la ciudad de las joyas.",
+  "ini": 450.392,
+  "fin": 455.491,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Muchas personas lo viven como un centro de intuición, ese presentimiento que se siente en el estómago.",
+  "ini": 456.791,
+  "fin": 464.492,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y la ciencia ha encontrado algo curioso: en tu intestino vive una red de cientos de millones de neuronas, el sistema nervioso entérico, capaz de funcionar de forma muy independiente.",
+  "ini": 467.092,
+  "fin": 479.622,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Por eso se le llama, con cariño, el segundo cerebro.",
+  "ini": 480.922,
+  "fin": 485.395,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Visualiza una esfera de luz, como un sol pequeño, girando despacio en el centro de tu abdomen.",
+  "ini": 487.995,
+  "fin": 495.149,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Con cada exhalación se suaviza, y con cada inhalación crece.",
+  "ini": 496.449,
+  "fin": 501.711,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Siente esa calma estable, y firme.",
+  "ini": 503.011,
+  "fin": 506.544,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora une los tres puntos con una sola línea de luz: la mente, el corazón, y el centro.",
+  "ini": 509.144,
+  "fin": 515.985,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Siente que no son tres cosas separadas, sino una sola persona, entera, que respira.",
+  "ini": 517.285,
+  "fin": 524.115,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Eso eres tú.",
+  "ini": 525.415,
+  "fin": 527.519,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Hablemos ahora de beneficios, pero con honestidad.",
+  "ini": 530.119,
+  "fin": 534.627,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Meditar no es magia, y la ciencia todavía está aprendiendo cuánto ayuda, y cómo.",
+  "ini": 535.927,
+  "fin": 542.733,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Veamos qué se sabe, y por qué podría funcionar.",
+  "ini": 544.033,
+  "fin": 548.413,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Una gran revisión publicada en la revista JAMA Internal Medicine reunió casi cincuenta ensayos clínicos, con más de tres mil personas.",
+  "ini": 551.013,
+  "fin": 561.093,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Encontró evidencia moderada de que los programas de atención plena mejoran la ansiedad, la depresión y el dolor.",
+  "ini": 562.393,
+  "fin": 570.732,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Moderada, y con efectos modestos.",
+  "ini": 573.332,
+  "fin": 576.946,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es decir: ayuda, pero no es una cura universal.",
+  "ini": 578.246,
+  "fin": 582.835,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y esa franqueza es importante, porque es lo que hace creíble lo que sí funciona.",
+  "ini": 584.135,
+  "fin": 590.21,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "¿Cómo podría funcionar?",
+  "ini": 592.81,
+  "fin": 595.599,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Una explicación propuesta es la atención.",
+  "ini": 596.899,
+  "fin": 601.0,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuando entrenas a volver al presente, interrumpes el bucle de preocupaciones que alimenta la ansiedad.",
+  "ini": 602.3,
+  "fin": 609.606,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es un freno que aprendes a usar.",
+  "ini": 610.906,
+  "fin": 614.148,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Otro proceso es el cuerpo.",
+  "ini": 616.748,
+  "fin": 619.723,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Respirar despacio, como vimos, se asocia con una mayor variabilidad del ritmo cardíaco, una señal de que el sistema nervioso se regula con más flexibilidad.",
+  "ini": 621.023,
+  "fin": 632.589,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y otro es el cerebro.",
+  "ini": 635.189,
+  "fin": 637.781,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "En estudios pequeños con imágenes de resonancia, personas que completaron un programa de ocho semanas mostraron cambios en regiones relacionadas con la memoria, y con la forma en que nos percibimos a nosotros mismos.",
+  "ini": 639.081,
+  "fin": 654.084,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "En otro estudio del mismo equipo, quienes sentían menos estrés después del programa tenían también cambios en la amígdala, una región vinculada con el miedo y la respuesta de alarma.",
+  "ini": 656.684,
+  "fin": 669.249,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Son resultados prometedores, pero con grupos pequeños.",
+  "ini": 671.849,
+  "fin": 676.856,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Por eso los científicos hablan con prudencia, y por eso yo tampoco te prometo milagros.",
+  "ini": 678.156,
+  "fin": 685.113,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Los Institutos Nacionales de Salud también señalan que la meditación podría ayudar a reducir la presión arterial, y a aliviar síntomas de ansiedad, depresión e insomnio, aunque los resultados varían entre estudios.",
+  "ini": 687.713,
+  "fin": 702.705,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Hay un beneficio más difícil de medir: la relación contigo.",
+  "ini": 705.305,
+  "fin": 710.521,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Mucha gente cuenta que, al meditar, aprende a notar sus emociones antes de que la arrastren.",
+  "ini": 711.821,
+  "fin": 718.801,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Esa pausa entre lo que sientes y lo que haces es un espacio de libertad.",
+  "ini": 720.101,
+  "fin": 725.561,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y hay algo más, pequeño pero real: dedicar unos minutos a estar contigo es, en sí mismo, un acto de cuidado.",
+  "ini": 728.161,
+  "fin": 736.511,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Quizás por eso tantas personas se quedan.",
+  "ini": 737.811,
+  "fin": 741.634,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Así que, si hoy te preguntas si merece la pena, la respuesta honesta es: la evidencia es alentadora, y puedes comprobarlo en tu propia experiencia.",
+  "ini": 744.234,
+  "fin": 755.127,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Levanta la mirada, aunque tengas los ojos cerrados.",
+  "ini": 757.727,
+  "fin": 762.351,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Sobre ti hay un universo entero.",
+  "ini": 763.651,
+  "fin": 766.928,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "¿Qué es, realmente?",
+  "ini": 768.228,
+  "fin": 770.703,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Nadie lo sabe del todo, pero la física nos ha regalado algunas pistas asombrosas.",
+  "ini": 772.003,
+  "fin": 778.612,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "En el siglo veinte, Einstein propuso que el espacio y el tiempo no son escenarios separados, sino un solo tejido: el espacio-tiempo.",
+  "ini": 781.212,
+  "fin": 790.852,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Según la relatividad general, la masa curva ese tejido, y esa curvatura es lo que sentimos como gravedad.",
+  "ini": 792.152,
+  "fin": 800.641,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Imagina una sábana tensa, y una esfera pesada en el centro.",
+  "ini": 803.241,
+  "fin": 808.597,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "La sábana se hunde, y lo que rueda cerca cae hacia el centro.",
+  "ini": 809.897,
+  "fin": 814.729,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es una imagen simplificada, pero ayuda a ver cómo se mueven los planetas.",
+  "ini": 816.029,
+  "fin": 822.325,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "El tiempo también es flexible.",
+  "ini": 824.925,
+  "fin": 828.155,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Los relojes de los satélites del GPS deben corregirse por efectos de la relatividad, porque el tiempo no transcurre exactamente igual en órbita que sobre la Tierra.",
+  "ini": 829.455,
+  "fin": 840.778,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora hagamos zoom hacia lo más pequeño.",
+  "ini": 843.378,
+  "fin": 847.119,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "En la física cuántica, las partículas se comportan de una manera extraña: a veces como granos, y a veces como ondas.",
+  "ini": 848.419,
+  "fin": 857.664,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "En mil novecientos ochenta y nueve, un equipo de la empresa Hitachi, en Japón, envió electrones de uno en uno.",
+  "ini": 860.264,
+  "fin": 868.394,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada uno dejó un solo punto.",
+  "ini": 869.694,
+  "fin": 872.82,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Pero al acumularse miles, apareció un patrón de ondas.",
+  "ini": 874.12,
+  "fin": 878.987,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Qué significa eso sigue debatiéndose.",
+  "ini": 881.587,
+  "fin": 885.421,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y conviene decirlo con claridad: la física cuántica no dice que tus pensamientos creen el mundo.",
+  "ini": 886.721,
+  "fin": 894.306,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo que dice es que la naturaleza es más sutil de lo que imaginábamos.",
+  "ini": 895.606,
+  "fin": 901.042,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y hay una conexión que sí es literal: el carbono de tus células, y el oxígeno que respiras, se formaron dentro de estrellas que murieron antes de que existiera el Sol.",
+  "ini": 903.642,
+  "fin": 915.592,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Estás hecho de polvo de estrellas, y no es una metáfora.",
+  "ini": 916.892,
+  "fin": 921.794,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Entonces, ¿qué eres tú, frente a un universo así?",
+  "ini": 924.394,
+  "fin": 929.006,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Una pequeña porción de ese mismo tejido, que se ha vuelto capaz de mirarse a sí misma.",
+  "ini": 930.306,
+  "fin": 936.857,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuando meditas, el universo se observa desde dentro.",
+  "ini": 938.157,
+  "fin": 942.699,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "En mil novecientos veintinueve, Einstein respondió a un rabino que le preguntaba por Dios.",
+  "ini": 945.299,
+  "fin": 952.199,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Dijo creer en el Dios de Spinoza, que se revela en la armonía ordenada de todo lo que existe, y no en un Dios que se ocupa del destino de los humanos.",
+  "ini": 953.499,
+  "fin": 963.672,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Esa es una forma de entender lo divino: no como alguien lejano, sino como la armonía de un todo, del que tú formas parte.",
+  "ini": 966.272,
+  "fin": 975.18,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Otros lo llaman de otra manera.",
+  "ini": 976.48,
+  "fin": 979.675,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada tradición tiene su nombre, y cada persona su respuesta.",
+  "ini": 980.975,
+  "fin": 986.098,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Respira.",
+  "ini": 988.698,
+  "fin": 990.687,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Siente el aire entrando, venido de plantas, mares y bosques.",
+  "ini": 991.987,
+  "fin": 997.144,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada respiración te conecta con todo lo que vive.",
+  "ini": 998.444,
+  "fin": 1002.673,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Quizás eso, sentirte parte, sea ya una respuesta.",
+  "ini": 1003.973,
+  "fin": 1008.574,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora vuelve la mirada hacia ti.",
+  "ini": 1011.174,
+  "fin": 1014.416,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Si el universo es vasto, tú eres su rincón más cercano.",
+  "ini": 1015.716,
+  "fin": 1020.49,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "¿Qué hay en ti que todavía no has explorado?",
+  "ini": 1021.79,
+  "fin": 1025.683,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Esa es la búsqueda de este acto.",
+  "ini": 1026.983,
+  "fin": 1030.306,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Tu mente no es una espectadora.",
+  "ini": 1032.906,
+  "fin": 1036.079,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es una fuerza que modela tu experiencia: lo que atiendes crece, lo que repites se vuelve costumbre, y lo que imaginas con claridad prepara tu cuerpo para actuar.",
+  "ini": 1037.379,
+  "fin": 1048.852,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "En dos mil cuatro, investigadores de la Cleveland Clinic estudiaron a personas que solo imaginaban contraer un músculo, sin moverlo.",
+  "ini": 1051.452,
+  "fin": 1061.022,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Tras unas semanas, su fuerza había aumentado.",
+  "ini": 1062.322,
+  "fin": 1066.469,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Aumentó menos que con entrenamiento real, y los autores lo atribuyeron al sistema nervioso: el cerebro aprendió a activar mejor el músculo.",
+  "ini": 1069.069,
+  "fin": 1079.231,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No hay magia: hay un cerebro que se entrena.",
+  "ini": 1080.531,
+  "fin": 1084.539,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Piensa en lo que eso significa.",
+  "ini": 1087.139,
+  "fin": 1090.3,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Tu cuerpo y tu mente no son dos cosas.",
+  "ini": 1091.6,
+  "fin": 1095.295,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Se escuchan, se influyen, aprenden juntos.",
+  "ini": 1096.595,
+  "fin": 1100.801,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo que haces con uno, lo recibe el otro.",
+  "ini": 1102.101,
+  "fin": 1105.877,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Por eso el cuerpo también es un camino de meditación.",
+  "ini": 1108.477,
+  "fin": 1112.985,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Camina despacio, y siente cada paso.",
+  "ini": 1114.285,
+  "fin": 1118.072,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Estira los brazos, y siente cómo despiertan.",
+  "ini": 1119.372,
+  "fin": 1123.59,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Respira hasta el fondo, y nota cómo se mueve tu cuerpo entero.",
+  "ini": 1124.89,
+  "fin": 1130.129,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Prueba la postura.",
+  "ini": 1132.729,
+  "fin": 1135.135,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Alarga la columna, abre el pecho, relaja la mandíbula.",
+  "ini": 1136.435,
+  "fin": 1141.279,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No es solo estética: es decirle a tu cuerpo, y a tu mente, que estás presente, y que estás a salvo.",
+  "ini": 1142.579,
+  "fin": 1149.908,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora visualiza una acción que quieras mejorar: caminar con más ligereza, correr, bailar, cargar con firmeza.",
+  "ini": 1152.508,
+  "fin": 1161.044,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Míralo en tu mente, con todo detalle, como si ya lo estuvieras haciendo.",
+  "ini": 1162.344,
+  "fin": 1168.094,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Siente la respiración acompañando el movimiento.",
+  "ini": 1170.694,
+  "fin": 1175.109,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuando el cuerpo y la atención van al mismo ritmo, aparece algo que se suele describir como fluidez: la sensación de estar completamente ahí.",
+  "ini": 1176.409,
+  "fin": 1186.408,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Quien te busca con constancia, te encuentra.",
+  "ini": 1189.008,
+  "fin": 1192.9,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No de golpe, sino en pequeños descubrimientos: una emoción que reconoces, un límite que respetas, una fuerza que no sabías que tenías.",
+  "ini": 1194.2,
+  "fin": 1204.362,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Tu cuerpo es el lugar donde ocurre tu vida.",
+  "ini": 1206.962,
+  "fin": 1210.796,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuídalo, escúchalo, muévelo con amor.",
+  "ini": 1212.096,
+  "fin": 1215.721,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada vez que lo haces con atención, estás meditando, aunque no cierres los ojos.",
+  "ini": 1217.021,
+  "fin": 1223.468,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Quédate un momento con esta idea: no estás buscando a otra persona.",
+  "ini": 1226.068,
+  "fin": 1231.736,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Estás recordando quién eres, cuando nadie te pide que seas otra cosa.",
+  "ini": 1233.036,
+  "fin": 1238.717,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Salgamos ahora a la naturaleza salvaje.",
+  "ini": 1241.317,
+  "fin": 1245.162,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Camina, imaginando un sendero entre árboles altos.",
+  "ini": 1246.462,
+  "fin": 1251.307,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "El aire huele a tierra húmeda.",
+  "ini": 1252.607,
+  "fin": 1255.582,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y, poco a poco, aparecen ellos: los animales, con su belleza sin disfraz.",
+  "ini": 1256.882,
+  "fin": 1262.806,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "El primero es el león.",
+  "ini": 1265.406,
+  "fin": 1268.021,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es el felino más social: vive en manadas llamadas prides, formadas sobre todo por hembras emparentadas.",
+  "ini": 1269.321,
+  "fin": 1277.277,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "En muchas tradiciones simboliza el valor tranquilo, el que no necesita gritar para ser respetado.",
+  "ini": 1278.577,
+  "fin": 1285.952,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Después, el oso.",
+  "ini": 1288.552,
+  "fin": 1290.993,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "En invierno, muchos osos pardos se retiran a descansar a su cubil, y esperan.",
+  "ini": 1292.293,
+  "fin": 1298.589,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Nos enseña la paciencia del descanso, y la fuerza que se renueva en silencio.",
+  "ini": 1299.889,
+  "fin": 1306.126,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "El cocodrilo.",
+  "ini": 1308.726,
+  "fin": 1310.923,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Su linaje, el de los cocodrilomorfos, tiene unos doscientos treinta millones de años, y los cocodrilianos atravesaron la extinción que acabó con los dinosaurios.",
+  "ini": 1312.223,
+  "fin": 1323.883,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Simboliza la adaptación, y la calma que perdura.",
+  "ini": 1325.183,
+  "fin": 1329.725,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "La serpiente.",
+  "ini": 1332.325,
+  "fin": 1334.534,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cambia de piel porque su piel no crece con ella, y debe soltarla para seguir creciendo.",
+  "ini": 1335.834,
+  "fin": 1342.71,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es un símbolo de renovación: dejar atrás lo que ya no nos cabe.",
+  "ini": 1344.01,
+  "fin": 1349.342,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "El ciervo.",
+  "ini": 1351.942,
+  "fin": 1353.802,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada año pierde su cornamenta, y vuelve a hacerla crecer.",
+  "ini": 1355.102,
+  "fin": 1360.028,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Según los investigadores, las astas son el único órgano de un mamífero capaz de regenerarse por completo.",
+  "ini": 1361.328,
+  "fin": 1369.574,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Representa la gracia, y la delicadeza que vuelve a florecer.",
+  "ini": 1370.874,
+  "fin": 1375.997,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "El lobo.",
+  "ini": 1378.597,
+  "fin": 1380.353,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Vive en familia, y sus aullidos ayudan a los miembros de la manada a encontrarse.",
+  "ini": 1381.653,
+  "fin": 1388.076,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es símbolo de lealtad, y de la comunidad que nos sostiene.",
+  "ini": 1389.376,
+  "fin": 1394.244,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "El zorro.",
+  "ini": 1396.844,
+  "fin": 1398.681,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es uno de los carnívoros con mayor distribución del planeta, y se adapta a tundras, bosques, y hasta ciudades.",
+  "ini": 1399.981,
+  "fin": 1408.587,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Representa la astucia amable, la inteligencia de quien se adapta sin perderse.",
+  "ini": 1409.887,
+  "fin": 1416.043,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y el halcón, que mira desde lo alto.",
+  "ini": 1418.643,
+  "fin": 1422.048,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Las aves rapaces tienen una vista mucho más aguda que la nuestra, y se cree que varias veces más.",
+  "ini": 1423.348,
+  "fin": 1430.711,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es la claridad, la perspectiva: ver el conjunto, sin perder el detalle.",
+  "ini": 1432.011,
+  "fin": 1437.842,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Cada uno de ellos vive guiado por el instinto: esa sabiduría antigua que no discute con la vida.",
+  "ini": 1440.442,
+  "fin": 1447.586,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No pregunta si merece existir.",
+  "ini": 1448.886,
+  "fin": 1452.279,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Simplemente es, por completo.",
+  "ini": 1453.579,
+  "fin": 1456.821,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y tú también llevas dentro algo de cada uno: el valor del león, la paciencia del oso, la renovación de la serpiente, la lealtad del lobo, la mirada del halcón.",
+  "ini": 1459.421,
+  "fin": 1470.36,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Pregúntate cuál de ellos te llama hoy.",
+  "ini": 1472.96,
+  "fin": 1476.4,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No lo pienses demasiado.",
+  "ini": 1477.7,
+  "fin": 1480.628,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cierra los ojos, y deja que aparezca.",
+  "ini": 1481.928,
+  "fin": 1485.6,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Ese animal te está diciendo algo de ti.",
+  "ini": 1486.9,
+  "fin": 1490.63,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Regresa del bosque, y vuelve a ti.",
+  "ini": 1493.23,
+  "fin": 1496.6,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Hay un lugar dentro de ti que no cambia, aunque todo cambie: ese que observa tus pensamientos, tus emociones, tu cuerpo.",
+  "ini": 1497.9,
+  "fin": 1506.819,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo llamamos de muchas maneras: espíritu, esencia, conciencia.",
+  "ini": 1508.119,
+  "fin": 1513.567,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "No hace falta que lo definas.",
+  "ini": 1516.167,
+  "fin": 1519.305,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Basta con que lo reconozcas, como se reconoce a un viejo amigo: esa presencia silenciosa que está contigo desde la primera vez que dijiste yo.",
+  "ini": 1520.605,
+  "fin": 1530.824,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Apoya las manos sobre el abdomen, y siente cómo sube y baja.",
+  "ini": 1533.424,
+  "fin": 1538.524,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Ahí está tu cuerpo, tan real, tan físico: huesos, músculos, piel, sangre, una historia escrita en tu carne.",
+  "ini": 1539.824,
+  "fin": 1547.896,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y ahora sé consciente de quien siente ese cuerpo.",
+  "ini": 1550.496,
+  "fin": 1554.725,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Ese que lo habita.",
+  "ini": 1556.025,
+  "fin": 1558.361,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No son dos.",
+  "ini": 1559.661,
+  "fin": 1561.708,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuerpo y espíritu son como la ola y el mar: formas distintas de la misma agua.",
+  "ini": 1563.008,
+  "fin": 1569.048,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Visualiza una luz que nace en el centro de tu pecho, y se extiende por todo tu cuerpo, hasta la piel, hasta las puntas de los dedos.",
+  "ini": 1571.648,
+  "fin": 1580.881,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Tu cuerpo entero se vuelve luminoso, y tranquilo.",
+  "ini": 1582.181,
+  "fin": 1586.502,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora esa luz sale de ti, suavemente, y se mezcla con el aire que te rodea.",
+  "ini": 1589.102,
+  "fin": 1595.166,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No hay un borde claro entre donde terminas tú, y donde empieza el mundo.",
+  "ini": 1596.466,
+  "fin": 1602.204,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Respiras el mundo, y el mundo te respira.",
+  "ini": 1603.504,
+  "fin": 1607.501,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Muchas tradiciones hablan de esta unión: la del individuo con el todo.",
+  "ini": 1610.101,
+  "fin": 1615.967,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Tú no necesitas aceptarlas ni rechazarlas.",
+  "ini": 1617.267,
+  "fin": 1621.589,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Solo explora qué se siente cuando, por un momento, dejas de defenderte del mundo.",
+  "ini": 1622.889,
+  "fin": 1629.219,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "También hay una unión más íntima, y más difícil: la que haces contigo.",
+  "ini": 1631.819,
+  "fin": 1637.755,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Con tus errores, tus miedos, tus partes que prefieres esconder.",
+  "ini": 1639.055,
+  "fin": 1644.236,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Mírate con la misma ternura con que miras a alguien que amas.",
+  "ini": 1645.536,
+  "fin": 1650.496,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Di en silencio: te veo.",
+  "ini": 1653.096,
+  "fin": 1655.827,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Te acepto, tal como eres hoy.",
+  "ini": 1657.127,
+  "fin": 1660.172,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Esto no significa que dejes de crecer.",
+  "ini": 1661.472,
+  "fin": 1665.144,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Significa que creces desde la aceptación, y no desde el rechazo.",
+  "ini": 1666.444,
+  "fin": 1671.892,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Sonríe, aunque sea apenas.",
+  "ini": 1674.492,
+  "fin": 1677.606,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Esa sonrisa interna es una forma de oración laica: un agradecimiento por estar vivo, por poder sentir, por poder elegir.",
+  "ini": 1678.906,
+  "fin": 1688.116,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Siente cómo tu respiración se vuelve muy sutil, casi imperceptible.",
+  "ini": 1690.716,
+  "fin": 1696.547,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y en esa quietud, escucha: no con los oídos, sino con todo tu ser.",
+  "ini": 1697.847,
+  "fin": 1703.655,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "¿Qué te dice tu espíritu hoy?",
+  "ini": 1704.955,
+  "fin": 1707.907,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Quizás sea una palabra, una imagen, o simplemente paz.",
+  "ini": 1710.507,
+  "fin": 1715.455,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Agradécelo.",
+  "ini": 1716.755,
+  "fin": 1718.836,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo que apareció, aparecerá siempre que vuelvas a este silencio.",
+  "ini": 1720.136,
+  "fin": 1725.457,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Imagina ahora que estás de pie al comienzo de un sendero.",
+  "ini": 1728.057,
+  "fin": 1732.75,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No sabes del todo adónde va.",
+  "ini": 1734.05,
+  "fin": 1737.106,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y, por una vez, no necesitas saberlo.",
+  "ini": 1738.406,
+  "fin": 1742.194,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Solo necesitas dar el primer paso.",
+  "ini": 1743.494,
+  "fin": 1747.05,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Tu camino no es el de nadie más.",
+  "ini": 1749.65,
+  "fin": 1752.822,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Puede parecerse a otros, cruzarse con ellos, pero solo tú puedes recorrerlo desde dentro.",
+  "ini": 1754.122,
+  "fin": 1761.091,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y tiene derecho a ser lento, a ser distinto, a cambiar.",
+  "ini": 1762.391,
+  "fin": 1767.119,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Pregúntate con calma: ¿qué hago cuando pierdo la noción del tiempo?",
+  "ini": 1769.719,
+  "fin": 1775.109,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "¿Qué actividad me hace sentir vivo, sin esfuerzo?",
+  "ini": 1776.409,
+  "fin": 1780.801,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Ahí hay una brújula, y suele hablar bajito.",
+  "ini": 1782.101,
+  "fin": 1786.283,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Déjate llevar.",
+  "ini": 1788.883,
+  "fin": 1791.08,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No es rendirte, ni abandonarte.",
+  "ini": 1792.38,
+  "fin": 1795.785,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es confiar en que la curiosidad sabe adónde ir, y que el disfrute es una información valiosa, no un capricho.",
+  "ini": 1797.085,
+  "fin": 1805.459,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Camina despacio por ese sendero.",
+  "ini": 1808.059,
+  "fin": 1811.382,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "A tu izquierda, un campo abierto.",
+  "ini": 1812.682,
+  "fin": 1816.064,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "A tu derecha, una ladera con flores.",
+  "ini": 1817.364,
+  "fin": 1821.012,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y al fondo, una luz suave que no te apura, solo te espera.",
+  "ini": 1822.312,
+  "fin": 1827.273,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "A veces el camino se bifurca, y dudas.",
+  "ini": 1829.873,
+  "fin": 1833.811,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Respira.",
+  "ini": 1835.111,
+  "fin": 1837.099,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Siente cuál de las dos opciones te abre el pecho, y cuál te lo cierra.",
+  "ini": 1838.399,
+  "fin": 1843.871,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "El cuerpo suele saber lo que la mente aún está discutiendo.",
+  "ini": 1845.171,
+  "fin": 1850.096,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "También habrá tramos cansados, de piedra y de niebla.",
+  "ini": 1852.696,
+  "fin": 1857.262,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No significa que te hayas equivocado.",
+  "ini": 1858.562,
+  "fin": 1862.303,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Significa que estás caminando de verdad.",
+  "ini": 1863.603,
+  "fin": 1867.356,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Haz lo que te gusta, aunque no lo hagas perfecto.",
+  "ini": 1869.956,
+  "fin": 1874.034,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Pintar, cocinar, cantar, caminar, escribir, cuidar un jardín.",
+  "ini": 1875.334,
+  "fin": 1880.62,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo que haces con amor, aunque sea pequeño, deja una huella que nadie más puede dejar.",
+  "ini": 1881.92,
+  "fin": 1888.552,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "No esperes a estar listo.",
+  "ini": 1891.152,
+  "fin": 1894.081,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Casi nadie lo está al empezar.",
+  "ini": 1895.381,
+  "fin": 1898.483,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "La confianza llega caminando, y la claridad llega después de dar el paso, no antes.",
+  "ini": 1899.783,
+  "fin": 1906.59,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y cuando mires atrás, verás el sendero iluminado por tus propios pasos.",
+  "ini": 1909.19,
+  "fin": 1915.137,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada decisión, cada duda, cada alegría, formará parte de un mapa que solo tú podrás leer.",
+  "ini": 1916.437,
+  "fin": 1923.58,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora siente tus pies sobre la tierra.",
+  "ini": 1926.18,
+  "fin": 1929.77,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Ahora, el cielo sobre ti.",
+  "ini": 1931.07,
+  "fin": 1934.104,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Estás exactamente en el lugar de tu camino donde debes estar hoy.",
+  "ini": 1935.404,
+  "fin": 1940.608,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Dale las gracias a tu yo del pasado, que llegó hasta aquí.",
+  "ini": 1943.208,
+  "fin": 1947.971,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y dale la mano a tu yo del futuro, que ya te está esperando.",
+  "ini": 1949.271,
+  "fin": 1954.115,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Todo camino enseña.",
+  "ini": 1956.715,
+  "fin": 1959.214,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada tropiezo, cada alegría, cada despedida deja un aprendizaje, aunque a veces tardemos en leerlo.",
+  "ini": 1960.514,
+  "fin": 1968.156,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "El aprendizaje es la huella que la vida deja en ti.",
+  "ini": 1969.456,
+  "fin": 1973.697,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Lleva contigo una brújula.",
+  "ini": 1976.297,
+  "fin": 1979.249,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "No una de metal, sino una interna.",
+  "ini": 1980.549,
+  "fin": 1984.0,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Una brújula magnética apunta siempre hacia el norte, y gracias a ella los viajeros se orientaban incluso sin ver las estrellas.",
+  "ini": 1985.3,
+  "fin": 1994.568,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Tu brújula interior apunta hacia aquello que te importa: tus valores, lo que sientes que es verdadero.",
+  "ini": 1997.168,
+  "fin": 2004.462,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuando vives de acuerdo con ellos, aunque el paisaje cambie, sabes hacia dónde caminas.",
+  "ini": 2005.762,
+  "fin": 2012.487,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Piensa en tu meta, pero no solo como un lugar al que llegar.",
+  "ini": 2015.087,
+  "fin": 2019.85,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Piensa en cómo quieres sentirte durante el viaje: en calma, con curiosidad, con valentía, con ternura.",
+  "ini": 2021.15,
+  "fin": 2028.769,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Ahora haz algo poderoso: vive esa meta en tu imaginación, como si ya fuera real.",
+  "ini": 2031.369,
+  "fin": 2037.827,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Mira el lugar, escucha las voces, siente lo que sientes.",
+  "ini": 2039.127,
+  "fin": 2044.168,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Deja que tu cuerpo lo reciba.",
+  "ini": 2045.468,
+  "fin": 2048.548,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "No se trata de engañarte.",
+  "ini": 2051.148,
+  "fin": 2054.112,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Se trata de dar a tu mente una dirección clara, como el timón de un barco.",
+  "ini": 2055.412,
+  "fin": 2061.185,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Lo que imaginas con claridad orienta tus decisiones pequeñas de cada día.",
+  "ini": 2062.485,
+  "fin": 2068.269,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y presta atención a los pensamientos y sentimientos que te mueven.",
+  "ini": 2070.869,
+  "fin": 2076.271,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Los que te llenan de energía, de ganas.",
+  "ini": 2077.571,
+  "fin": 2081.37,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y también los que te frenan, porque te muestran dónde hay algo que sanar.",
+  "ini": 2082.67,
+  "fin": 2088.304,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Quiero que te preguntes: ¿qué sentimiento quiero vivir más?",
+  "ini": 2090.904,
+  "fin": 2095.772,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "¿Alegría, paz, amor, libertad?",
+  "ini": 2097.072,
+  "fin": 2100.581,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Elígelo.",
+  "ini": 2101.881,
+  "fin": 2103.753,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y busca hoy una pequeña acción que lo haga posible.",
+  "ini": 2105.053,
+  "fin": 2109.456,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "La meta no es un punto final.",
+  "ini": 2112.056,
+  "fin": 2115.124,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Es una dirección.",
+  "ini": 2116.424,
+  "fin": 2118.83,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cada vez que das un paso hacia ella, ya la estás viviendo, un poco.",
+  "ini": 2120.13,
+  "fin": 2125.671,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Y cuando llegues a lo que buscabas, descubrirás algo bello: la persona que eras cuando empezaste ya no existe.",
+  "ini": 2128.271,
+  "fin": 2136.412,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "El camino te transformó, y esa transformación era el verdadero destino.",
+  "ini": 2137.712,
+  "fin": 2143.741,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Antes de terminar, vuelve a respirar.",
+  "ini": 2146.341,
+  "fin": 2149.978,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Con la mente en calma, el corazón abierto, y el centro firme.",
+  "ini": 2151.278,
+  "fin": 2156.319,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Llevas contigo el universo, y llevas contigo a todos los seres vivos.",
+  "ini": 2157.619,
+  "fin": 2163.532,
+  "parrafo_fin": true
+ },
+ {
+  "texto": "Gracias por este viaje.",
+  "ini": 2166.132,
+  "fin": 2168.979,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Cuando abras los ojos, el mundo seguirá ahí, esperándote.",
+  "ini": 2170.279,
+  "fin": 2175.344,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Y tú ya no serás exactamente el mismo.",
+  "ini": 2176.644,
+  "fin": 2180.467,
+  "parrafo_fin": false
+ },
+ {
+  "texto": "Respira, sonríe, y camina.",
+  "ini": 2181.767,
+  "fin": 2184.974,
+  "parrafo_fin": true
+ }
+]
