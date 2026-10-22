@@ -1,0 +1,19 @@
+{
+  "titulo": "Por que brillan los ojos de los animales de noche",
+  "tipo": "short",
+  "formato": "short",
+  "lienzo": "vertical",
+  "voz": "carmen",
+  "musica": "curiosos",
+  "semilla": 1,
+  "estilo": "LAB",
+  "dings_en_palabras": ["loco", "superpoder"],
+  "cola_s": 2.0,
+  "fps": 30,
+  "ss": 1.5,
+  "crf": 17,
+  "calidad_jpeg": 0.97,
+  "lufs": -14,
+  "duracion_objetivo_s": [100, 110],
+  "ligero_MB": 9.5
+}
