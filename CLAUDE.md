@@ -47,6 +47,15 @@ Figuras nuevas (biblioteca2): mano, anjali, gyan, cerebro, galaxia, atomo, inter
 Piezas (composicion.js): espaciotiempo, electrones (patron de franjas), ecg con variabilidad, red de neuronas, reloj, tituloActo.
 Calidad baja: meta.json {ss:0.5, salida_escala:0.5, fps:24, crf:30, ligero_MB, ligero_lado}. Musica solo en limites de capitulo: meta {capitulos:[12,...]}.
 
+## REALISMO (engine/realismo/, estilo general: objetos y paisajes reales pintados, NO contornos de luz)
+Demo/revision: `demo/realismo.html?modo=paisaje|objetos|rayo&tipo=montanas|lago|llanura|bosque|costa|desierto&hora=alba|dia|atardecer|noche|tormenta&lienzo=yt|vertical&ss=1.5`.
+- `VE.real.paisaje(esc, tg, {tipo, hora, a, semilla, deriva, nubes})`: cielo (sol/luna/estrellas), cordilleras con relieve sombreado y nieve, colinas, agua con reflejo, bosque, nubes a la deriva.
+  Capas horneadas una vez (~3-4 s por paisaje la primera vez), luego solo drawImage. `capas:[...]` permite componer a mano (ver PRESETS en paisaje.js).
+- `VE.real.objeto(esc, nombre, {x,y,tam,hora,semilla,variante,espejo,alfa})`, (x,y)=centro de la base, tam=alto. Objetos: castillo, arbol, pino, roca, nube, casa, velero, molino, faro.
+  Anadir: `VE.real.definirObjeto(nombre, {w,h,dibujar(x,w,h,H,T,o)})` (geometria siempre con la luz a la izquierda; el motor espeja si la hora trae la luz a la derecha).
+- `VE.real.rayo(esc,{x0,y0,x1,y1,semilla,progreso,destello})` dinamico. La HORA fija luz/sombra/niebla de todo: usar la misma hora en paisaje y objetos.
+- Revisado a ojo solo en fotogramas fijos (sin video). Falta: ciudad/edificios, animales realistas, lluvia, mas objetos (torre, puente, barco de vapor...), personas.
+
 ## Reglas del usuario (no reabrir)
 - ESTILO GENERAL (videos de cualquier tema): coger solo la TEMATICA y el tipo de estilo de los ejemplos (rayos, castillos), NO su acabado exacto. Prioridad: dibujar BIEN objetos reales y paisajes reales de fondo (reconocibles, con volumen, luz y paralaje), no iconos esquematicos.
 - NO renderizar ni enviar videos de prueba si el usuario no lo pide. Se fia del entorno; validar con linter/medidas.

@@ -1,0 +1,17 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Realismo</title>
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/realismo/objetos.js"></script><script src="../engine/realismo/paisaje.js"></script>
+<script>
+/* ?modo=paisaje&tipo=montanas&hora=dia   |   ?modo=objetos&hora=dia   |   ?modo=rayo */
+const Q = new URLSearchParams(location.search), modo = Q.get('modo') || 'paisaje', hora = Q.get('hora') || 'dia', tipo = Q.get('tipo') || 'montanas';
+const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'yt', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+window.renderAt = (t) => { esc.abrir();
+  if (modo === 'paisaje') { VE.real.paisaje(esc, t, { tipo, hora, a: 1, semilla: 'demo' }); }
+  else if (modo === 'objetos') { const nombres = VE.real.objetos(); VE.real.paisaje(esc, t, { tipo: 'llanura', hora, a: 1, nubes: 0, semilla: 'o' });
+    const cols = 5, W = esc.W, H = esc.H; nombres.forEach((n, i) => { const c = i % cols, f = Math.floor(i / cols); VE.real.objeto(esc, n, { x: W * (c + 0.5) / cols, y: H * (0.42 + f * 0.5), tam: n === 'nube' ? 150 : 330, hora, semilla: n }); }); }
+  else if (modo === 'rayo') { VE.real.paisaje(esc, t, { tipo: 'llanura', hora: 'tormenta', a: 1, nubes: 6, semilla: 'r' }); VE.real.rayo(esc, { x0: esc.W * 0.6, y0: esc.H * 0.12, x1: esc.W * 0.52, y1: esc.H * 0.74, semilla: 'z' }); }
+};
+window.ready = Promise.resolve();
+</script>
