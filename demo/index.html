@@ -1,0 +1,115 @@
+<!doctype html><html lang=es><meta charset=utf-8>
+<title>Motor — demo</title>
+<style>
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');
+    font-weight:300 700;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+2000-206F,U+2122,U+2191,U+2193,U+2212,U+FEFF}
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin-ext.woff2) format('woff2');
+    font-weight:300 700;unicode-range:U+0100-02BA,U+1E00-1EFF,U+2020,U+20A0-20AB}
+  html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style>
+<canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script>
+<script src="../engine/draw/util.js"></script>
+<script src="../engine/design/tokens.js"></script>
+<script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script>
+<script src="../engine/core/stage.js"></script>
+<script src="../engine/text/texto.js"></script>
+<script src="../engine/qa/lint.js"></script>
+<script>
+const Q = new URLSearchParams(location.search);
+const esc = VE.crearEscenario({
+  formato: Q.get('formato') || 'yt',
+  estilo:  Q.get('estilo')  || 'DARK',
+  ss: parseFloat(Q.get('ss') || '1.5')
+});
+const E = VE.ease, est = esc.estilo;
+
+// Datos de prueba para el subtitulo karaoke (simula la salida de Scribe)
+const FRASE = 'Cada gota de agua de mar esconde un universo entero';
+const PAL = FRASE.split(' ').map((t,i)=>({t, ini: 0.35*i, fin: 0.35*(i+1)}));
+const grupo = { palabras: PAL };
+
+// Bokeh de fondo: posiciones deterministas, nunca Math.random
+const r = VE.rng('bokeh-demo');
+const BOKEH = Array.from({length: 14}, () => ({
+  x: r.range(0, esc.W), y: r.range(0, esc.H),
+  rad: r.range(60, 190), vel: r.range(0.04, 0.16),
+  col: r.pick([est.acento, est.acento2, est.exito])
+}));
+
+function escenaDemo(t){
+  const x = esc.ctx;
+  esc.abrir();
+
+  // Capa 1: bokeh con parallax lento -> da profundidad
+  for (const b of BOKEH){
+    const py = b.y + Math.sin(t*b.vel*2 + b.x)*18;
+    esc.pegar(esc.cache.bokeh(b.rad, b.col), b.x, py);
+  }
+
+  // Capa 2: orbita de discos con halo, entrada escalonada
+  const N = 9;
+  for (let i=0;i<N;i++){
+    const ap = VE.escalonado(t, 0.2, 0.9, i, 0.07, E.atrasSalida);
+    if (ap <= 0) continue;
+    const a = t*0.45 + i*(Math.PI*2/N);
+    const radio = Math.min(esc.seguro.w, esc.seguro.h)*0.30;
+    const px = esc.seguro.cx + Math.cos(a)*radio*ap;
+    const py = esc.seguro.cy + Math.sin(a)*radio*0.62*ap;
+    const col = [est.acento, est.acento2, est.exito][i%3];
+    esc.pegar(esc.cache.halo(92, col, 0.3), px, py, ap);
+    esc.pegar(esc.cache.disco(26, col, {sombraBlur:22, sombraY:7}), px, py, ap,
+              {nucleo: 26, nota: 'disco '+i});
+  }
+
+  // Capa 3: titular con auto-ajuste dentro de la zona segura
+  const apT = VE.tramo(t, 0.1, 0.8, E.expoSalida);
+  if (apT > 0){
+    const caja = { w: esc.seguro.w, h: 230*esc.k };
+    const fit = VE.texto.ajustar(esc, 'El océano que cabe en una gota', caja,
+                                 {max: VE.tokens.SCALE.hero, min: VE.tokens.SCALE.lg, maxLineas: 2});
+    esc.tipo(fit.tam, 700);
+    const lh = fit.tam*esc.k*1.14;
+    x.save(); x.globalAlpha = apT;
+    fit.lineas.forEach((l,i)=>{
+      const py = esc.seguro.y + 70*esc.k + i*lh + (1-apT)*26;
+      VE.texto.trazar(esc, l, esc.seguro.cx, py, {color: est.tinta, contornoAncho: 9});
+    });
+    x.restore();
+  }
+
+  // Capa 4: panel con dato, precocido
+  const apP = VE.tramo(t, 1.1, 0.7, E.muelle);
+  if (apP > 0){
+    const pw = Math.min(520, esc.seguro.w*0.62), ph = 150*esc.k;
+    const p = esc.cache.panel(pw, ph, 28, est);
+    const py = esc.seguro.y2 - 320*esc.k;
+    x.save(); x.globalAlpha = apP;
+    esc.pegar(p, esc.seguro.cx, py, 1, {nucleo: 0, nota: 'panel dato'});
+    VE.registrar('panel', {x: esc.seguro.cx-pw/2, y: py-ph/2, w: pw, h: ph}, {nota: 'panel dato', detras: true});
+    esc.tipo(VE.tokens.SCALE.xxl, 700);
+    VE.texto.trazar(esc, Math.round(apP*38000).toLocaleString('es-ES'), esc.seguro.cx, py - 18*esc.k,
+                    {color: est.acento, contornoAncho: 7});
+    esc.tipo(VE.tokens.SCALE.sm, 500);
+    VE.texto.trazar(esc, 'seres vivos por gota', esc.seguro.cx, py + 36*esc.k,
+                    {color: est.tintaSuave, contornoAncho: 5});
+    x.restore();
+  }
+
+  // Capa 5: subtitulo karaoke
+  VE.texto.subtitulo(esc, grupo, t - 1.4);
+
+  // Capa 6: barra de progreso
+  const prog = Math.min(1, t/6);
+  x.fillStyle = 'rgba(255,255,255,0.14)';
+  x.fillRect(0, esc.H - 7*esc.k, esc.W, 7*esc.k);
+  x.fillStyle = est.acento;
+  x.fillRect(0, esc.H - 7*esc.k, esc.W*prog, 7*esc.k);
+}
+
+VE.__esc = esc;
+window.renderAt = escenaDemo;
+window.DURACION = 6;
+window.ready = document.fonts.ready.then(()=>document.fonts.load('700 100px Fredoka'));
+</script>

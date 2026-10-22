@@ -1,0 +1,36 @@
+{
+  "_nota": "Voces predeterminadas elegidas por el usuario (2026-10-21). Muestras de referencia en referencia/. Idioma objetivo: espanol peninsular.",
+  "predeterminadas": [
+    {
+      "id": "piper_sharvard_spk0",
+      "motor": "piper",
+      "modelo": "es_ES-sharvard-medium",
+      "speaker": 0,
+      "genero_segun_config": "M",
+      "estado": "operativa",
+      "ruta": "piper/es_ES-sharvard-medium.onnx",
+      "verificado": "generada en el contenedor, ~2 s de calculo para ~6 s de audio"
+    },
+    {
+      "id": "piper_sharvard_spk1",
+      "motor": "piper",
+      "modelo": "es_ES-sharvard-medium",
+      "speaker": 1,
+      "genero_segun_config": "F",
+      "estado": "operativa",
+      "ruta": "piper/es_ES-sharvard-medium.onnx",
+      "verificado": "generada en el contenedor, ~2 s de calculo para ~6 s de audio"
+    },
+    {
+      "id": "melotts_es",
+      "motor": "melotts",
+      "modelo": "myshell-ai/MeloTTS-Spanish",
+      "speaker": "ES",
+      "estado": "operativa",
+      "sin_verificar": "No he confirmado que su acento sea peninsular; hay que escucharlo y compararlo con las muestras.",
+      "verificado": "generada en el contenedor (CPU, Python 3.13, torch 2.14 cpu); modelo carga en ~19 s",
+      "entorno": "export HF_HUB_DISABLE_XET=1; sys.path.insert(0,\"/tmp/MeloTTS\"); datos NLTK en /usr/local/share/nltk_data"
+    }
+  ],
+  "_aprobacion": "Perfiles v2 aprobados por el usuario (2026-10-21): \"Perfectos, era la voz solo\"."
+}

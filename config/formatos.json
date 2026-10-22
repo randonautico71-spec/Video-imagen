@@ -1,0 +1,26 @@
+{
+  "_nota": "Cada formato fija el lienzo y el rango de duracion. 'verificado' indica si el limite sale de una fuente primaria; los que no, son configurables y hay que confirmarlos en la app.",
+  "short": {
+    "descripcion": "Vertical 9:16 corto: YouTube Shorts, Instagram Reels, TikTok.",
+    "lienzo": "vertical", "fps": 30,
+    "limite_plataforma_s": 180,
+    "limite_verificado": "YouTube Help (support.google.com/youtube/answer/10059070): 'up to 3 minutes'. Para Reels/TikTok NO verificado.",
+    "objetivo_s": [30, 60], "objetivo_nota": "Es una eleccion editorial mia, no un dato de plataforma.",
+    "ss": 1.5
+  },
+  "youtube": {
+    "descripcion": "Horizontal 16:9 para YouTube. De 3 min a 1 hora.",
+    "lienzo": "yt", "fps": 30,
+    "min_s": 180, "max_s": 3600,
+    "doble_entrega": { "desde_s": 180, "hasta_s": 300, "tambien": "instagram",
+                       "motivo": "Un video de 3-5 min en 16:9 no sirve tal cual en Instagram (vertical): se entrega ademas la version vertical." },
+    "ss": 1.5
+  },
+  "instagram": {
+    "descripcion": "Vertical 9:16 de ~5 min para Instagram.",
+    "lienzo": "vertical", "fps": 30,
+    "objetivo_s": [180, 300],
+    "limite_verificado": "NO verificado: el centro de ayuda de Instagram carga con JavaScript y no se puede leer aqui. Guias secundarias dicen 90 s / 3 min / 15-20 min segun cuenta y tipo de subida. Confirmar en el selector de duracion de la app.",
+    "ss": 1.5
+  }
+}

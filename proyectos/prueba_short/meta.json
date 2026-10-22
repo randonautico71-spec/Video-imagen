@@ -1,0 +1,13 @@
+{
+  "titulo": "prueba_short",
+  "formato": "short",
+  "lienzo": "vertical",
+  "voz": "curiosos",
+  "musica": "curiosos",
+  "semilla": 1,
+  "estilo": "LAB",
+  "dings_en_palabras": [
+    "respuesta"
+  ],
+  "cola_s": 1.2
+}

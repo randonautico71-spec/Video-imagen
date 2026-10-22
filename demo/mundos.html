@@ -1,0 +1,11 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Mundos</title>
+<style>@font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script><script src="../engine/qa/lint.js"></script>
+<script src="../engine/draw/trazos.js"></script><script src="../engine/figuras/biblioteca.js"></script><script src="../engine/estilos/meditacion.js"></script><script src="../engine/estilos/mundos.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), mundo = Q.get('mundo') || 'prado_nocturno', build = parseFloat(Q.get('a') || '1');
+const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'yt', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1.5') });
+window.renderAt = (t) => { VE.limpiarRegistro && VE.limpiarRegistro(); esc.abrir(); VE.med.mundos[mundo](esc, t, Math.min(1, build)); };
+window.ready = document.fonts.load('500 20px Fredoka'); window.nombres = VE.med.nombresMundos;
+</script>

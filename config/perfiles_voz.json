@@ -1,0 +1,86 @@
+{
+  "_nota": "Cada perfil es una receta de voz: motor + parametros de sintesis + cadena de efectos. Se editan aqui, sin tocar codigo. Los parametros de sintesis y efectos estan comprobados por mecanica (cambian el audio); que SUENEN bien es un juicio de oido que solo puede hacer el usuario.",
+  "meditacion": {
+    "descripcion": "Voz calida y natural, sin efectos de tono ni compresion. MeloTTS casi a velocidad nativa; la calma la ponen las pausas (respiracion entre trozos, silencios entre frases), no el estiramiento. Elegida por el usuario (muestra B).",
+    "motor": "melo",
+    "idioma": "ES",
+    "speaker": "ES",
+    "sintesis": {
+      "speed": 0.92,
+      "sdp_ratio": 0.2,
+      "noise_scale": 0.45,
+      "noise_scale_w": 0.6
+    },
+    "pausa_frase_s": 0.9,
+    "pausa_parrafo_s": 2.4,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 60,
+      "lowpass_hz": 16000,
+      "calidez_db": 1.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -19
+    },
+    "pausa_coma_s": 0.28,
+    "trozo_max_car": 70
+  },
+  "curiosos": {
+    "descripcion": "Voz directa y con ritmo para datos curiosos. Piper sharvard, hablante 0.",
+    "motor": "piper",
+    "modelo": "voces/piper/es_ES-sharvard-medium.onnx",
+    "speaker": 0,
+    "sintesis": {
+      "length_scale": 0.95,
+      "noise_scale": 0.85,
+      "noise_w_scale": 1.05
+    },
+    "pausa_frase_s": 0.35,
+    "pausa_parrafo_s": 0.7,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 90,
+      "lowpass_hz": 11000,
+      "calidez_db": 0.0,
+      "presencia_db": 2.5,
+      "compresion": "fuerte",
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    },
+    "entonacion": {
+      "descripcion": "Curva melodica por frase (semitonos sobre el tono base): pregunta sube, exclamacion sube mas, cierre de parrafo baja, y el resto alterna suavemente para evitar monotonia.",
+      "pregunta": 1.5,
+      "exclamacion": 1.8,
+      "cierre_parrafo": -0.7,
+      "enunciado_alternado": 0.45,
+      "primera_frase": 0.8
+    }
+  },
+  "aprender": {
+    "descripcion": "Voz del personaje que ensena: mas aguda, brillante y animada. Piper sharvard, hablante 1, subida de tono.",
+    "motor": "piper",
+    "modelo": "voces/piper/es_ES-sharvard-medium.onnx",
+    "speaker": 1,
+    "sintesis": {
+      "length_scale": 0.92,
+      "noise_scale": 0.85,
+      "noise_w_scale": 1.05
+    },
+    "pausa_frase_s": 0.45,
+    "pausa_parrafo_s": 0.9,
+    "fx": {
+      "pitch_semitonos": 2.0,
+      "highpass_hz": 110,
+      "lowpass_hz": 12000,
+      "calidez_db": -0.5,
+      "presencia_db": 3.5,
+      "compresion": "fuerte",
+      "reverb_mezcla": 0.05,
+      "reverb_seg": 0.5,
+      "nivel_lufs": -16
+    }
+  }
+}

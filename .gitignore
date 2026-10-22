@@ -1,0 +1,15 @@
+# Pesado o regenerable: se recrea con `bash pipeline/instalar.sh` y con los comandos de vid.py
+vendor/
+voces/piper/
+voces/prueba/
+pruebas_musica/
+pruebas_voz/
+salida/
+proyectos/*/salida/
+node_modules/
+__pycache__/
+*.mp4
+*.wav
+*.mp3
+*.npz
+.venv/

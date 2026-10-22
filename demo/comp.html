@@ -1,0 +1,21 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Composicion</title>
+<style>@font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script><script src="../engine/qa/lint.js"></script>
+<script src="../engine/draw/trazos.js"></script><script src="../engine/figuras/biblioteca.js"></script><script src="../engine/figuras/biblioteca2.js"></script>
+<script src="../engine/estilos/meditacion.js"></script><script src="../engine/estilos/mundos.js"></script><script src="../engine/estilos/composicion.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), B = (Q.get('b') || 'a').split('?')[0], TP = parseFloat(Q.get('tp') || '6');
+const esc = VE.crearEscenario({ formato: 'yt', estilo: 'DARK', ss: 1 });
+const ctx = { i: 0, parrafo: 0, tp: TP, dp: 14, tg: TP, t: TP, pw: () => null, palabras: [] };
+window.renderAt = (t) => { esc.abrir(); ctx.tg = t; ctx.t = t; ctx.tp = t; const c = VE.comp(esc, ctx), W = esc.W, H = esc.H, M = VE.med;
+  M.fondo(esc, t, { modo: 'noche', estrellas: 1, niebla: 0.2 });
+  if (B === 'a') { M.tituloActo(esc, ctx, 'I', '¿Qué es la meditación?'); }
+  if (B === 'b') { M.espaciotiempo(esc, t, { cx: W / 2, cy: H * 0.5, w: 1300, h: 700, masa: 1, prog: 1 }); c.glow(.5, .55, 120, '#FFE9A8', { persistir: true }); }
+  if (B === 'c') { M.electrones(esc, t, { x0: W * 0.55, x1: W * 0.9, y0: H * 0.3, y1: H * 0.7, n: 0.8, emisor: [W * 0.12, H * 0.5] }); c.fig('atomo', .15, .5, 240, { fijo: true }); }
+  if (B === 'd') { M.ecg(esc, t, { x0: 100, x1: W - 100, y: H * 0.5, amp: 160 }); c.fig('corazon', .5, .2, 200, { fijo: true }); }
+  if (B === 'e') { c.fig('meditando', .5, .55, 620, { fijo: true }); M.red(esc, t, { x: W * .5, y: H * .2, w: 500, h: 220, n: 30, prog: 1, semilla: 'x' }); }
+  if (B === 'f') { M.reloj(esc, t, { x: W * .3, y: H * .5, r: 180, vel: 0.4 }); M.reloj(esc, t, { x: W * .7, y: H * .5, r: 180, vel: 1.4 }); c.ondas(.5, .5, { en: 0, color: '#9FD8FF' }); }
+};
+window.ready = document.fonts.load('600 40px Fredoka');
+</script>

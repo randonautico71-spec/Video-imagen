@@ -1,0 +1,42 @@
+{
+  "_nota": "Constantes MEDIDAS en este contenedor (4 vCPU, 16 GB, sin GPU) el 2026-10-22. 'certeza' dice cuanto fiarse. El estimador (vid.py estimar) las usa; si una constante cambia, se corrige aqui.",
+  "voz": {
+    "palabras_por_min_habla": {
+      "meditacion": 132,
+      "curiosos": 190,
+      "aprender": 190,
+      "certeza": "meditacion y curiosos medidos con 2 y 1 proyectos de prueba (50-74 palabras); 'aprender' NO medido, se asume igual a curiosos"
+    },
+    "calculo_s_por_s_de_habla": {
+      "melo": 0.42,
+      "piper": 0.22,
+      "certeza": "medido en textos de 12-32 s de habla; melo ademas carga el modelo en ~15 s"
+    },
+    "alineado_s_por_s_de_audio": 0.3,
+    "alineado_certeza": "medido entre 0.18 y 0.35 en 3 pruebas cortas; faster-whisper small, CPU",
+    "carga_modelo_s": {
+      "melo": 15,
+      "piper": 1.5
+    }
+  },
+  "musica": {
+    "s_por_s_de_audio": 0.082,
+    "memoria_MB_por_s": 3.0,
+    "certeza": "medido UNA vez con 45 min de estilo meditacion: 221 s y pico de 8079 MB. Otros estilos no medidos (se asume igual)"
+  },
+  "render": {
+    "ms_por_fotograma_un_proceso": {
+      "1.0": 95,
+      "1.5": 201,
+      "certeza": "media de los 7 mundos de meditacion (rango ss1: 63-132, ss1.5: 153-278); otros tipos de escena pueden costar distinto"
+    },
+    "eficiencia_4_procesos": 0.7,
+    "eficiencia_certeza": "MEDIDA con prueba_fondos (ss 1.0, 1615 fotogramas, 7 trozos): 25-33 fotogramas/s, o sea ~0.65-0.75 de lo ideal. A ss 1.5 se midio 16.8 fps en otra prueba. NO validada en videos largos",
+    "overhead_fijo_s": 25
+  },
+  "salida": {
+    "mbps_crf17": 5.4,
+    "certeza": "MEDIDO: 5.4 Mbps a crf 17 en los 7 mundos de luz (ss 1.0) y 2.7 Mbps en una escena sencilla de meditacion. Se usa 5.4 (caso exigente). La tasa a otros crf es la regla general de x264 (el doble cada -6 crf), NO medida",
+    "copias_en_disco_durante_render": 3
+  }
+}

@@ -1,0 +1,24 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Figuras</title>
+<style>
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F}
+  html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script>
+<script src="../engine/motion/ease.js"></script><script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script>
+<script src="../engine/text/texto.js"></script><script src="../engine/draw/trazos.js"></script><script src="../engine/figuras/biblioteca.js"></script><script src="../engine/figuras/biblioteca2.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), modo = Q.get('modo') || 'luz', prog = parseFloat(Q.get('p') || '1');
+const esc = VE.crearEscenario({ formato: 'yt', estilo: modo === 'solido' ? 'DARK' : 'DARK', ss: 1.5 });
+const nombres = Q.get('solo') ? Q.get('solo').split('?')[0].split(',') : VE.trazo.nombres(), COLS = parseInt(Q.get('cols') || '7'), filas = Math.ceil(nombres.length / COLS);
+const celdaW = esc.W / COLS, celdaH = esc.H / filas;
+window.renderAt = function (t) {
+  esc.abrir(); const x = esc.ctx;
+  if (modo === 'luz') { x.fillStyle = '#04050A'; x.fillRect(0, 0, esc.W, esc.H); }
+  nombres.forEach((n, i) => {
+    const cx = (i % COLS + 0.5) * celdaW, cy = (Math.floor(i / COLS) + 0.45) * celdaH, tam = Math.min(celdaW, celdaH) * 0.62;
+    VE.trazo.dibujar(esc, n, { x: cx, y: cy, tam, modo, progreso: prog, t, chispas: modo === 'luz' ? 6 : 0, semilla: n });
+    esc.tipo(18, 500); VE.texto.trazar(esc, n, cx, cy + tam * 0.62, { color: '#9FB0CC', contornoAncho: 4, registrar: false });
+  });
+};
+window.ready = document.fonts.load('500 20px Fredoka');
+</script>
