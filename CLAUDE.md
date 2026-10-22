@@ -48,6 +48,7 @@ Piezas (composicion.js): espaciotiempo, electrones (patron de franjas), ecg con 
 Calidad baja: meta.json {ss:0.5, salida_escala:0.5, fps:24, crf:30, ligero_MB, ligero_lado}. Musica solo en limites de capitulo: meta {capitulos:[12,...]}.
 
 ## Reglas del usuario (no reabrir)
+- ESTILO GENERAL (videos de cualquier tema): coger solo la TEMATICA y el tipo de estilo de los ejemplos (rayos, castillos), NO su acabado exacto. Prioridad: dibujar BIEN objetos reales y paisajes reales de fondo (reconocibles, con volumen, luz y paralaje), no iconos esquematicos.
 - NO renderizar ni enviar videos de prueba si el usuario no lo pide. Se fia del entorno; validar con linter/medidas.
 - Voces: solo Piper y MeloTTS, locales. ElevenLabs descartado. Perfiles de `config/perfiles_voz.json` APROBADOS: no tocarlos sin que lo pida.
 - Musica: un estilo por perfil (meditacion/curiosos/aprender) en `pipeline/musica.py`. Cambiarla solo si el usuario lo pide.
