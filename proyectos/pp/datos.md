@@ -1,0 +1,23 @@
+# Verificacion de datos del guion (pp) — consultado el 22/10/2026
+Niveles: V = fuente primaria leida (documento/web oficial del PP o BOE); V* = confirmado por prensa que recoge las palabras del acto (la fuente primaria NO se pudo abrir); X = no entra.
+Nota de metodo: los PDF y paginas se leyeron con la herramienta de lectura web (extracto y citas literales); el shell no llega a estos sitios.
+
+| Afirmacion del guion | Nivel | Fuente |
+|---|---|---|
+| Elecciones generales el 29 de noviembre de 2026; campana del 13 al 27 de noviembre | V | BOE-A-2026-20742, Real Decreto 806/2026 (https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-20742), arts. 2 y 4 (leido en el video del PSOE) |
+| El 19 de octubre de 2026 Feijoo presento su "Contrato con España" en Madrid | V | pp.es: galeria "Feijoo presenta su Contrato con España en Madrid 19.10.2026" (https://www.pp.es/actualidad/galerias/feijoo-presenta-su-contrato-con-espana-en-madrid-19-10-2026/) y PDF del discurso (https://www.pp.es/wp-content/uploads/2026/10/26.10.19-ANF-Intervencion-Contrato-con-Espana.pdf) |
+| El video cuenta el Contrato y promesas publicas, no un programa completo; Feijoo dijo que el programa tambien se presentara | V | Discurso 19/10, cita literal: "en estas elecciones no basta con un programa. Tambien lo presentaremos, pero no basta." No se ha encontrado un programa publicado (pp.es/actualidad/documentos solo lista el Contrato y el discurso). Sin afirmar que NO exista: el guion solo delimita el alcance |
+| Pensiones: "subiran cada año conforme al IPC" | V | Discurso 19/10, cita literal: "Las pensiones subiran cada año conforme al IPC" (tambien en el PDF del Contrato: "Las pensiones se actualizaran con el IPC") |
+| "Me comprometo a bajar los impuestos" y "a que subira el salario medio de los españoles" | V | Discurso 19/10, citas literales. Sin cifra ni impuesto concreto en el Contrato ni en el discurso (el guion lo dice) |
+| Vivienda: "construir al menos un millon de viviendas nuevas" | V | Discurso 19/10 (cita literal). Acto de Sevilla 21/10: "construira un millon de viviendas en la proxima legislatura" (pp.es) |
+| Cien primeros dias: ley para desalojar okupas en 48 horas, Ley del Suelo, reforma de la Ley de Propiedad Horizontal | V | pp.es 21/10/2026, Sevilla (https://www.pp.es/actualidad/articulos/feijoo-anuncia-deducciones-para-alquileres-y-aprobara-en-sus-cien-dias-las-leyes-para-construir-un-millon-de-viviendas-y-desalojar-okupas/): "desalojara a los okupas en 48 horas", "aprobara la Ley del Suelo", "la reforma de la Ley de Propiedad Horizontal", "en los cien primeros dias de Gobierno" |
+| Menores de 40: "avales de hasta el 100%" y "rebajas del 60% del IVA y del ITP" | V | Misma nota de pp.es 21/10 (citas literales). Confirmado ademas el 5/10 (Infobae/EFE: aval publico hasta el 100 % y rebaja del 60 % de impuestos) |
+| Alquiler: "deducciones fiscales para inquilinos y propietarios con contratos de hasta tres años" y "subidas por debajo del IPC" | V | Misma nota de pp.es 21/10 (citas literales) |
+| Presupuestos: "que presente presupuestos cada año y que devuelva la palabra a los españoles si encadena dos prorrogas presupuestarias" | V | Discurso 19/10 (cita literal) |
+| IVA de la vivienda al 4 %, 250.000 viviendas/año, suelo publico con 30 % menos de precio, "cero impuestos" para menores de 40 que compren casa nueva, "Hucha Hogar Joven" | X | NO entran: o proceden de prensa (Infobae 5/10, V*) y hay matices entre actos (4 % de IVA el 5/10 vs. rebaja del 60 % el 21/10), o no se pudieron cotejar con el texto literal. Se deja fuera lo que puede contradecirse |
+| Cifras de Feijoo sobre deficit de vivienda (240.000 hogares/año, 400.000 viviendas expulsadas del alquiler...), "500.000-600.000 empleos" | X | Son afirmaciones de campana, no medidas; fuera del alcance (el video describe propuestas) |
+| Otros compromisos del Contrato sin cifra (sanidad, educacion, seguridad, inmigracion, infraestructuras hidricas, tren) | X | Existen en el discurso pero sin medidas concretas; no se incluyen por tiempo (el video prioriza lo cuantificable) |
+| Encuestas, criticas de otros partidos, juicios sobre las medidas, coste o viabilidad | X | Fuera del alcance (el video describe, no valora) |
+
+Notas de neutralidad: el video describe lo presentado; mismo formato y estructura que el del PSOE (contexto, alcance, medidas por areas, cierre). Sin logos ni colores de partido.
+Discrepancia a tener en cuenta: el PDF "CONTRATO CON ESPAÑA" (385 KB) es una pagina de campana con pocos compromisos; el discurso y la nota de Sevilla aportan las cifras. Por eso la fuente de cada cifra va indicada.
