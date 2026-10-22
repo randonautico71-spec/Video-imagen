@@ -75,6 +75,40 @@ class Melo:
         return np.asarray(a, dtype=np.float32), self.sr
 
 
+class Qwen:
+    """Qwen3-TTS (voces predefinidas, p. ej. Serena). Corre en un proceso aparte con .venv-qwen (Python 3.11) para no
+    mezclar versiones de transformers con MeloTTS; el modelo se carga una vez y se reutiliza para todas las frases."""
+    def __init__(self, perfil):
+        import threading
+        py = RAIZ / '.venv-qwen/bin/python'
+        if not py.exists():
+            raise SystemExit('Falta .venv-qwen (Python 3.11 + qwen-tts). Ejecuta: bash pipeline/instalar.sh')
+        self.p = perfil
+        self.proc = subprocess.Popen([str(py), str(RAIZ / 'pipeline/qwen_worker.py'), perfil.get('modelo_hf', 'Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice')],
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=open(tempfile.gettempdir() + '/qwen_worker.log', 'w'), text=True, bufsize=1,
+                                     env={**os.environ, 'QWEN_HILOS': str(perfil.get('hilos', 4)), 'HF_HUB_DISABLE_XET': '1'})
+        while True:                                   # el arranque puede imprimir avisos antes de la linea {"listo": true}
+            primera = self.proc.stdout.readline()
+            if '"listo"' in primera: break
+            if not primera and self.proc.poll() is not None:
+                raise RuntimeError('El proceso de Qwen no arranco (red: huggingface.co / us.aws.cdn.hf.co; detalle en ' + tempfile.gettempdir() + '/qwen_worker.log)')
+
+    def sintetizar(self, frase):
+        with tempfile.TemporaryDirectory() as d:
+            sal = Path(d) / 'a.npy'
+            self.proc.stdin.write(json.dumps({'texto': frase, 'salida': str(sal), 'speaker': self.p['speaker'],
+                                              'idioma': self.p.get('idioma', 'Spanish'), 'instruct': self.p.get('instruct')}) + '\n')
+            self.proc.stdin.flush()
+            r = json.loads(self.proc.stdout.readline() or '{"ok": false, "error": "el proceso de Qwen termino"}')
+            if not r.get('ok'):
+                raise RuntimeError('Qwen fallo: ' + r.get('error', ''))
+            return np.load(sal).astype(np.float32), int(r['sr'])
+
+    def cerrar(self):
+        try: self.proc.stdin.close(); self.proc.wait(timeout=10)
+        except Exception: self.proc.kill()
+
+
 def remuestrear(a, sr_in, sr_out=SR):
     if sr_in == sr_out:
         return a
@@ -275,7 +309,7 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
     frases = partir_frases(texto)
     if not frases:
         raise SystemExit('El guion esta vacio.')
-    motor = Piper(perfil) if perfil['motor'] == 'piper' else Melo(perfil)
+    motor = {'piper': Piper, 'qwen': Qwen}.get(perfil['motor'], Melo)(perfil)
     t_carga = time.time() - t0
 
     # Cache por frase en disco: una sintesis larga (45 min = ~25 min de calculo) puede cortarse y se reanuda donde iba.
@@ -309,6 +343,7 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
         trozos.append(np.zeros(int(pausa * SR), np.float32)); cursor += int(pausa * SR)
         if progreso and (i % 10 == 0 or i == len(frases) - 1):
             print(f'  frase {i + 1}/{len(frases)}  ({aciertos} desde cache)', flush=True)
+    if hasattr(motor, 'cerrar'): motor.cerrar()          # libera la RAM del modelo antes de los filtros y del alineado
     crudo = np.concatenate(trozos)
     t_sint = time.time() - t0 - t_carga
 

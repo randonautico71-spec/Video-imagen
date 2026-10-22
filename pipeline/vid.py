@@ -278,7 +278,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
     p = sp.add_parser('nuevo'); p.add_argument('tema'); p.add_argument('--formato', default='short', choices=['short', 'youtube', 'instagram'])
-    p.add_argument('--voz', default='curiosos', choices=['curiosos', 'aprender', 'meditacion']); p.add_argument('--musica', default='curiosos', choices=['curiosos', 'aprender', 'meditacion']); p.set_defaults(f=cmd_nuevo)
+    p.add_argument('--voz', default='curiosos', choices=['curiosos', 'aprender', 'meditacion', 'serena']); p.add_argument('--musica', default='curiosos', choices=['curiosos', 'aprender', 'meditacion']); p.set_defaults(f=cmd_nuevo)
     for nombre, f in (('voz', cmd_voz), ('musica', cmd_musica), ('mezcla', cmd_mezcla)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     p = sp.add_parser('qa'); p.add_argument('tema'); p.add_argument('--paso', type=float, default=0.5); p.add_argument('--stills'); p.set_defaults(f=cmd_qa)

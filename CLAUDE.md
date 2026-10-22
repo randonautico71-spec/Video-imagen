@@ -27,6 +27,11 @@ Imagen = LUZ: contornos SIN relleno, color del trazo = color real del objeto acl
 - Voz de meditacion: SOLO MeloTTS (perfil `meditacion`, sin reverb, ELEGIDA 'muestra B': speed 0.92, sin pitch ni compresion, frases partidas por comas con pausa de respiracion `pausa_coma_s`). Los perfiles de Piper estan PENDIENTES DE AJUSTE por el usuario.
 - Proyectos con fondo negro deliberado: `VE.proyecto({ lint: { negro: true } })` (si no, el linter marca 'fotograma negro').
 
+## Voz SERENA (Qwen3-TTS 0.6B CustomVoice, perfil `serena`, para cortos)
+`--voz serena`. Corre en `.venv-qwen` (Python 3.11, qwen-tts fija transformers 4.57.3; instalar con `pipeline/instalar.sh`) como proceso auxiliar (`pipeline/qwen_worker.py`)
+que carga el modelo una vez. Red: pypi.org, download.pytorch.org, huggingface.co, us.aws.cdn.hf.co (pesos ~2,5 GB, 1.a vez). Medido aqui (4 CPU): ~5,4 s de calculo por s de audio
+(14 s de voz = 76 s) + alineado local; un corto de 100 s de voz ~9-10 min. Sin etiquetas de direccion; `instruct` opcional en el perfil. Perfil nuevo: el usuario aun no lo ha oido en el motor.
+
 ## VIDEOS LARGOS (45 min de meditacion es el siguiente video real)
 - `VE.proyecto({ capitulos:[{parrafos:N, dibujar(esc,t,ctx)}...] })` agrupa parrafos en capitulos (ctx.parrafo, ctx.buscar(palabra,n)).
 - Fondos ricos: `VE.med.mundos` = prado_nocturno, lago_luna, bosque_niebla, aurora_boreal, amanecer, jardin_loto, oceano_estrellas
@@ -59,7 +64,7 @@ Demo/revision: `demo/realismo.html?modo=paisaje|objetos|rayo&tipo=montanas|lago|
 ## Reglas del usuario (no reabrir)
 - ESTILO GENERAL (videos de cualquier tema): coger solo la TEMATICA y el tipo de estilo de los ejemplos (rayos, castillos), NO su acabado exacto. Prioridad: dibujar BIEN objetos reales y paisajes reales de fondo (reconocibles, con volumen, luz y paralaje), no iconos esquematicos.
 - NO renderizar ni enviar videos de prueba si el usuario no lo pide. Se fia del entorno; validar con linter/medidas.
-- Voces: solo Piper y MeloTTS, locales. ElevenLabs descartado. Perfiles de `config/perfiles_voz.json` APROBADOS: no tocarlos sin que lo pida.
+- Voces: Piper, MeloTTS y Qwen3-TTS ('serena', cortos), locales. ElevenLabs descartado. Perfiles de `config/perfiles_voz.json` APROBADOS: no tocarlos sin que lo pida.
 - Musica: un estilo por perfil (meditacion/curiosos/aprender) en `pipeline/musica.py`. Cambiarla solo si el usuario lo pide.
 - Formatos: short, youtube (3 min-1 h), instagram (~5 min). YouTube de 3-5 min => entregar DOS versiones (youtube 16:9 + instagram 9:16).
 - Cifra sin fuente primaria no entra en el guion. Decir que esta verificado y que no.

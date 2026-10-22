@@ -32,6 +32,14 @@ for p in taggers/averaged_perceptron_tagger_eng taggers/averaged_perceptron_tagg
 echo "== Alineador de palabras (faster-whisper)"
 python3 -c "import faster_whisper" 2>/dev/null && ok "faster-whisper" || { hacer "faster-whisper"; pip install -q faster-whisper; }
 
+echo "== Voz: Qwen3-TTS (Serena) en un venv aparte con Python 3.11 (qwen-tts fija transformers==4.57.3)"
+# REQUISITOS DE RED extra: pypi.org, download.pytorch.org, huggingface.co (+ us.aws.cdn.hf.co para los pesos, ~2,5 GB la primera vez)
+if [ -x "$R/.venv-qwen/bin/python" ] && "$R/.venv-qwen/bin/python" -c "import qwen_tts" 2>/dev/null; then ok "qwen-tts"; else
+  hacer "venv Python 3.11 + torch CPU + qwen-tts"
+  python3.11 -m venv "$R/.venv-qwen" 2>/dev/null; "$R/.venv-qwen/bin/pip" install -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu \
+   && "$R/.venv-qwen/bin/pip" install -q -U qwen-tts soundfile numpy || mal "instalacion de qwen-tts (¿pypi.org / download.pytorch.org permitidos?)"
+fi
+
 echo "== Verificacion de importaciones"
 python3 - <<'PY'
 import sys; sys.path.insert(0,'vendor/MeloTTS')
