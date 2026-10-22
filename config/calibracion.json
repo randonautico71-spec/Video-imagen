@@ -42,7 +42,9 @@
     },
     "eficiencia_4_procesos": 0.7,
     "eficiencia_certeza": "MEDIDA con prueba_fondos (ss 1.0, 1615 fotogramas, 7 trozos): 25-33 fotogramas/s, o sea ~0.65-0.75 de lo ideal. A ss 1.5 se midio 16.8 fps en otra prueba. NO validada en videos largos",
-    "overhead_fijo_s": 25
+    "overhead_fijo_s": 25,
+    "ms_por_fotograma_realismo_vertical_ss1.5": 680,
+    "certeza_realismo": "680 ms/fotograma por proceso MEDIDO en el short 'orientacion' (paisajes+objetos VE.real, vertical, ss 1.5): 1,9 fps con 1 proceso y 5,9 fps con 4. RAM: ~2,0 GB de pico por proceso."
   },
   "salida": {
     "mbps_crf17": 5.4,

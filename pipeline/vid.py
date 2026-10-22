@@ -15,6 +15,14 @@ TIPOS = json.loads((RAIZ / 'config/tipos.json').read_text())
 COLA_S = {'meditacion': 3.5}          # segundos tras la ultima palabra (la musica de meditacion se apaga lenta)
 
 
+def workers_auto():
+    """Procesos de render segun el contenedor: 1 por CPU (maximo 4) y como mucho 1 por cada 2,5 GB de RAM libre
+    (medido: cada proceso de render pico ~2,0 GB con ss 1.5 vertical; con 4 procesos en un chat de 7 GB habria memoria agotada)."""
+    try: mem = int([l for l in open('/proc/meminfo') if l.startswith('MemAvailable')][0].split()[1]) / 1e6
+    except Exception: mem = 8
+    return max(1, min(4, os.cpu_count() or 1, int(mem // 2.5)))
+
+
 def dir_proyecto(tema):
     d = RAIZ / 'proyectos' / tema
     if not d.is_dir():
@@ -217,7 +225,8 @@ def cmd_estimar(a):
     t_voz = cal['voz']['carga_modelo_s'][motor] + habla * cal['voz']['calculo_s_por_s_de_habla'][motor] + total * cal['voz']['alineado_s_por_s_de_audio']
     t_mus = total * cal['musica']['s_por_s_de_audio']; mem_mus = total * cal['musica']['memoria_MB_por_s'] / 1000
     ms = cal['render']['ms_por_fotograma_un_proceso'].get(str(ss)) or cal['render']['ms_por_fotograma_un_proceso']['1.5'] * (ss / 1.5) ** 2
-    t_ren = frames * ms / 1000 / (4 * cal['render']['eficiencia_4_procesos']) + cal['render']['overhead_fijo_s']
+    if meta.get('tipo') == 'short' and ss >= 1.5: ms = cal['render']['ms_por_fotograma_realismo_vertical_ss1.5']      # paisajes y objetos reales (VE.real): ~3x mas caros que las escenas de luz
+    W = workers_auto(); t_ren = frames * ms / 1000 / (W * cal['render']['eficiencia_4_procesos']) + cal['render']['overhead_fijo_s']
     crf = meta.get('crf', 17); mb = total * cal['salida']['mbps_crf17'] * 2 ** (-(crf - 17) / 6) / 8
     fmt = lambda s: f'{int(s // 3600)} h {int(s % 3600 // 60)} min' if s >= 3600 else f'{int(s // 60)} min {int(s % 60)} s'
     print(f"\n== ESTIMACION de proyectos/{a.tema}  (formato {meta['formato']}, voz {meta['voz']}/{motor}, ss {ss}, {fps} fps, crf {crf})")
@@ -225,7 +234,7 @@ def cmd_estimar(a):
     print(f"  Duracion     voz {fmt(voz_s)} (habla {fmt(habla)} + pausas {fmt(pausas)}) -> video {fmt(total)}, {frames} fotogramas")
     print(f"  Voz          ~{fmt(t_voz)} de calculo  (cache por frase: si se corta, se reanuda)")
     print(f"  Musica       ~{fmt(t_mus)}, pico ~{mem_mus:.1f} GB de RAM  -> NO ejecutar a la vez que voz o render")
-    print(f"  Render       ~{fmt(t_ren)}  (reanudable por trozos)")
+    print(f"  Render       ~{fmt(t_ren)}  con {W} proceso(s) en paralelo (este contenedor: {os.cpu_count()} CPU)  (reanudable por trozos)")
     print(f"  Disco        pesado ~{mb:.0f} MB; durante el render ~{mb * cal['salida']['copias_en_disco_durante_render']:.0f} MB")
     print(f"  TOTAL        ~{fmt(t_voz + t_mus + t_ren)} de proceso")
     avisar_rango(meta, total)
@@ -303,7 +312,7 @@ def cmd_render(a):
         out = s / f'v_{v["nombre"]}'; out.mkdir(exist_ok=True)
         t0 = time.time()
         cmd = ['node', str(RAIZ / 'render/render.cjs'), '--proyecto', f'proyectos/{a.tema}', '--lienzo', v['lienzo'], '--fps', str(v['fps']),
-               '--ss', str(v['ss']), '--salida', str(out), '--workers', str(a.workers)]
+               '--ss', str(v['ss']), '--salida', str(out), '--workers', str(a.workers or workers_auto())]
         if a.hasta: cmd += ['--hasta', str(a.hasta)]
         if 'crf' in meta: cmd += ['--crf', str(meta['crf'])]
         if 'calidad_jpeg' in meta: cmd += ['--calidad', str(meta['calidad_jpeg'])]
@@ -344,7 +353,7 @@ if __name__ == '__main__':
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     p = sp.add_parser('qa'); p.add_argument('tema'); p.add_argument('--paso', type=float, default=0.5); p.add_argument('--stills'); p.set_defaults(f=cmd_qa)
     for nombre, f in (('render', cmd_render), ('todo', cmd_todo)):
-        p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--version'); p.add_argument('--workers', type=int, default=4)
+        p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--version'); p.add_argument('--workers', type=int, default=None, help='procesos de render; por defecto segun CPU y RAM del contenedor')
         p.add_argument('--hasta', type=float); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     for nombre, f in (('estimar', cmd_estimar), ('estado', cmd_estado)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.set_defaults(f=f)

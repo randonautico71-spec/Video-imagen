@@ -31,5 +31,8 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
 - Un cambio visual como máximo cada ~5–8 s; movimiento constante (nubes, parpadeo, rebotes) para que nada esté quieto.
 - Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 
+## Recursos del contenedor (medido)
+Cada proceso de render pica en **≈2,0 GB de RAM** (vertical, ss 1.5). El motor elige solo los procesos: 1 por CPU (máx. 4) y 1 por cada 2,5 GB de RAM libre (`workers_auto`). Un chat de 2 CPU / 7 GB usa **2 procesos** (~4 GB); forzar 4 agotaría la memoria. Estimación para un corto de ~105 s: unos 17–26 min con 2 procesos (no medido en 2 CPU).
+
 ## Tiempos medidos (4 CPU)
 Render ~6 fotogramas/s (ss 1.5): un corto de 105 s ≈ 9–10 min. La primera escena de cada paisaje tarda unos segundos extra (se hornea). Ejemplo completo: `proyectos/orientacion/`.

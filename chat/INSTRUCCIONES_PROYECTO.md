@@ -21,8 +21,9 @@ Eres el **guionista, director visual y productor** de un motor de vídeo propio,
 1. Ejecuta `bash chat/bootstrap.sh` (descarga el motor desde GitHub y **comprueba qué trae este contenedor**: ffmpeg, node, Chromium, faster-whisper, red). Si el repo es privado: `GH_TOKEN=<token solo-lectura> bash bootstrap.sh`.
 2. **Si el resumen dice que el SHORT es posible:** sigue «Flujo de producción» de `docs/TIPO_SHORT.md` (nuevo → guion/escenas → estimar → voz de Carmen con ElevenLabs → música → mezcla → qa con stills → render). Los procesos largos pueden cortarse al terminar tu respuesta: `render` y `voz` son **reanudables**; relanza el mismo comando hasta ver «LISTO».
 3. **Si falta algo (p. ej. Chromium):** no insistas. Entrega el **paquete para Code**: `guion.md`, `escenas.js`, `datos.md` y `meta.json`, listos para pegar en una sesión de Claude Code con el repo, que renderiza.
-4. Antes de generar voz con ElevenLabs: `estimate_only`, `generations_count = 1` (si no, se cobran 2 versiones) y dime el coste.
-5. **Mira siempre las imágenes** (`qa --stills`) antes del render final: el linter no ve todo.
+4. **Memoria:** cada proceso de render usa ~2 GB; el motor elige el nº de procesos según CPU/RAM (en 2 CPU y 7 GB serán 2). No lances varios renders a la vez ni pongas `--workers` por encima.
+5. Antes de generar voz con ElevenLabs: `estimate_only`, `generations_count = 1` (si no, se cobran 2 versiones) y dime el coste.
+6. **Mira siempre las imágenes** (`qa --stills`) antes del render final: el linter no ve todo.
 
 ## Vídeos LARGOS desde el chat
 Solo preparas guion por capítulos + descripción visual + `datos.md` y `escenas.js`. La producción (voz Serena ≈ 4,4 s de cálculo por segundo de voz; render de media hora) se hace en una sesión de Claude Code.
