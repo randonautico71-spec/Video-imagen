@@ -97,7 +97,7 @@ class Qwen:
         with tempfile.TemporaryDirectory() as d:
             sal = Path(d) / 'a.npy'
             self.proc.stdin.write(json.dumps({'texto': frase, 'salida': str(sal), 'speaker': self.p['speaker'],
-                                              'idioma': self.p.get('idioma', 'Spanish'), 'instruct': self.p.get('instruct')}) + '\n')
+                                              'idioma': self.p.get('idioma', 'Spanish'), 'instruct': self.p.get('instruct'), 'gen': self.p['sintesis'].get('gen')}) + '\n')
             self.proc.stdin.flush()
             r = json.loads(self.proc.stdout.readline() or '{"ok": false, "error": "el proceso de Qwen termino"}')
             if not r.get('ok'):
@@ -125,7 +125,7 @@ class Qwen:
             with tempfile.TemporaryDirectory() as d:
                 items = [{'texto': f, 'salida': str(Path(d) / f'{k}.npy')} for k, f in enumerate(grupo)]
                 self.proc.stdin.write(json.dumps({'lote': items, 'speaker': self.p['speaker'], 'idioma': self.p.get('idioma', 'Spanish'),
-                                                  'instruct': self.p.get('instruct')}) + '\n'); self.proc.stdin.flush()
+                                                  'instruct': self.p.get('instruct'), 'gen': self.p['sintesis'].get('gen')}) + '\n'); self.proc.stdin.flush()
                 r = json.loads(self.proc.stdout.readline() or '{"ok": false, "error": "el proceso de Qwen termino"}')
                 if not r.get('ok'): raise RuntimeError('Qwen (lote) fallo: ' + r.get('error', ''))
                 for f, it in zip(grupo, items): res[f] = (np.load(it['salida']).astype(np.float32), int(r['sr']))

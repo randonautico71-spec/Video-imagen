@@ -19,11 +19,13 @@ for linea in sys.stdin:
         if 'lote' in p:                                           # varias frases a la vez: ~30% menos tiempo de calculo por segundo de voz
             n = len(p['lote']); kw = dict(text=[q['texto'] for q in p['lote']], language=[p.get('idioma', 'Spanish')] * n, speaker=[p.get('speaker', 'Serena')] * n)
             if p.get('instruct'): kw['instruct'] = [p['instruct']] * n
+            kw.update(p.get('gen') or {})
             wavs, sr = m.generate_custom_voice(**kw)
             for q, w in zip(p['lote'], wavs): np.save(q['salida'], np.asarray(w, dtype=np.float32))
             print(json.dumps({'ok': True, 'sr': int(sr)}), flush=True); continue
         kw = dict(text=p['texto'], language=p.get('idioma', 'Spanish'), speaker=p.get('speaker', 'Serena'))
         if p.get('instruct'): kw['instruct'] = p['instruct']
+        kw.update(p.get('gen') or {})                                 # parametros de muestreo (temperature, top_k, ...)
         wavs, sr = m.generate_custom_voice(**kw)
         np.save(p['salida'], np.asarray(wavs[0], dtype=np.float32))
         print(json.dumps({'ok': True, 'sr': int(sr)}), flush=True)

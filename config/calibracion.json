@@ -10,7 +10,10 @@
       "serena_meditacion": 138,
       "serena_largo": 138,
       "carmen": 171,
-      "certeza_carmen": "171 wpm medido en UNA frase real de Carmen (18 palabras en 6,32 s); recalibrar con un corto entero"
+      "certeza_carmen": "171 wpm medido en UNA frase real de Carmen (18 palabras en 6,32 s); recalibrar con un corto entero",
+      "aiden": 138,
+      "aiden_meditacion": 138,
+      "certeza_aiden": "138 wpm ASUMIDO igual que Serena (no medido): la muestra del usuario trae 26 palabras en 12,3 s = 127 wpm con pausas."
     },
     "calculo_s_por_s_de_habla": {
       "melo": 0.42,

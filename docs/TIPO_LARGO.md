@@ -2,6 +2,8 @@
 
 **Ficha** (de `config/tipos.json`): YouTube 16:9 · 30–60 min · 24 fps · voz **Serena** (Qwen3-TTS local) · música ambiental · −16 LUFS (meditación −19) · sin subtítulos por defecto · MP4 pesado + ligero.
 
+**Voz alternativa masculina: Aiden** (`"voz": "aiden"` en `meta.json`, o `aiden_meditacion` con pausas largas). Misma maquinaria y mismos tiempos que Serena.
+
 ## Flujo de producción
 1. `python3 pipeline/vid.py nuevo <tema> --tipo largo` (para meditación, poner `"voz": "serena_meditacion"` en `meta.json`: pausas más largas).
 2. `guion.md` por capítulos (ver abajo) y `datos.md` (cada cifra con fuente primaria; lo no verificable no entra).

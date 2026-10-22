@@ -185,5 +185,59 @@
       "nivel_lufs": -14
     },
     "nota": "El ID viene de creative_list_voices (busqueda 'Carmen', es). Otras 'Carmen' de la biblioteca son latinoamericanas: NO usarlas para peninsular."
+  },
+  "aiden": {
+    "descripcion": "Aiden (Qwen3-TTS CustomVoice 0.6B, voz masculina, habla espanol; F0 mediano ~115 Hz medido en la muestra del usuario '2_qwen_custom_Aiden.mp3'). Misma maquinaria que Serena. Elegir con meta.voz = 'aiden' (largos) o 'aiden_meditacion' (pausas largas).",
+    "motor": "qwen",
+    "modelo_hf": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "idioma": "Spanish",
+    "speaker": "Aiden",
+    "instruct": null,
+    "hilos": 4,
+    "sintesis": {
+      "modelo": "Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "dtype": "bf16"
+    },
+    "pausa_frase_s": 0.5,
+    "pausa_parrafo_s": 1.1,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 65,
+      "lowpass_hz": 16000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    },
+    "lote": 8
+  },
+  "aiden_meditacion": {
+    "descripcion": "Aiden para meditacion: pausas largas entre frases y parrafos.",
+    "motor": "qwen",
+    "modelo_hf": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "idioma": "Spanish",
+    "speaker": "Aiden",
+    "instruct": null,
+    "hilos": 4,
+    "sintesis": {
+      "modelo": "Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "dtype": "bf16"
+    },
+    "pausa_frase_s": 0.65,
+    "pausa_parrafo_s": 1.5,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 65,
+      "lowpass_hz": 16000,
+      "calidez_db": 1.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -19
+    },
+    "lote": 8
   }
 }

@@ -8,6 +8,9 @@
 ## Voz Carmen (ElevenLabs) — probado con UNA frase real
 Una frase de 95 caracteres (6,32 s, 95 créditos ≈ 1,7 céntimos de dólar, `eleven_v4`, 1 versión): generada con `creative_generate_speech`, leída con `creative_get_flow_run_status`, descargada de `storage.googleapis.com` (dominio a permitir en la red) e importada con `vid.py voz-importar`: **100 % de palabras casadas**, frases y párrafos bien delimitados, timeline correcto, 171 palabras/min. **No probado**: un short entero con Carmen (música, mezcla y render con su audio).
 
+## Voces Qwen (Serena, Aiden): variación entre generaciones (medido)
+El modelo muestrea (temperatura 0,9 por defecto): el MISMO texto con Aiden dio un tono medio de 118 Hz y de 170 Hz en dos generaciones; con textos cortos la variación fue de 9 Hz. Bajar `temperature`/`subtalker_temperature` a 0,5 o 0,3 **no** estabilizó (25–43 Hz, 3 muestras por ajuste, poco concluyente). `instruct` en español ("voz grave y calmada") tampoco bajó el tono. En vídeos largos, algunas frases pueden sonar con tono distinto: **hay que oírlas**; el motor solo comprueba la duración de cada frase. La muestra de Aiden del usuario (116 Hz) coincide con una de las generaciones (118 Hz) y su timbre con el del motor (similitud espectral 0,96 frente a 0,74 de Serena).
+
 ## Calidad de vídeo (medida)
 - Color: el pipeline anterior desviaba el color (BT.601→reproductor BT.709: rojo 191,0,0 → 207,17,0; error medio de verde 13 niveles). Ahora convierte a BT.709 y etiqueta: error ~1 nivel, PSNR 31 → 41 dB en la carta de pruebas. Aplicado en `render/render.cjs` (los vídeos ya entregados NO lo llevan).
 - `aq-mode=3` y preset `medium`: sin pérdida de velocidad medida (1,9 fotogramas/s por proceso en el short).
