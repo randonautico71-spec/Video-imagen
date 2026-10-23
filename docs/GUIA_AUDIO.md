@@ -66,3 +66,9 @@ Para repetir con otra referencia: `python3 pipeline/analizar_voz.py ref.mp3 --js
 
 ## 9. Límites honestos
 Piper sin ajustar · velocidad de Aiden y de Carmen sin medir en un vídeo entero · variación de tono de Qwen sin solución · música medida en RAM solo para meditación · un short entero con Carmen aún no probado de punta a punta.
+
+
+## Nota: contenedor sin Qwen y perfil `melo_es_dormir`
+- En el contenedor de Code se **borró** el entorno Qwen (`.venv-qwen` y su caché HF, ~4,3 GB). Los perfiles Serena/Aiden/Vivian/Carmelot siguen en `config/perfiles_voz.json` pero **no pueden sintetizar** hasta reinstalar con `pipeline/instalar.sh`.
+- `melo_es_dormir`: MeloTTS `melo_es` *tal cual* (velocidad 1.0, sin efectos), pausas largas (1,0 s entre frases, 2,2 s entre párrafos) y −19 LUFS. Medido en «Física cuántica para dormir»: 2810 palabras → 23:30 de voz (≈ 120 palabras/min con pausas), alineado whisper 98 % de palabras casadas.
+- Síntesis Melo en CPU: ≈ 0,34 s de cálculo por s de voz + alineado ≈ 0,18 s por s.

@@ -385,5 +385,30 @@
       "nivel_lufs": -16
     },
     "lote": 8
+  },
+  "melo_es_dormir": {
+    "descripcion": "melo_es TAL CUAL (velocidad 1.0, parametros por defecto) para DORMIR: la voz no se toca; solo pausas largas entre frases y parrafos y volumen suave (-19 LUFS).",
+    "motor": "melo",
+    "idioma": "ES",
+    "speaker": "ES",
+    "sintesis": {
+      "speed": 1.0,
+      "sdp_ratio": 0.2,
+      "noise_scale": 0.6,
+      "noise_scale_w": 0.8
+    },
+    "pausa_frase_s": 1.0,
+    "pausa_parrafo_s": 2.2,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 40,
+      "lowpass_hz": 20000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -19
+    }
   }
 }

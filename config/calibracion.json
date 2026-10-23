@@ -18,7 +18,8 @@
       "sharvard_1": 190,
       "melo_es": 150,
       "vivian": 138,
-      "certeza_nuevas": "sharvard_1, melo_es y vivian: wpm ASUMIDOS (no medidos) hasta usarlas en un proyecto"
+      "certeza_nuevas": "sharvard_1, melo_es y vivian: wpm ASUMIDOS (no medidos) hasta usarlas en un proyecto",
+      "melo_es_dormir": 150
     },
     "calculo_s_por_s_de_habla": {
       "melo": 0.42,

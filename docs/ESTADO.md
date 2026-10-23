@@ -26,3 +26,7 @@ El modelo muestrea (temperatura 0,9 por defecto): el MISMO texto con Aiden dio u
 - Safe areas verticales (estimación).
 - Calidad percibida de las voces y de la música: solo la juzga el usuario.
 - Coordenadas RA/Dec de las estrellas del short «orientación» (escritas de memoria).
+
+## Proyecto «Física cuántica para dormir» (proyectos/fisica_cuantica_dormir)
+- Guion de 63 párrafos (datos con nivel de verificación en `datos.md`), voz `melo_es_dormir`, música `meditacion`, estilo luz sobre fondo oscuro con figuras nuevas de `engine/figuras/biblioteca3.js`. Duración real 23:34. Sin subtítulos ni textos.
+- Verificado por medición: lint sin incidencias, 63 fotogramas de control revisados, LUFS/pico de la mezcla (ver entrega). **No verificado:** cómo suena y se ve en movimiento; solo lo juzga el usuario.
