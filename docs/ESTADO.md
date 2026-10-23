@@ -37,3 +37,5 @@ El modelo muestrea (temperatura 0,9 por defecto): el MISMO texto con Aiden dio u
 
 ## Regla de repositorio
 - A GitHub solo se suben **actualizaciones de material visual y del motor** (figuras, realismo, estilos, herramientas, perfiles, docs). **Los proyectos (guion, escenas, datos, meta) NO se suben** (`.gitignore` los excluye salvo `proyectos/_plantilla`). Los proyectos anteriores se sacaron del arbol del repo el 2026-10-23, pero **siguen en el historial de commits** (repo publico).
+
+- `almanaque/`: carpeta de consulta con lo esencial (figuras, componentes, patrones de escenas, voces, reglas), sin proyectos.
