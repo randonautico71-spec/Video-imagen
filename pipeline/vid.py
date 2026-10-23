@@ -12,7 +12,7 @@ sys.path.insert(0, str(RAIZ / 'pipeline'))
 import entrega  # noqa: E402
 
 TIPOS = json.loads((RAIZ / 'config/tipos.json').read_text())
-COLA_S = {'meditacion': 3.5}          # segundos tras la ultima palabra (la musica de meditacion se apaga lenta)
+COLA_S = {'meditacion': 3.5, 'mistico': 3.5, 'natural': 3.5}          # segundos tras la ultima palabra (la musica de meditacion se apaga lenta)
 
 
 def workers_auto():
@@ -201,9 +201,9 @@ def cmd_musica(a):
 def cmd_mezcla(a):
     d = dir_proyecto(a.tema); meta = leer_meta(d); s = d / 'salida'
     tl = json.loads((s / 'timeline.json').read_text()); end = tl['duracion_total'] + 0.1
-    vol = meta.get('volumen_musica', 0.55); lufs = meta.get('lufs', -16)
+    vol = meta.get('volumen_musica', 0.55); lufs = meta.get('lufs', -16); du = meta.get('ducking', {})
     filtro = (f"[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,apad,asplit=2[v1][v2];[1:a]volume={vol}[m];"
-              f"[m][v2]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=400[md];"
+              f"[m][v2]sidechaincompress=threshold={du.get('umbral', 0.03)}:ratio={du.get('ratio', 8)}:attack={du.get('ataque', 20)}:release={du.get('relajacion', 400)}[md];"
               f"[v1][md]amix=inputs=2:normalize=0:duration=longest,loudnorm=I={lufs}:TP=-1.5,atrim=0:{end:.2f}[a]")
     sh(['ffmpeg', '-v', 'error', '-y', '-i', str(s / 'locucion.wav'), '-i', str(s / 'musica.wav'), '-filter_complex', filtro,
         '-map', '[a]', '-ac', '2', '-ar', '44100', str(s / 'mezcla.wav')])
@@ -347,7 +347,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
     p = sp.add_parser('nuevo'); p.add_argument('tema'); p.add_argument('--tipo', choices=[k for k in TIPOS if not k.startswith('_') and k != 'marca'], help='largo | short: rellena formato, voz, musica y calidad')
-    p.add_argument('--formato', choices=['short', 'youtube', 'instagram']); p.add_argument('--voz'); p.add_argument('--musica', choices=['curiosos', 'aprender', 'meditacion']); p.set_defaults(f=cmd_nuevo)
+    p.add_argument('--formato', choices=['short', 'youtube', 'instagram']); p.add_argument('--voz'); p.add_argument('--musica', choices=['curiosos', 'aprender', 'meditacion', 'mistico', 'natural']); p.set_defaults(f=cmd_nuevo)
     p = sp.add_parser('voz-importar'); p.add_argument('tema'); p.add_argument('audio'); p.add_argument('--whisper', default='small'); p.set_defaults(f=cmd_voz_importar)
     for nombre, f in (('voz', cmd_voz), ('musica', cmd_musica), ('mezcla', cmd_mezcla)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)

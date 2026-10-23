@@ -7,3 +7,4 @@
 6. Objetos y paisajes reales bien dibujados (volumen y luz), no iconos esquematicos (estilo realismo).
 7. **No subir proyectos a GitHub**: solo material visual y del motor (figuras, realismo, estilos, herramientas, docs).
 8. Honestidad: el motor no escucha; solo mide. No se afirma como suena una voz.
+9. **TODO es para DORMIR, MUSICA INCLUIDA**: sin golpes, risers, subidas bruscas ni agudos brillantes; sin pulso marcado; voz calmada y pausas generosas.

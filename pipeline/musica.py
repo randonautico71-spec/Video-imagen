@@ -4,6 +4,8 @@
 Tres estilos, cada uno con su propia armonia, instrumentacion y ritmo:
   meditacion : onirica. Pads lentos, cuencos tibetanos, destellos agudos, oleaje suave, mucha reverb. Sin pulso.
   curiosos   : misterio/curiosidad. Marimba pentatonica menor, bajo grave, tic-tac sutil, risers y booms en cortes.
+  mistico    : PARA DORMIR. Coro lento, bordon con quinta, campanas de cristal con un motivo, cuencos graves, aire. Sin pulso.
+  natural    : PARA DORMIR. Cuerdas calidas, arpa espaciada, flauta suave, viento, arroyo lejano. Sin pulso.
   aprender   : jugueton. Xilofono pentatonico mayor, bajo pizzicato saltarin, campanitas, fanfarria en aciertos.
 
 Entrada: cues.json  {"duracion": s, "escenas": [{"ini": s}...], "dings": [s...], "semilla": n}
@@ -171,7 +173,120 @@ def corte_aprender(buses, t, rng):                                              
         buses[2].poner(tono(MIDI(72 + st), 1.0, ((1, 1.0), (2.76, .25), (5.4, .1)), .002, .3) * .11, t - .36 + j * .09, pan=-.3 + j * .2)
 
 
+# ------------------------------------------------------------------ estilos PARA DORMIR (suaves, sin pulso, sin golpes ni subidas bruscas, registro medio-grave)
+def paso_bajo(x, fc, orden=2):
+    b, a = butter(orden, fc / (SR / 2), 'low'); return lfilter(b, a, x).astype(np.float32)
+
+
+def voz_coro(f, dur, ataque, detunes=(-0.08, 0.0, 0.1)):
+    """Pad tipo coro 'aah': armonicos 1..14 con dos picos de formante (~700 y ~1150 Hz); suena humano y calido, sin filo."""
+    n = int(dur * SR); t = np.arange(n) / SR; y = np.zeros(n)
+    for det in detunes:
+        for h in range(1, 15):
+            fh = f * h
+            a = np.exp(-((fh - 700) / 380) ** 2) + .6 * np.exp(-((fh - 1150) / 420) ** 2) + .05
+            y += (a / h ** .6) * np.sin(2 * np.pi * fh * (1 + det * .01) * t)
+    env = np.minimum(np.minimum(1, t / ataque), np.minimum(1, (dur - t) / ataque))
+    return (y * env ** 1.5 / 14).astype(np.float32)
+
+
+def estilo_mistico(c, rng):
+    """Mistico: re dorico/eolico, coro lento, bordon con quinta, campanas de cristal que repiten un motivo, cuencos graves y respiracion de aire."""
+    D = c['duracion']; pad = Bus(int((D + 10) * SR)); mel = Bus(pad.n); aire = Bus(pad.n)
+    prog = [[50, 57, 62, 64, 65], [46, 53, 57, 62, 69], [43, 50, 55, 58, 62], [45, 52, 57, 59, 64]]
+    t, k = 0.0, 0
+    while t < D + 8:                                              # coro: un acorde cada 18 s, solapados
+        for nota in prog[k % 4]:
+            pad.poner(voz_coro(MIDI(nota), 36.0, 11.0) * .06, t, pan=float(rng.uniform(-.8, .8)))
+        t += 18.0; k += 1
+    tt = np.arange(pad.n) / SR                                     # bordon: re2 + la2 + re3, respirando muy lento
+    bordon = sum(a * np.sin(2 * np.pi * MIDI(m) * tt) for m, a in ((38, .6), (45, .35), (50, .2)))
+    bordon = (bordon * (.75 + .25 * np.sin(2 * np.pi * tt / 29.0))).astype(np.float32) * .085
+    pad.L += bordon; pad.R += bordon
+    motivo = [0, 2, 3, 7, 5, 3, 2, 0]                              # re-mi-fa-la-sol-fa-mi-re (grados de re dorico en semitonos desde re4)
+    t, i = 7.0, 0
+    while t < D:                                                   # frases de 3-5 notas largas con el mismo motivo, variando el punto de inicio
+        ini = int(rng.integers(0, 4)); n = int(rng.integers(3, 6))
+        for j in range(n):
+            f = MIDI(62 + motivo[(ini + j) % 8] + 12 * int(j == n - 1 and rng.random() < .3))
+            y = sum(a * tono(f * r, 9, ((1, 1.0),), .06, d) for r, a, d in ((1, 1.0, 4.2), (2.0, .25, 2.4), (3.01, .08, 1.2)))
+            mel.poner(y * .05, t + j * 3.4, pan=float(rng.uniform(-.6, .6)))
+        t += n * 3.4 + float(rng.uniform(9, 17))
+    t = 3.0
+    while t < D:                                                   # cuencos graves
+        f = MIDI(50 + int(rng.choice([0, 7, 12])))
+        y = sum(a * tono(f * r, 14, ((1, 1.0),), .02, d) for r, a, d in ((1, 1.0, 7.0), (2.76, .35, 3.5), (5.4, .12, 2.0))) * .07
+        pad.poner(y, t, pan=float(rng.uniform(-.4, .4))); t += float(rng.uniform(22, 34))
+    ru = ruido_filtrado(D + 10, 300, 1400, rng)                    # aire: respiracion lenta (~14 s)
+    resp = (.15 + .85 * (.5 + .5 * np.sin(2 * np.pi * np.arange(len(ru)) / SR / 14.0))) ** 2
+    aire.L[:len(ru)] += ru * resp.astype(np.float32) * .034
+    aire.R[:len(ru)] += np.roll(ru, 4100) * resp.astype(np.float32) * .034
+    for b in (pad, mel): reverb(b, 5.5, .62, rng)
+    for b in (pad, mel, aire):
+        b.L = paso_bajo(b.L, 5200); b.R = paso_bajo(b.R, 5200)
+    return [pad, mel, aire]
+
+
+def corte_mistico(buses, t, rng):                                  # cambio de capitulo: cuenco grave que aparece despacio
+    f = MIDI(50 + int(rng.choice([0, 7])))
+    buses[0].poner(sum(a * tono(f * r, 16, ((1, 1.0),), 3.0, d) for r, a, d in ((1, 1.0, 7.0), (2.76, .2, 3.0))) * .045, t, pan=float(rng.uniform(-.3, .3)))
+
+
+def estilo_natural(c, rng):
+    """Natural: sol mayor/mi menor, cuerdas calidas, arpegios de arpa muy espaciados, flauta suave, viento, arroyo lejano y grillos lejanos muy bajos."""
+    D = c['duracion']; pad = Bus(int((D + 10) * SR)); arp = Bus(pad.n); nat = Bus(pad.n)
+    prog = [([43, 50, 55, 59, 62], [0, 2, 4, 7, 9]), ([40, 47, 52, 55, 59], [0, 2, 4, 7, 9]), ([48, 55, 60, 64, 67], [0, 2, 4, 7, 9]), ([50, 57, 62, 66, 69], [0, 2, 4, 7, 9])]
+    t, k = 0.0, 0
+    while t < D + 8:                                               # cuerdas calidas: seno + armonicos suaves, acorde cada 16 s
+        for nota in prog[k % 4][0]:
+            for det in (-0.06, 0.0, 0.08):
+                tt = np.arange(int(22 * SR)) / SR; f = MIDI(nota)
+                y = np.sin(2 * np.pi * f * (1 + det * .01) * tt) + .4 * np.sin(4 * np.pi * f * tt) + .15 * np.sin(6 * np.pi * f * tt)
+                env = np.minimum(np.minimum(1, tt / 5.0), np.minimum(1, (22 - tt) / 5.0))
+                pad.poner((y * env * .03).astype(np.float32), t, pan=float(rng.uniform(-.7, .7)))
+        t += 16.0; k += 1
+    t, k = 2.0, 0
+    while t < D:                                                   # arpa: un arpegio lento por acorde, a veces se calla un compas
+        cuerdas = prog[int(t // 16) % 4][0]
+        if rng.random() < .8:
+            n = int(rng.integers(4, 7)); orden = list(rng.permutation(len(cuerdas)))[:n]
+            for j, g in enumerate(orden):
+                f = MIDI(cuerdas[g] + 12 * int(rng.choice([0, 1])))
+                y = sum(a * tono(f * r, 7, ((1, 1.0),), .012, d) for r, a, d in ((1, 1.0, 3.2), (2, .45, 1.6), (3, .2, .8), (4, .08, .4)))
+                arp.poner(y * .06, t + j * 1.5, pan=float(rng.uniform(-.7, .7)))
+        t += float(rng.uniform(8, 13))
+    t = 9.0
+    while t < D:                                                   # flauta suave: nota larga con soplo, sol-la-si-re
+        f = MIDI(67 + int(rng.choice([0, 2, 4, 7, 9]))); dur = float(rng.uniform(4, 6))
+        sop = ruido_filtrado(dur, 1200, 2600, rng) * .02 * env_ad(int(dur * SR), 1.2, 3.0)
+        y = (tono(f, dur, ((1, 1.0), (2, .12)), 1.0, 2.8, vib=0.9) * .07 + sop)
+        arp.poner(y.astype(np.float32), t, pan=float(rng.uniform(-.5, .5))); t += float(rng.uniform(14, 24))
+    nn = int((D + 10) * SR)                                        # viento
+    ru = ruido_filtrado(D + 10, 80, 700, rng)
+    viento = (.3 + .7 * (.5 + .5 * np.sin(2 * np.pi * np.arange(len(ru)) / SR / 19.0 - .8))) ** 2
+    nat.L[:len(ru)] += ru * viento.astype(np.float32) * .07; nat.R[:len(ru)] += np.roll(ru, 2500) * viento.astype(np.float32) * .07
+    ar = ruido_filtrado(D + 10, 900, 3200, rng)                    # arroyo lejano: ruido con modulacion rapida y poco profunda
+    mod = 1 + .35 * np.sin(2 * np.pi * np.arange(len(ar)) / SR * 6.3) * np.sin(2 * np.pi * np.arange(len(ar)) / SR * 0.7)
+    nat.L[:len(ar)] += ar * mod.astype(np.float32) * .018; nat.R[:len(ar)] += np.roll(ar, 1900) * mod.astype(np.float32) * .018
+    gr = np.zeros(nn, np.float32); tg = np.arange(nn) / SR                 # grillos lejanos: portadora 3,6 kHz con pulsos suaves; nivel muy bajo y filtrada
+    puls = np.clip(np.sin(2 * np.pi * tg * 4.2), 0, 1) ** 2 * (.5 + .5 * np.sin(2 * np.pi * tg / 23.0)) ** 2
+    gr = (np.sin(2 * np.pi * 3600 * tg) * puls).astype(np.float32) * .004
+    nat.L += gr; nat.R += np.roll(gr, 700)
+    reverb(arp, 2.8, .38, rng); reverb(pad, 3.2, .4, rng)
+    for b in (pad, arp, nat):
+        b.L = paso_bajo(b.L, 6500); b.R = paso_bajo(b.R, 6500)
+    return [pad, arp, nat]
+
+
+def corte_natural(buses, t, rng):                                  # cambio de capitulo: un arpegio de arpa muy suave
+    for j, st in enumerate([0, 4, 7, 12]):
+        buses[1].poner(sum(a * tono(MIDI(67 + st) * r, 6, ((1, 1.0),), .02, d) for r, a, d in ((1, 1.0, 2.6), (2, .3, 1.2))) * .045, t + j * .5, pan=-.3 + j * .2)
+
+
+
 def ding(buses, t, mood, rng):
+    if mood in ('mistico', 'natural'):
+        return                                                                     # sueno: sin dings
     if mood == 'meditacion':
         buses[1].poner(tono(MIDI(79), 4, ((1, 1.0), (2.76, .12)), .01, 1.6) * .09, t)
     elif mood == 'aprender':                                                    # ta-da
@@ -183,7 +298,9 @@ def ding(buses, t, mood, rng):
 
 ESTILOS = {'meditacion': (estilo_meditacion, corte_meditacion, -24),
            'curiosos': (estilo_curiosos, corte_curiosos, -21),
-           'aprender': (estilo_aprender, corte_aprender, -21)}
+           'aprender': (estilo_aprender, corte_aprender, -21),
+           'mistico': (estilo_mistico, corte_mistico, -21),
+           'natural': (estilo_natural, corte_natural, -21)}
 
 
 def componer(cues, mood):
@@ -196,7 +313,7 @@ def componer(cues, mood):
         corte(buses, float(e['ini']), rng)
     for d in cues.get('dings', []):
         ding(buses, float(d), mood, rng)
-    n = int((cues['duracion'] + (4 if mood == 'meditacion' else 1.5)) * SR)
+    n = int((cues['duracion'] + (4 if mood in ('meditacion', 'mistico', 'natural') else 1.5)) * SR)
     L = sum(b.L[:n] for b in buses); R = sum(b.R[:n] for b in buses)
     fin = np.ones(n, np.float32)                                                # fundidos
     fin[: int(2 * SR)] = np.linspace(0, 1, int(2 * SR)); fin[-int(3.5 * SR):] *= np.linspace(1, 0, int(3.5 * SR))
