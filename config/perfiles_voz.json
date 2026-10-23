@@ -448,5 +448,42 @@
       "enunciado_alternado": 0.9,
       "primera_frase": 0.8
     }
+  },
+  "melo_u5": {
+    "descripcion": "prueba melodia melo u5",
+    "motor": "melo",
+    "idioma": "ES",
+    "speaker": "ES",
+    "sintesis": {
+      "speed": 1.2,
+      "sdp_ratio": 0.2,
+      "noise_scale": 0.45,
+      "noise_scale_w": 0.6
+    },
+    "pausa_frase_s": 0.45,
+    "pausa_parrafo_s": 0.75,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 60,
+      "lowpass_hz": 16000,
+      "calidez_db": 1.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    },
+    "pausa_coma_s": 0.2,
+    "trozo_max_car": 70,
+    "prosodia": {
+      "f0_ref_hz": 191.0,
+      "desplazar_st": 0.0,
+      "k_lento": 2.6,
+      "k_rapido": 1.4,
+      "formantes": 1.0,
+      "tempo": 1.0,
+      "hueco_max_s": 0.55,
+      "recorte_db": 35
+    }
   }
 }

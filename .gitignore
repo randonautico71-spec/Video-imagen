@@ -21,3 +21,4 @@ proyectos/prueba_*/
 # (figuras, realismo, estilos, herramientas, perfiles, docs). Unica excepcion: la plantilla de `vid.py nuevo`.
 proyectos/*
 !proyectos/_plantilla/
+.venv-prosodia/

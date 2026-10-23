@@ -422,6 +422,25 @@ def envolvente(a, tasa=60):
     return np.clip(rms, 0, 1).round(3).tolist()
 
 
+# ---------- prosodia (copiar la melodia/ritmo de otra voz sobre la sintetizada) ----------
+def prosodia_lote(pares, cfg, paralelo=2):
+    """pares: [(ent.npz, sal.npz)]. Ejecuta pipeline/prosodia_worker.py con .venv-qwen (pyworld) en 'paralelo' procesos."""
+    if not pares: return
+    py = RAIZ / '.venv-prosodia/bin/python'
+    if not py.exists(): py = RAIZ / '.venv-qwen/bin/python'
+    if not py.exists(): raise SystemExit('Falta un entorno con pyworld y librosa: python3 -m venv .venv-prosodia && .venv-prosodia/bin/pip install numpy scipy librosa pyworld "setuptools<81"')
+    with tempfile.TemporaryDirectory() as d:
+        procs = []
+        for k in range(paralelo):
+            lote = pares[k::paralelo]
+            if not lote: continue
+            jf = Path(d) / f'job{k}.json'; jf.write_text(json.dumps({'cfg': cfg, 'trabajos': [{'ent': str(e), 'sal': str(s_)} for e, s_ in lote]}))
+            procs.append(subprocess.Popen([str(py), str(RAIZ / 'pipeline/prosodia_worker.py'), str(jf)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+        for pr in procs:
+            out, err = pr.communicate()
+            if pr.returncode: raise RuntimeError('prosodia fallo: ' + err[-500:])
+
+
 # ---------- principal ----------
 def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
     t0 = time.time()
@@ -445,6 +464,22 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
             for f, (a, sr) in motor.sintetizar_lote(pend[i:i + 40], tam=perfil.get('lote', 8)).items():
                 np.savez(str(ruta_cache(f)) + '.tmp.npz', a=a, sr=sr); os.replace(str(ruta_cache(f)) + '.tmp.npz', ruta_cache(f))
             print(f'  lotes {min(i + 40, len(pend))}/{len(pend)}  ({time.time() - t0:.0f} s)', flush=True)
+    pros_cfg = perfil.get('prosodia'); pros_dir = None
+    if pros_cfg:
+        hc = hashlib.sha1(json.dumps(pros_cfg, sort_keys=True).encode()).hexdigest()[:8]; pros_dir = cache_dir / ('pros_' + hc); pros_dir.mkdir(exist_ok=True)
+        if not hasattr(motor, 'sintetizar_lote'):               # motores sin lotes (Melo, Piper): la prosodia necesita el audio crudo YA en cache
+            for fr, _ in frases:
+                for txt, _pk in (trozos_respiracion(fr, perfil['pausa_coma_s'], perfil.get('trozo_max_car', 70)) if perfil.get('pausa_coma_s') else [(fr, 0)]):
+                    fc = cache_dir / (hashlib.sha1((base_clave + '|' + txt).encode()).hexdigest()[:20] + '.npz')
+                    if not fc.exists():
+                        a_, sr_ = motor.sintetizar(txt); np.savez(str(fc) + '.tmp.npz', a=a_, sr=sr_); os.replace(str(fc) + '.tmp.npz', fc)
+        pend_p, vistos = [], set()
+        for fr, _ in frases:
+            for txt, _pk in (trozos_respiracion(fr, perfil['pausa_coma_s'], perfil.get('trozo_max_car', 70)) if perfil.get('pausa_coma_s') else [(fr, 0)]):
+                fc = cache_dir / (hashlib.sha1((base_clave + '|' + txt).encode()).hexdigest()[:20] + '.npz')
+                if fc.exists() and fc.name not in vistos and not (pros_dir / fc.name).exists(): vistos.add(fc.name); pend_p.append((fc, pros_dir / fc.name))
+        if pend_p:
+            print(f'  prosodia: {len(pend_p)} trozos', flush=True); prosodia_lote(pend_p, pros_cfg, perfil.get('prosodia_procesos', 2)); print(f'  prosodia lista ({time.time() - t0:.0f} s)', flush=True)
     aciertos = 0
     trozos, tiempos, cursor = [], [], 0
     for i, (fr, fin_parrafo) in enumerate(frases):
@@ -454,6 +489,7 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
             f_cache = cache_dir / (hashlib.sha1((base_clave + '|' + txt).encode()).hexdigest()[:20] + '.npz')
             if f_cache.exists():
                 z = np.load(f_cache); a, sr = z['a'], int(z['sr']); aciertos += 1
+                if pros_dir is not None and (pros_dir / f_cache.name).exists(): z = np.load(pros_dir / f_cache.name); a, sr = z['a'], int(z['sr'])
             else:
                 a, sr = motor.sintetizar(txt)
                 np.savez(str(f_cache) + '.tmp.npz', a=a, sr=sr); os.replace(str(f_cache) + '.tmp.npz', f_cache)   # escritura atomica
