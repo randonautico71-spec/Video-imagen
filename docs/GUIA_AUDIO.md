@@ -72,3 +72,9 @@ Piper sin ajustar · velocidad de Aiden y de Carmen sin medir en un vídeo enter
 - En el contenedor de Code se **borró** el entorno Qwen (`.venv-qwen` y su caché HF, ~4,3 GB). Los perfiles Serena/Aiden/Vivian/Carmelot siguen en `config/perfiles_voz.json` pero **no pueden sintetizar** hasta reinstalar con `pipeline/instalar.sh`.
 - `melo_es_dormir`: MeloTTS `melo_es` *tal cual* (velocidad 1.0, sin efectos), pausas largas (1,0 s entre frases, 2,2 s entre párrafos) y −19 LUFS. Medido en «Física cuántica para dormir»: 2810 palabras → 23:30 de voz (≈ 120 palabras/min con pausas), alineado whisper 98 % de palabras casadas.
 - Síntesis Melo en CPU: ≈ 0,34 s de cálculo por s de voz + alineado ≈ 0,18 s por s.
+
+## Perfil `melo_carmen_dormir` (Melo con ritmo y pausas de Carmen) y hallazgo sobre las pausas de Melo
+- **Hallazgo medido:** Melo deja ~0,9 s de silencio al FINAL de cada frase (y ~0,09 s al inicio). Sin `recortar_silencio`, la pausa real es la del perfil + 0,9 s: en `melo_es_dormir` (perfil 1,0 s) las pausas reales eran ~1,9 s entre frases (medido 1,9 s con `analizar_voz.py`), no 1,0 s.
+- `melo_carmen_dormir`: misma voz y mismos parametros de sintesis (sin tocar timbre ni EQ), `recortar_silencio` activado, `tempo` 0,92 (Melo articula ~183-189 palabras/min frente a ~170 de Carmen), pausa fin de frase 0,66 s y coma 0,44 s (valores medidos en Carmen), parrafo 1,4 s, `pausa_jitter` 0,18 (variacion determinista de las pausas segun el texto, en `voz.py::variar_pausa`) y curva melodica suave.
+- Resultado medido en «fusion_nuclear_dormir»: 3191 palabras en 24:13 de voz = 131,7 palabras/min totales (Carmen: 130,9); pausa fin de frase 0,74 s (Carmen 0,66); pausa coma 0,32 s (Carmen 0,44); desviacion de tono 2,75 st (Carmen 4,38); tono medio 193 Hz (Carmen 225); centroide 1884 Hz (Carmen 2207). La metrica de «articulacion» del analizador oscila ±8 % y no sirve para afinar el tempo.
+- No es un clon: el timbre sigue siendo el de Melo. No lo ha oido nadie.

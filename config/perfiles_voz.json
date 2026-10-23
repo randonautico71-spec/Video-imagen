@@ -410,5 +410,43 @@
       "reverb_seg": 0.0,
       "nivel_lufs": -19
     }
+  },
+  "melo_carmen_dormir": {
+    "descripcion": "melo_es (misma voz, parametros de sintesis y EQ sin tocar) con RITMO Y PAUSAS acercados a los medidos en la muestra de Carmen (ElevenLabs, peninsular): articulacion 183 -> ~170 palabras/min (tempo 0,92), silencio de cola de Melo (~0,9 s por frase, medido) recortado, pausa fin de frase 0,66 s y coma 0,44 s (valores de Carmen), variacion de +-18 % en las pausas y curva melodica suave. NO cambia el timbre ni es un clon. Sin oir por el usuario.",
+    "motor": "melo",
+    "idioma": "ES",
+    "speaker": "ES",
+    "sintesis": {
+      "speed": 1.0,
+      "sdp_ratio": 0.2,
+      "noise_scale": 0.6,
+      "noise_scale_w": 0.8
+    },
+    "pausa_frase_s": 0.66,
+    "pausa_parrafo_s": 1.4,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 40,
+      "lowpass_hz": 20000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -19
+    },
+    "recortar_silencio": true,
+    "tempo": 0.92,
+    "pausa_coma_s": 0.44,
+    "trozo_max_car": 50,
+    "pausa_jitter": 0.18,
+    "entonacion": {
+      "descripcion": "Curva melodica suave por frase (semitonos) para acercar la variacion de tono (Melo 2,5 st de desviacion; Carmen 4,4 st).",
+      "pregunta": 1.5,
+      "exclamacion": 1.5,
+      "cierre_parrafo": -1.0,
+      "enunciado_alternado": 0.9,
+      "primera_frase": 0.8
+    }
   }
 }

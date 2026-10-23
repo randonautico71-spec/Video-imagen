@@ -1,0 +1,34 @@
+{
+  "titulo": "Fusión nuclear para dormir",
+  "tipo": "largo",
+  "formato": "youtube",
+  "lienzo": "yt",
+  "voz": "melo_carmen_dormir",
+  "musica": "meditacion",
+  "semilla": 1,
+  "estilo": "luz",
+  "dings_en_palabras": [],
+  "cola_s": 3.5,
+  "fps": 24,
+  "ss": 0.5,
+  "crf": 30,
+  "calidad_jpeg": 0.95,
+  "lufs": -19,
+  "duracion_objetivo_s": [
+    1380,
+    1680
+  ],
+  "ligero_MB": 45,
+  "ligero_lado": 360,
+  "salida_escala": 0.5,
+  "subtitulos": false,
+  "capitulos": [
+    9,
+    10,
+    11,
+    9,
+    14,
+    7,
+    7
+  ]
+}

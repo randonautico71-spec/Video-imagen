@@ -30,3 +30,7 @@ El modelo muestrea (temperatura 0,9 por defecto): el MISMO texto con Aiden dio u
 ## Proyecto «Física cuántica para dormir» (proyectos/fisica_cuantica_dormir)
 - Guion de 63 párrafos (datos con nivel de verificación en `datos.md`), voz `melo_es_dormir`, música `meditacion`, estilo luz sobre fondo oscuro con figuras nuevas de `engine/figuras/biblioteca3.js`. Duración real 23:34. Sin subtítulos ni textos.
 - Verificado por medición: lint sin incidencias, 63 fotogramas de control revisados, LUFS/pico de la mezcla (ver entrega). **No verificado:** cómo suena y se ve en movimiento; solo lo juzga el usuario.
+
+## Proyecto «Fusión nuclear para dormir» (proyectos/fusion_nuclear_dormir)
+- 67 párrafos, 3191 palabras, 7 capítulos, voz `melo_carmen_dormir`, estilo luz sobre fondo oscuro; figuras nuevas en `engine/figuras/biblioteca4.js`. Duración 24:17. Tabla de datos con niveles de verificación en `datos.md` (casi todo V*: las páginas primarias de ITER/DOE/IAEA no se pudieron abrir desde el contenedor).
+- Medido: lint sin incidencias, 67 fotogramas revisados, mezcla −19,0 LUFS (pesado) / −22,8 (ligero, con −4 dB y limitador). No verificado: cómo suena (voz y música) y cómo se ve en movimiento.

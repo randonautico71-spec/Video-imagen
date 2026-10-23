@@ -148,6 +148,14 @@ def remuestrear(a, sr_in, sr_out=SR):
     return resample_poly(a, sr_out // g, sr_in // g).astype(np.float32)
 
 
+def variar_pausa(pausa, texto, jitter):
+    """Una persona no deja siempre el mismo silencio: cambia la pausa +-jitter de forma determinista segun el texto (misma frase, misma pausa)."""
+    if not jitter or not pausa:
+        return pausa
+    h = int(hashlib.sha1(texto.encode()).hexdigest()[:6], 16) / 0xFFFFFF
+    return pausa * (1 + jitter * (2 * h - 1))
+
+
 def trozos_respiracion(frase, pausa, maximo):
     """Parte una frase larga en trozos por coma/dos puntos/punto y coma (la voz sintetiza mejor frases cortas y respira
     donde una persona respiraria). Devuelve [(texto, pausa_tras_el_trozo)]."""
@@ -455,14 +463,14 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
             n = int(0.008 * SR); a[:n] *= np.linspace(0, 1, n); a[-n:] *= np.linspace(1, 0, n)   # fundido de 8 ms: sin clics en los empalmes
             partes.append(a)
             if pausa_k and k < len(pedazos) - 1:
-                partes.append(np.zeros(int(pausa_k * SR), np.float32))
+                partes.append(np.zeros(int(variar_pausa(pausa_k, txt, perfil.get('pausa_jitter', 0)) * SR), np.float32))
         a = np.concatenate(partes)
         if perfil.get('entonacion'):
             a = cambiar_tono(a, desplazamiento_frase(fr, i, fin_parrafo, perfil['entonacion']))
         ini = cursor / SR
         trozos.append(a); cursor += len(a)
         tiempos.append((ini, cursor / SR))
-        pausa = perfil['pausa_parrafo_s'] if fin_parrafo else perfil['pausa_frase_s']
+        pausa = variar_pausa(perfil['pausa_parrafo_s'] if fin_parrafo else perfil['pausa_frase_s'], fr, perfil.get('pausa_jitter', 0))
         trozos.append(np.zeros(int(pausa * SR), np.float32)); cursor += int(pausa * SR)
         if progreso and (i % 10 == 0 or i == len(frases) - 1):
             print(f'  frase {i + 1}/{len(frases)}  ({aciertos} desde cache)', flush=True)
