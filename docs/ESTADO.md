@@ -27,10 +27,13 @@ El modelo muestrea (temperatura 0,9 por defecto): el MISMO texto con Aiden dio u
 - Calidad percibida de las voces y de la música: solo la juzga el usuario.
 - Coordenadas RA/Dec de las estrellas del short «orientación» (escritas de memoria).
 
-## Proyecto «Física cuántica para dormir» (proyectos/fisica_cuantica_dormir)
+## Proyecto «Física cuántica para dormir» (proyecto local, no esta en el repo)
 - Guion de 63 párrafos (datos con nivel de verificación en `datos.md`), voz `melo_es_dormir`, música `meditacion`, estilo luz sobre fondo oscuro con figuras nuevas de `engine/figuras/biblioteca3.js`. Duración real 23:34. Sin subtítulos ni textos.
 - Verificado por medición: lint sin incidencias, 63 fotogramas de control revisados, LUFS/pico de la mezcla (ver entrega). **No verificado:** cómo suena y se ve en movimiento; solo lo juzga el usuario.
 
-## Proyecto «Fusión nuclear para dormir» (proyectos/fusion_nuclear_dormir)
+## Proyecto «Fusión nuclear para dormir» (proyecto local, no esta en el repo)
 - 67 párrafos, 3191 palabras, 7 capítulos, voz `melo_carmen_dormir`, estilo luz sobre fondo oscuro; figuras nuevas en `engine/figuras/biblioteca4.js`. Duración 24:17. Tabla de datos con niveles de verificación en `datos.md` (casi todo V*: las páginas primarias de ITER/DOE/IAEA no se pudieron abrir desde el contenedor).
 - Medido: lint sin incidencias, 67 fotogramas revisados, mezcla −19,0 LUFS (pesado) / −22,8 (ligero, con −4 dB y limitador). No verificado: cómo suena (voz y música) y cómo se ve en movimiento.
+
+## Regla de repositorio
+- A GitHub solo se suben **actualizaciones de material visual y del motor** (figuras, realismo, estilos, herramientas, perfiles, docs). **Los proyectos (guion, escenas, datos, meta) NO se suben** (`.gitignore` los excluye salvo `proyectos/_plantilla`). Los proyectos anteriores se sacaron del arbol del repo el 2026-10-23, pero **siguen en el historial de commits** (repo publico).

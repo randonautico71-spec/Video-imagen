@@ -25,4 +25,4 @@
 
 ## Viabilidad
 En **Code (4 CPU)**: sí, en horas. En un **chat de Project (≈2 CPU, procesos que se cortan)**: no; allí se prepara guion + escenas + brief y se produce en Code.
-Ejemplo completo: `proyectos/meditacion_viaje/` (9 actos de ~4 min).
+Ejemplo: «meditacion_viaje» (9 actos de ~4 min). Los proyectos ya NO se suben al repo; el patron (fondos por capitulo + una funcion por parrafo con `VE.comp`) esta descrito en docs/GUIA_IMAGEN.md.

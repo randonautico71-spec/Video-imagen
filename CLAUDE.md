@@ -39,3 +39,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 
 ## Sin verificar
 Límites de duración de Instagram/Reels/TikTok · safe areas verticales (estimación) · calidad percibida de las voces · que el contenedor de un chat de Project pueda renderizar · la importación de ElevenLabs de punta a punta (ver `docs/ESTADO.md`).
+
+
+## Regla: no subir proyectos
+No hacer `git add` de `proyectos/*` (salvo `_plantilla`). Subir solo material visual y del motor que sirva para futuros videos.

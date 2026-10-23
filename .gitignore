@@ -16,3 +16,8 @@ __pycache__/
 .venv-qwen/
 proyectos/*/voz_*/
 proyectos/prueba_*/
+
+# REGLA DEL USUARIO: los PROYECTOS (guion, escenas, datos, meta) NO se suben a GitHub; solo material del motor
+# (figuras, realismo, estilos, herramientas, perfiles, docs). Unica excepcion: la plantilla de `vid.py nuevo`.
+proyectos/*
+!proyectos/_plantilla/

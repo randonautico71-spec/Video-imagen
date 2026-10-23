@@ -48,7 +48,7 @@ que carga el modelo una vez. Red: pypi.org, download.pytorch.org, huggingface.co
 ## PAISAJES (prioridad del usuario: "dar paisajes mejorados")
 `VE.paisaje` (engine/estilos/paisajes.js): capas HORNEADAS una vez (sombra + luz) con paralaje y fundido escalonado de lejos a cerca:
 cielo, cordillera (con nieve), reflejo, colinas, bosque por planos (opcion `bordes` para dejar el centro libre), suelo (matas/flores/hierba), orilla, cosmos.
-Composiciones por acto en proyectos/meditacion_viaje/escenas.js (lago, pradera, bosque, amanecer, cumbre, cosmos). El paisaje persiste todo el acto;
+Composiciones por acto (ejemplo local de «meditacion_viaje»; los proyectos ya NO se suben al repo) (lago, pradera, bosque, amanecer, cumbre, cosmos). El paisaje persiste todo el acto;
 los parrafos dibujan encima con `VE.comp` (figuras que aparecen al decir su palabra). Para hornear se necesita que pegar()/tipo() usen esc.ctx (ya hecho).
 Figuras nuevas (biblioteca2): mano, anjali, gyan, cerebro, galaxia, atomo, interferencia, brujula(_base), caminante, cumbre, 8 animales. 'meditando' rediseñado.
 Piezas (composicion.js): espaciotiempo, electrones (patron de franjas), ecg con variabilidad, red de neuronas, reloj, tituloActo.
