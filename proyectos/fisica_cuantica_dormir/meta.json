@@ -1,0 +1,32 @@
+{
+  "titulo": "Fisica cuantica para dormir",
+  "tipo": "largo",
+  "formato": "youtube",
+  "lienzo": "yt",
+  "voz": "serena_meditacion",
+  "musica": "meditacion",
+  "semilla": 1,
+  "estilo": "LAB",
+  "dings_en_palabras": [],
+  "cola_s": 3.5,
+  "fps": 24,
+  "ss": 1.0,
+  "crf": 20,
+  "calidad_jpeg": 0.95,
+  "lufs": -19,
+  "duracion_objetivo_s": [
+    1380,
+    1680
+  ],
+  "ligero_MB": 60,
+  "ligero_lado": 360,
+  "capitulos": [
+    10,
+    11,
+    13,
+    9,
+    9,
+    11
+  ],
+  "subtitulos": false
+}
