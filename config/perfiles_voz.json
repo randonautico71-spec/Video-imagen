@@ -309,5 +309,81 @@
       "enunciado_alternado": 0.9,
       "primera_frase": 1.0
     }
+  },
+  "sharvard_1": {
+    "descripcion": "Piper sharvard-medium, hablante 1, TAL CUAL (parametros por defecto de Piper, sin efectos). Licencia de la voz: CC BY 3.0 (dataset de Edimburgo): exige ATRIBUCION al publicar.",
+    "motor": "piper",
+    "modelo": "voces/piper/es_ES-sharvard-medium.onnx",
+    "speaker": 1,
+    "sintesis": {
+      "length_scale": 1.0,
+      "noise_scale": 0.667,
+      "noise_w_scale": 0.8
+    },
+    "pausa_frase_s": 0.5,
+    "pausa_parrafo_s": 1.1,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 40,
+      "lowpass_hz": 20000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    }
+  },
+  "melo_es": {
+    "descripcion": "MeloTTS-Spanish, unico hablante ES, TAL CUAL (velocidad 1.0 y parametros por defecto, sin efectos). Licencia MIT.",
+    "motor": "melo",
+    "idioma": "ES",
+    "speaker": "ES",
+    "sintesis": {
+      "speed": 1.0,
+      "sdp_ratio": 0.2,
+      "noise_scale": 0.6,
+      "noise_scale_w": 0.8
+    },
+    "pausa_frase_s": 0.5,
+    "pausa_parrafo_s": 1.1,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 40,
+      "lowpass_hz": 20000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    }
+  },
+  "vivian": {
+    "descripcion": "Vivian (Qwen3-TTS CustomVoice 0.6B, hablante predefinido), TAL CUAL: sin efectos ni recorte. Licencia Apache-2.0.",
+    "motor": "qwen",
+    "modelo_hf": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "idioma": "Spanish",
+    "speaker": "Vivian",
+    "instruct": null,
+    "hilos": 4,
+    "sintesis": {
+      "modelo": "Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "dtype": "bf16"
+    },
+    "pausa_frase_s": 0.5,
+    "pausa_parrafo_s": 1.1,
+    "fx": {
+      "pitch_semitonos": 0.0,
+      "highpass_hz": 40,
+      "lowpass_hz": 20000,
+      "calidez_db": 0.0,
+      "presencia_db": 0.0,
+      "compresion": null,
+      "reverb_mezcla": 0.0,
+      "reverb_seg": 0.0,
+      "nivel_lufs": -16
+    },
+    "lote": 8
   }
 }

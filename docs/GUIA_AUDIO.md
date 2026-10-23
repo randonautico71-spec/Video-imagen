@@ -13,6 +13,7 @@ La voz manda: de ella salen `frases.json`, `palabras.json` y `timeline.json` (in
 | **Aiden** `aiden` / `aiden_meditacion` | Qwen, voz masculina | largos | tono medio ≈115–170 Hz según la generación; velocidad asumida igual que Serena |
 | **Carmen** `carmen` | ElevenLabs `eleven_v4`, id `iHGx33VgO2KQ1Fdw6noG` (peninsular) | shorts | 171 palabras/min (1 frase real); ≈1 crédito por carácter (95 créditos = 1,7 céntimos) |
 | MeloTTS ES `meditacion` | local | meditación antigua | 132 palabras/min |
+| **Piper `sharvard_1`**, **MeloTTS `melo_es`**, **Qwen `vivian`** | locales, *tal cual* (parámetros por defecto, sin efectos) | a elegir con `meta.voz` | muestra comprobada; wpm asumidos. Licencias (HF): Piper/voz sharvard **CC BY 3.0 → atribución obligatoria al publicar**, MeloTTS MIT, Qwen Apache-2.0 |
 | Piper `curiosos`/`aprender` | local | **sin ajustar** (pendiente del usuario) | 190 palabras/min asumido |
 - Los perfiles viven en `config/perfiles_voz.json` y **no se tocan sin que el usuario lo pida**.
 

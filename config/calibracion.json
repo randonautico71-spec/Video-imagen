@@ -14,7 +14,11 @@
       "aiden": 138,
       "aiden_meditacion": 138,
       "certeza_aiden": "138 wpm ASUMIDO igual que Serena (no medido): la muestra del usuario trae 26 palabras en 12,3 s = 127 wpm con pausas.",
-      "carmelot": 165
+      "carmelot": 165,
+      "sharvard_1": 190,
+      "melo_es": 150,
+      "vivian": 138,
+      "certeza_nuevas": "sharvard_1, melo_es y vivian: wpm ASUMIDOS (no medidos) hasta usarlas en un proyecto"
     },
     "calculo_s_por_s_de_habla": {
       "melo": 0.42,
