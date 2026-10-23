@@ -195,6 +195,31 @@ def cambiar_tono(a, st):
     return out[:n] if len(out) >= n else np.concatenate([out, np.zeros(n - len(out), np.float32)])
 
 
+def recortar_silencio(a, umbral=0.01, ini=0.04, fin=0.10):
+    """Quita el silencio que el modelo deja al principio y al final de cada frase (Qwen: ~0,28 s + ~0,35 s, medido) para que las pausas del
+    perfil sean las reales. Deja `ini` s antes de la primera voz y `fin` s despues de la ultima (cola natural)."""
+    m = np.abs(a) > umbral
+    if not m.any():
+        return a
+    i = int(np.argmax(m)); j = len(a) - int(np.argmax(m[::-1]))
+    return a[max(0, i - int(ini * SR)): min(len(a), j + int(fin * SR))]
+
+
+def cambiar_tempo(a, factor):
+    """Acelerar (>1) o frenar (<1) un trozo SIN cambiar el tono (rubberband, formantes preservados). Se aplica por frase, ANTES de calcular
+    los tiempos, porque cambia la duracion."""
+    if abs(factor - 1) < 0.01:
+        return a
+    with tempfile.TemporaryDirectory() as d:
+        e, s_ = Path(d) / 'e.wav', Path(d) / 's.wav'
+        escribir_wav(e, a)
+        r = subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(e), '-af', f'rubberband=tempo={factor:.4f}:formant=preserved',
+                            '-ar', str(SR), '-ac', '1', str(s_)], capture_output=True, text=True)
+        if r.returncode:
+            raise RuntimeError('rubberband (tempo) fallo: ' + r.stderr[-300:])
+        return leer_wav(s_)
+
+
 # ---------- efectos ----------
 def cadena_ffmpeg(fx):
     f = []
@@ -207,8 +232,13 @@ def cadena_ffmpeg(fx):
         f.append(f"equalizer=f=220:t=q:w=1.0:g={fx['calidez_db']}")
     if fx.get('presencia_db'):
         f.append(f"equalizer=f=3200:t=q:w=1.2:g={fx['presencia_db']}")
+    for fq, g, q in fx.get('eq', []):                       # ecualizacion por bandas: [[frecuencia Hz, ganancia dB, Q], ...]
+        f.append(f'equalizer=f={fq}:t=q:w={q}:g={g}')
+    c = fx.get('compresion')
+    if isinstance(c, dict):                                  # compresor propio: {"threshold":0.1,"ratio":3,"attack":15,"release":200,"makeup":2}
+        c = f"acompressor=threshold={c.get('threshold', 0.1)}:ratio={c.get('ratio', 3)}:attack={c.get('attack', 15)}:release={c.get('release', 200)}:makeup={c.get('makeup', 2)}"
     comp = {'suave': 'acompressor=threshold=0.12:ratio=2.5:attack=20:release=250:makeup=2',
-            'fuerte': 'acompressor=threshold=0.06:ratio=5:attack=8:release=160:makeup=4'}.get(fx.get('compresion'))
+            'fuerte': 'acompressor=threshold=0.06:ratio=5:attack=8:release=160:makeup=4'}.get(c, c if isinstance(c, str) and c.startswith('acompressor') else None)
     if comp:
         f.append(comp)
     return ','.join(f)
@@ -420,6 +450,8 @@ def generar(texto, perfil_nombre, salida, whisper='small', progreso=True):
                 a, sr = motor.sintetizar(txt)
                 np.savez(str(f_cache) + '.tmp.npz', a=a, sr=sr); os.replace(str(f_cache) + '.tmp.npz', f_cache)   # escritura atomica
             a = remuestrear(a, sr).copy()
+            if perfil.get('recortar_silencio'): a = recortar_silencio(a)       # pausas reales = las del perfil
+            if perfil.get('tempo'): a = cambiar_tempo(a, perfil['tempo'])      # estilo: ritmo de la voz de referencia
             n = int(0.008 * SR); a[:n] *= np.linspace(0, 1, n); a[-n:] *= np.linspace(1, 0, n)   # fundido de 8 ms: sin clics en los empalmes
             partes.append(a)
             if pausa_k and k < len(pedazos) - 1:

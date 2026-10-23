@@ -16,6 +16,18 @@ La voz manda: de ella salen `frases.json`, `palabras.json` y `timeline.json` (in
 | Piper `curiosos`/`aprender` | local | **sin ajustar** (pendiente del usuario) | 190 palabras/min asumido |
 - Los perfiles viven en `config/perfiles_voz.json` y **no se tocan sin que el usuario lo pida**.
 
+### Carmelot: Serena ajustada al ESTILO de una referencia (`carmelot`)
+Perfil Qwen con el **ritmo, tono medio, pausas, dinámica y balance tonal** medidos en una muestra de Carmen (`pipeline/analizar_voz.py`; métricas en `config/voces_referencia/carmen_estilo.json`). **No es un clon:** el timbre y la identidad siguen siendo los de Serena (no se hace clonación de voz de ninguna voz de la biblioteca de ElevenLabs).
+| Medida | Carmen (ref.) | Serena sin ajustar | Carmelot |
+|---|---|---|---|
+| Palabras/min al articular | 169,5 | 142,1 | 164,8 |
+| Pausa entre frases (s) | 0,66 | 1,10 | 0,72 |
+| Tono medio F0 (Hz) | 225 | 250 | 228 |
+| Variación de tono (semitonos, σ) | 4,4 | 3,5 | 3,8 |
+| Error espectral medio (18 bandas, dB) | — | 5,3 | 2,5 |
+Ajustes: `tempo 1.12` (rubberband por frase), `pitch −2,4 st`, `recortar_silencio` (Qwen deja ~0,28 s antes y ~0,35 s después de cada frase: con eso las pausas del perfil eran en realidad ~0,6 s más largas), curva de entonación, EQ por bandas (graves −2,5 dB, 400 Hz +4, presencia 2,2 kHz +6, aire +3,8) y compresor. **Pendiente:** la medida de ritmo oscila ±8 % entre pasadas (ruido de los tiempos de whisper); la variación de tono y la dinámica no llegan del todo; el timbre queda algo más brillante (centroide 2558 vs 2207 Hz); el alineado de palabras baja a ~80 % con la voz acelerada. Solo el oído del usuario dice si suena a Carmen.
+Para repetir con otra referencia: `python3 pipeline/analizar_voz.py ref.mp3 --json ref.json`, sintetizar el mismo texto con la voz base y comparar con `--comparar`.
+
 ## 3. Cómo se sintetiza
 - **Frase a frase** con caché en disco (`salida/voz_cache`): la clave incluye motor, modelo, hablante, parámetros y texto. Si se corta, se reanuda; cambiar una frase solo recalcula esa.
 - **Qwen:** frases pendientes ordenadas por longitud y en lotes de 8 (≈30 % menos tiempo). Comprobación de cada frase: duración entre 0,55× y 1,9× de 0,42 s/palabra; si no, se repite (3 intentos). bf16 en CPU; fp32 no fue más rápido.
