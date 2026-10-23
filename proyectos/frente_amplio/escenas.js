@@ -84,7 +84,7 @@ function escena1(esc, t, ctx) {
 function escena2(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, x = esc.ctx; fondo(esc, ctx, 'lago', 'dia'); velo(esc, 0, esc.H * 0.8, 0.6, 0.35);
   rotulo(esc, ctx, 'EL CALENDARIO', cx, 205, { a: tr(t, 0.05, 0.6, E.elastico), color: COL.dorado, max: T.mega, lineas: 1 });
-  pastilla(esc, 'NUEVA COALICIÓN · CANDIDATA: ADA COLAU', cx, 335, { a: tr(t, at(ctx, 'colau', 5.0), 0.5, E.atrasSalida), color: COL.cian, tam: 30 });
+  pastilla(esc, 'NUEVA COALICIÓN · CANDIDATA: ADA COLAU', cx, 370, { a: tr(t, at(ctx, 'colau', 5.0), 0.5, E.atrasSalida), color: COL.cian, tam: 30 });
   const lx = cx - 330, y0 = 470, y1 = 1150, tA = at(ctx, 'diecisiete', 8.0), tB = at(ctx, 'trece', 12.4), tC = at(ctx, 'veintisiete', 14.0), tD = tC + 0.9;
   const prog = c01((t - 0.4) / (tD + 0.2));
   x.save(); x.strokeStyle = 'rgba(255,255,255,0.25)'; x.lineWidth = 12; x.lineCap = 'round'; x.beginPath(); x.moveTo(lx, y0); x.lineTo(lx, y1); x.stroke();
