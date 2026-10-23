@@ -487,7 +487,7 @@
     }
   },
   "melo_u5_dormir": {
-    "descripcion": "melo_u5 (misma sintesis Melo) en version DORMIR: habla ~7 % mas despacio (tempo de prosodia 0,93), pausas algo mas largas (coma 0,3 / frase 0,7 / parrafo 1,2 s), melodia menos ancha (k_lento 2,0, k_rapido 1,2), tono 1 semitono mas grave y ~3 dB menos de brillo en 3,5-6 kHz; volumen -19 LUFS. Perfil nuevo, sin oir por el usuario.",
+    "descripcion": "melo_u5 (misma sintesis Melo) en version DORMIR: habla ~7 % mas despacio (tempo de prosodia 0,93), pausas LARGAS de sueno (coma 0,5 / frase 1,7 / parrafo 3,5 s), melodia menos ancha (k_lento 2,0, k_rapido 1,2), tono 1 semitono mas grave y ~3 dB menos de brillo en 3,5-6 kHz; volumen -19 LUFS. Perfil nuevo, sin oir por el usuario.",
     "motor": "melo",
     "idioma": "ES",
     "speaker": "ES",
@@ -497,8 +497,8 @@
       "noise_scale": 0.45,
       "noise_scale_w": 0.6
     },
-    "pausa_frase_s": 0.7,
-    "pausa_parrafo_s": 1.2,
+    "pausa_frase_s": 1.7,
+    "pausa_parrafo_s": 3.5,
     "fx": {
       "pitch_semitonos": 0.0,
       "highpass_hz": 60,
@@ -522,7 +522,7 @@
         ]
       ]
     },
-    "pausa_coma_s": 0.3,
+    "pausa_coma_s": 0.5,
     "trozo_max_car": 70,
     "prosodia": {
       "f0_ref_hz": 191.0,

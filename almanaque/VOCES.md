@@ -13,3 +13,4 @@
 - `natural`: sol mayor / mi menor; cuerdas calidas, arpa espaciada (arpegio lento), flauta suave con soplo, viento, arroyo lejano y grillos lejanos muy bajos; reverb 2,8 s; paso bajo a 6,5 kHz.
 - Ninguno lleva dings, risers ni booms. Medido (150-180 s): pico 0,47, sin picos > -6 dBFS, energia > 4 kHz ~ 0 %, salto maximo de volumen en 0,5 s: 4,5 dB (mistico) y 3,1 dB (natural), frente a 4,3 dB de `meditacion`.
 - Mezcla (`meta.volumen_musica` y `meta.ducking {umbral, ratio, ataque, relajacion}`): con 0,55 y ratio 8 la musica quedaba ~13-18 dB por debajo de la voz (casi ausente). Con volumen 1,15 y ducking suave (ratio 2,5) queda ~8 dB por debajo, medido sobre una voz de prueba.
+- Pausas de dormir de `melo_u5_dormir`: coma 0,5 / frase 1,7 / parrafo 3,5 s (23:33 con 2810 palabras; 26:35 con 3191).
