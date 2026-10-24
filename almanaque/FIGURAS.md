@@ -125,3 +125,16 @@ Uso: `c.fig('nombre', ux, uy, tam, {en:'palabra'|segundos, dur, alfa, rot, espej
 | `casa` | casa con ventana encendida | biblioteca4.js |
 | `mundo_unido` | tierra con puntos de luz repartidos: paises colaborando | biblioteca4.js |
 | `pared_ruta` | camino de obstaculos y una meta: lo que falta | biblioteca4.js |
+| `satelite_gps` | satelite con dos paneles solares y ondas de senal | biblioteca5.js |
+| `agujero_negro` | agujero negro: horizonte oscuro, disco de materia inclinado y luz curvada alrededor | biblioteca5.js |
+| `ascensor` | ascensor cerrado que acelera hacia arriba, con una pelota que cae en curva | biblioteca5.js |
+| `sabana` | rejilla del espacio-tiempo hundida por una masa | biblioteca5.js |
+| `roseta_mercurio` | orbita elipse que gira poco a poco (precesion) alrededor del sol | biblioteca5.js |
+| `luz_curvada` | rayo de luz de una estrella lejana que se curva al pasar cerca del sol | biblioteca5.js |
+| `eclipse` | eclipse total: disco oscuro con corona de rayos | biblioteca5.js |
+| `ondas_gravitacionales` | dos masas que giran juntas y ondas que se expanden por el espacio | biblioteca5.js |
+| `lente_gravitacional` | galaxia en el centro que curva la luz de una fuente lejana en arcos | biblioteca5.js |
+| `interferometro` | detector en forma de L con dos brazos, laser y espejos | biblioteca5.js |
+| `telescopio` | telescopio sobre un tripode | biblioteca5.js |
+| `persona_cayendo` | figura humana en caida libre, brazos abiertos | biblioteca5.js |
+| `universo_expansion` | puntos de galaxias que se alejan del centro con flechas | biblioteca5.js |

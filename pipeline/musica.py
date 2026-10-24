@@ -5,6 +5,7 @@ Tres estilos, cada uno con su propia armonia, instrumentacion y ritmo:
   meditacion : onirica. Pads lentos, cuencos tibetanos, destellos agudos, oleaje suave, mucha reverb. Sin pulso.
   curiosos   : misterio/curiosidad. Marimba pentatonica menor, bajo grave, tic-tac sutil, risers y booms en cortes.
   mistico    : PARA DORMIR. Coro lento, bordon con quinta, campanas de cristal con un motivo, cuencos graves, aire. Sin pulso.
+  intriga    : tension y golpes tipo crash (riser + bombo + platillo) en cambios de capitulo y palabras clave; a peticion del usuario.
   natural    : PARA DORMIR. Cuerdas calidas, arpa espaciada, flauta suave, viento, arroyo lejano. Sin pulso.
   aprender   : jugueton. Xilofono pentatonico mayor, bajo pizzicato saltarin, campanitas, fanfarria en aciertos.
 
@@ -284,7 +285,64 @@ def corte_natural(buses, t, rng):                                  # cambio de c
 
 
 
+# ------------------------------------------------------------------ estilo INTRIGA (tension + golpes tipo crash; a peticion expresa del usuario)
+def golpe(buses, t, rng, fuerza=1.0, riser=True):
+    """Impacto: riser invertido (ruido filtrado que sube), bombo profundo con caida de tono, ruido grave y platillo suave con cola. fuerza 0..1."""
+    b = buses[2]
+    if riser:
+        d = 2.6; n = int(d * SR); ru = ruido_filtrado(d, 1500, 7000, rng) * (np.linspace(0, 1, n) ** 2.2).astype(np.float32)
+        b.poner(ru * .05 * fuerza, t - d, pan=0.0)
+    n = int(3.2 * SR); tt = np.arange(n) / SR
+    f = 34 + 70 * np.exp(-tt * 7.0)                                   # caida de ~104 Hz a ~34 Hz
+    boom = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt / 0.9)
+    gol = ruido_filtrado(3.2, 40, 500, rng) * np.exp(-tt / 0.5)
+    b.poner(((boom * .55 + gol * .5) * fuerza).astype(np.float32), t, pan=0.0)
+    cr = ruido_filtrado(3.0, 2500, 7500, rng) * np.exp(-np.arange(int(3.0 * SR)) / SR / 0.9)
+    b.poner((cr * .035 * fuerza).astype(np.float32), t, pan=float(rng.uniform(-.4, .4)))
+
+
+def estilo_intriga(c, rng):
+    """Intriga: re frigio (re-mi bemol-sol-la), bordon con segunda menor que bate, cuerdas de tension con glissando lento, notas graves sueltas, latido muy lento."""
+    D = c['duracion']; pad = Bus(int((D + 12) * SR)); mel = Bus(pad.n); imp = Bus(pad.n)
+    tt = np.arange(pad.n) / SR
+    d1 = np.sin(2 * np.pi * MIDI(26) * tt) + np.sin(2 * np.pi * MIDI(26) * 1.0105 * tt)            # re1 con batido lento (segunda menor microtonal)
+    d2 = np.sin(2 * np.pi * MIDI(33) * tt) * .6 + np.sin(2 * np.pi * MIDI(27) * tt) * .35 * (.5 + .5 * np.sin(2 * np.pi * tt / 37.0))   # la1 y mi bemol1 que va y viene
+    bord = ((d1 + d2) * (.7 + .3 * np.sin(2 * np.pi * tt / 23.0))).astype(np.float32) * .06
+    pad.L += bord; pad.R += bord
+    t, k = 0.0, 0
+    acordes = [[38, 45, 51, 53], [38, 44, 50, 55], [36, 43, 51, 56], [38, 45, 50, 54]]               # grupos tensos: 2as menores, tritonos
+    while t < D + 8:                                                                                   # cuerdas oscuras con glissando de un semitono
+        for nota in acordes[k % 4]:
+            dur = 30.0; n = int(dur * SR); x = np.arange(n) / SR
+            f = MIDI(nota) * (1 + (.0594 * np.clip((x - 8) / 12, 0, 1)) * int(rng.random() < .35))
+            y = np.sin(2 * np.pi * np.cumsum(f) / SR) + .5 * np.sin(4 * np.pi * np.cumsum(f) / SR) + .25 * np.sin(6 * np.pi * np.cumsum(f) / SR)
+            env = np.minimum(np.minimum(1, x / 9.0), np.minimum(1, (dur - x) / 9.0))
+            pad.poner((y * env * .028).astype(np.float32), t, pan=float(rng.uniform(-.8, .8)))
+        t += 17.0; k += 1
+    escala = [0, 1, 5, 7, 8]                                                                           # frigio: re, mib, sol, la, sib
+    t = 5.0
+    while t < D:                                                                                       # notas graves sueltas, de caida lenta
+        f = MIDI(50 + int(rng.choice(escala)) - 12 * int(rng.random() < .4))
+        y = sum(a * tono(f * r, 8, ((1, 1.0),), .03, d) for r, a, d in ((1, 1.0, 3.6), (2, .4, 1.8), (3, .15, .9)))
+        mel.poner(y * .075, t, pan=float(rng.uniform(-.5, .5))); t += float(rng.uniform(7, 14))
+    t = 2.0
+    while t < D:                                                                                       # latido muy lento (36 por minuto, muy grave y suave)
+        n = int(.5 * SR); x = np.arange(n) / SR; lat = np.sin(2 * np.pi * (46 + 30 * np.exp(-x * 20)) * x) * np.exp(-x / .09)
+        pad.poner((lat * .045).astype(np.float32), t); t += 1.65
+    reverb(pad, 6.0, .55, rng); reverb(mel, 6.0, .65, rng); reverb(imp, 4.5, .5, rng)
+    for b in (pad, mel, imp):
+        b.L = paso_bajo(b.L, 5500); b.R = paso_bajo(b.R, 5500)
+    return [pad, mel, imp]
+
+
+def corte_intriga(buses, t, rng):                                  # cambio de capitulo: golpe fuerte con riser
+    golpe(buses, max(3.0, t - 1.2), rng, 1.0, True)
+
+
+
 def ding(buses, t, mood, rng):
+    if mood == 'intriga':
+        golpe(buses, t, rng, .6, False); return                               # acento de palabra clave: golpe medio sin riser
     if mood in ('mistico', 'natural'):
         return                                                                     # sueno: sin dings
     if mood == 'meditacion':
@@ -300,7 +358,8 @@ ESTILOS = {'meditacion': (estilo_meditacion, corte_meditacion, -24),
            'curiosos': (estilo_curiosos, corte_curiosos, -21),
            'aprender': (estilo_aprender, corte_aprender, -21),
            'mistico': (estilo_mistico, corte_mistico, -21),
-           'natural': (estilo_natural, corte_natural, -21)}
+           'natural': (estilo_natural, corte_natural, -21),
+           'intriga': (estilo_intriga, corte_intriga, -21)}
 
 
 def componer(cues, mood):
@@ -313,13 +372,14 @@ def componer(cues, mood):
         corte(buses, float(e['ini']), rng)
     for d in cues.get('dings', []):
         ding(buses, float(d), mood, rng)
-    n = int((cues['duracion'] + (4 if mood in ('meditacion', 'mistico', 'natural') else 1.5)) * SR)
+    n = int((cues['duracion'] + (4 if mood in ('meditacion', 'mistico', 'natural', 'intriga') else 1.5)) * SR)
     L = sum(b.L[:n] for b in buses); R = sum(b.R[:n] for b in buses)
     fin = np.ones(n, np.float32)                                                # fundidos
     fin[: int(2 * SR)] = np.linspace(0, 1, int(2 * SR)); fin[-int(3.5 * SR):] *= np.linspace(1, 0, int(3.5 * SR))
     st = np.stack([L * fin, R * fin], 1)
     rms = np.sqrt(np.mean(st[:: 8] ** 2) + 1e-12)
     st *= (10 ** (nivel_db / 20)) / rms
+    if mood == 'intriga': st = (np.tanh(st / .7) * .7).astype(np.float32)           # limitador suave: los golpes no hunden el resto
     pico = np.abs(st).max()
     if pico > .95: st *= .95 / pico
     return st.astype(np.float32)
