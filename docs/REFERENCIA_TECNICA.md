@@ -64,7 +64,7 @@ Demo/revision: `demo/realismo.html?modo=paisaje|objetos|rayo&tipo=montanas|lago|
 - Revisado a ojo solo en fotogramas fijos (sin video). Falta: ciudad/edificios, animales realistas, lluvia, mas objetos (torre, puente, barco de vapor...), personas.
 
 ## VOLUMEN 3D (engine/volumen/: motor.js, mallas.js, modelos.js, fondos.js, tierra_datos.js)
-Ya cargado en `engine/video/index.html`. Revision: `demo/volumen.html?modo=avion|maniqui|piezas|tierra&rayosx=1&ss=1`.
+Ya cargado en `engine/video/index.html`. Revision: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra&rayosx=1&ss=1`.
     const V = VE.vol;
     const cam = V.camara({ pos:[x,y,z], mira:[x,y,z], arriba:[0,1,0], fov:35 })   // o V.orbita(centro, dist, rumbo, elevacion)
     V.render(esc, V.nodo({ hijos:[...] }), cam, { ambiente:'estudio', sombras:{ centro, radio }, rayosx:0..1, niebla:{color,cerca,lejos}, alfa })
@@ -73,7 +73,8 @@ Ya cargado en `engine/video/index.html`. Revision: `demo/volumen.html?modo=avion
 - Material: `{color, tipo:'mate'|'brillo'|'rayosx'|'plano'|'sombra', alfa, mapa:<canvas>, esp, dureza, envolver, borde, emision, fresnel, desvanecer, dobleCara}`. `sombra` = suelo invisible que solo recibe sombra (para poner objetos 3D sobre un fondo 2D).
 - Mallas (`V.malla`, en cache): esfera, capsula(r1,r2,largo) (hacia -Y, para extremidades), caja(w,h,d,bisel), cilindro(r1,r2,h), torno(perfil), toro, extrusion(poligono,prof), loft(secciones) (alas, cascos), plano, tubo(puntos,radio,{dinamica:'nombre'}) (estelas, cables), parametrica(nu,nv,f), fusionar(partes).
 - Modelos (`V.modelos`): tierra({nubes, atmosfera, giroNubes, resolucion}), avion({color, acento, m}), maniqui({pose, apoyo, piesX, resaltar}), silla, nube, arbol({tipo:'pino'}), sala. Texturas pintadas con `V.textura(clave, w, h, fn)` (una vez).
-- Fondos 2D (`V.fondo`): espacio, estudio, plano. Geografia (`V.geo`): punto(lat,lon,r), ruta(a,b,n,altura), enRuta(ruta,t,alabeo) -> {pos, m}, distancia(a,b) km, visible(p,cam).
+- Exteriores (escenarios.js): `V.modelos.terreno({alto(x,z), x0,x1,z0,z1,n})` (textura por altura y pendiente: arena, espuma, hierba, roca) y `V.modelos.mar({t, color, reflejo})` (oleaje dinamico). Historia (historia.js): `barco_vikingo({vela:true|'recogida'})`, `vikingo({semilla, pose, apoyo, suelo})`, `castillo({lado, alto, t})`. Maniqui: `colores` por pieza y `equipo: {cuello|tronco|codo_d|codo_i|maniqui: [nodos]}` para vestir y armar personajes.
+- Fondos 2D (`V.fondo`): espacio, estudio, plano, cielo({hora}). Geografia (`V.geo`): punto(lat,lon,r), ruta(a,b,n,altura), enRuta(ruta,t,alabeo) -> {pos, m}, distancia(a,b) km, visible(p,cam).
 - Convenios: Y arriba; vehiculos con el morro hacia +Z; figura humana mirando a +X (vista lateral = camara en +Z). Escala libre (el maniqui mide ~1,75).
 - Rendimiento: el coste crece con los pixeles cubiertos y con el mapa de sombras (2048 por defecto, PCF 5x5). Mallas y texturas se suben una vez; los nodos se crean en cada fotograma sin coste apreciable.
 

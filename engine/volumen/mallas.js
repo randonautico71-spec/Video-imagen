@@ -11,7 +11,7 @@
      loft(secciones, clave, {tapas})       piel a traves de secciones cerradas 3D con el mismo numero de puntos (alas, cascos)
      plano(w, d, div)                      suelo en XZ, normal +Y
      tubo(puntos, radio, seg, {dinamica})  tubo a lo largo de una polilinea 3D (radio: numero o f(t) 0..1)
-     parametrica(nu, nv, f, {cerradoU, cerradoV, clave})   f(u, v) -> [x,y,z] con u, v en 0..1
+     parametrica(nu, nv, f, {clave, abierta, dinamica:'nombre'})   f(u, v) -> [x,y,z] con u, v en 0..1 (dinamica: oleaje, banderas)
      fusionar([{malla, m}], clave)         une varias mallas (con su matriz) en una sola: menos llamadas de dibujo */
 (function (VE) {
   const V = VE.vol = VE.vol || {}, MA = V.malla = {}, CACHE = new Map(), PI = Math.PI;
@@ -45,6 +45,7 @@
   function rejilla(nu, nv) { const idx = []; for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = j * (nu + 1) + i, b = a + 1, c = a + nu + 1, d = c + 1; idx.push(a, c, b, b, c, d); } return idx; }
 
   MA.parametrica = function (nu, nv, f, o = {}) {
+    if (o.dinamica) { const m = MA.parametrica(nu, nv, f, { abierta: o.abierta }); return reutilizar(o.dinamica, Object.assign(m, { dinamica: true, abierta: o.abierta })); }   // se recalcula cada vez (oleaje, banderas)
     return guardar(o.clave, () => {
       const pos = [], uv = [];
       for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) { const u = i / nu, v = j / nv, p = f(u, v); pos.push(p[0], p[1], p[2]); uv.push(u, v); }
@@ -220,7 +221,7 @@
   // Las mallas dinamicas reutilizan el mismo objeto (mismos buffers GL) entre fotogramas: se identifica por un nombre.
   const DIN = new Map();
   function reutilizar(nombre, m) { const k = typeof nombre === 'string' ? nombre : 'din'; const prev = DIN.get(k);
-    if (prev) { prev.pos = m.pos; prev.nor = m.nor; prev.uv = m.uv; prev.idx = m.idx; prev.version = (prev.version || 0) + 1; return prev; }
+    if (prev) { prev.dinamica = true; prev.pos = m.pos; prev.nor = m.nor; prev.uv = m.uv; prev.idx = m.idx; prev.version = (prev.version || 0) + 1; return prev; }
     m.version = 1; DIN.set(k, m); return m; }
   function rotar(v, k, a) { const c = Math.cos(a), s = Math.sin(a), d = V.v3.punto(k, v), x = V.v3.cruz(k, v); return [v[0] * c + x[0] * s + k[0] * d * (1 - c), v[1] * c + x[1] * s + k[1] * d * (1 - c), v[2] * c + x[2] * s + k[2] * d * (1 - c)]; }
   V.v3rotar = rotar;

@@ -19,7 +19,7 @@
            m: Float32Array(16) (matriz explicita, sustituye a pos/rot/esc), hijos: [...], oculto, sinSombra, alfa,
            sinRayos (decorado que no pasa a rayos X: se oculta con rayosx = 1 y no recibe el contorno en la mezcla) }
    Material: { color, tipo: 'mate'|'brillo'|'rayosx'|'plano'|'sombra', alfa, mapa: <canvas>, esp (especular), dureza (exponente),
-               desvanecer (0..1: la capa se borra al verse de canto, p. ej. nubes), emision (0..1), envolver (luz que rodea, 0..1), borde (intensidad del brillo de borde), fresnel (exponente rayos x),
+               desvanecer (0..1: la capa se borra al verse de canto, p. ej. nubes), emision (0..1), repetir: [u, v] (la textura se repite; el lienzo necesita .repetirV = true para repetir en vertical), envolver (luz que rodea, 0..1), borde (intensidad del brillo de borde), fresnel (exponente rayos x),
                dobleCara, sinNiebla }
    Ambientes (luz.relativa = la luz va con la camara): 'estudio' (calido, como una sala con una lampara), 'dia', 'atardecer', 'noche', 'espacio', 'plano' (rayos x),
               o un objeto { luz:{dir,color,intensidad}, cielo, suelo, ambiente, borde:{color,intensidad} }. */
@@ -140,7 +140,7 @@ precision highp float; precision highp sampler2DShadow;
 in vec3 vW; in vec3 vN; in vec2 vU; in vec4 vL;
 uniform vec3 uCol, uCam, uLdir, uLcol, uCielo, uSuelo, uBorde, uNiebla;
 uniform float uFade, uAlfa, uLint, uAmb, uEsp, uDureza, uBordeI, uEnv, uEmis, uFres, uTexel;
-uniform vec2 uNieblaR; uniform int uTipo; uniform bool uUsaMapa, uUsaSom;
+uniform vec2 uNieblaR, uRep; uniform int uTipo; uniform bool uUsaMapa, uUsaSom;
 uniform sampler2D uMapa; uniform sampler2DShadow uSom;
 out vec4 o;
 vec3 lin(vec3 c){ return pow(c, vec3(2.2)); }
@@ -157,7 +157,7 @@ void main(){
   vec3 N = normalize(vN); if (!gl_FrontFacing) N = -N;
   vec3 V = normalize(uCam - vW);
   vec3 base = lin(uCol); float a = uAlfa;
-  if (uUsaMapa) { vec4 t = texture(uMapa, vU); base *= lin(t.rgb); a *= t.a; }
+  if (uUsaMapa) { vec4 t = texture(uMapa, vU * uRep); base *= lin(t.rgb); a *= t.a; }
   if (uFade > 0.0) a *= smoothstep(0.0, uFade, abs(dot(N, V)));        // capas finas (nubes) que se desvanecen de canto
   if (uTipo == 3) { float s = sombra(N); o = vec4(0.0, 0.0, 0.0, (1.0 - s) * a); return; }
   if (uTipo == 1) {                                   // rayos x / atmosfera: brillo de contorno, mezcla aditiva
@@ -224,7 +224,7 @@ precision mediump float; out vec4 o; void main(){ o = vec4(1.0); }`;
     g.pixelStorei(g.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false); g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL, false);
     g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, lienzo); g.generateMipmap(g.TEXTURE_2D);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR_MIPMAP_LINEAR); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
-    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.REPEAT); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.REPEAT); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, lienzo.repetirV ? g.REPEAT : g.CLAMP_TO_EDGE);
     if (R.aniso) g.texParameterf(g.TEXTURE_2D, R.aniso.TEXTURE_MAX_ANISOTROPY_EXT, 8);
     lienzo.__tex = t; lienzo.__texG = g; return t;
   }
@@ -308,7 +308,7 @@ precision mediump float; out vec4 o; void main(){ o = vec4(1.0); }`;
       g.uniform1i(u.uTipo, TIPOS[tp]);
       g.uniform1f(u.uEsp, mt.esp == null ? (d.esp || 0) : mt.esp); g.uniform1f(u.uDureza, mt.dureza || d.dureza || 16);
       g.uniform1f(u.uEnv, mt.envolver == null ? (d.envolver || 0) : mt.envolver); g.uniform1f(u.uEmis, mt.emision == null ? (d.emision || 0) : mt.emision);
-      g.uniform1f(u.uFres, mt.fresnel || d.fresnel || 2); g.uniform1f(u.uFade, mt.desvanecer || 0);
+      g.uniform1f(u.uFres, mt.fresnel || d.fresnel || 2); g.uniform1f(u.uFade, mt.desvanecer || 0); const rp = mt.repetir || [1, 1]; g.uniform2f(u.uRep, rp[0], rp[1]);
       const bI = (mt.borde == null ? (d.borde == null ? 1 : d.borde) : mt.borde) * (tp === 'rayosx' ? 1 : A.borde.intensidad);
       g.uniform1f(u.uBordeI, bI); g.uniform3fv(u.uBorde, col3(mt.colorBorde || A.borde.color));
       if (mt.sinNiebla) g.uniform2f(u.uNieblaR, 0, 0); else g.uniform2f(u.uNieblaR, nie ? nie.cerca : 0, nie ? nie.lejos : 0);

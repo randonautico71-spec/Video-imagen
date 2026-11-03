@@ -2,6 +2,7 @@
      VE.vol.fondo.espacio(esc, {semilla, brillo})      negro azulado con estrellas y polvo
      VE.vol.fondo.estudio(esc, {pared, foco:[x,y]})    pared calida con un foco de luz (interior)
      VE.vol.fondo.plano(esc, {color})                  azul de plano tecnico con reticula (para el modo rayos X)
+     VE.vol.fondo.cielo(esc, {hora, sol, horizonte})   cielo de VE.real.horas (alba, dia, atardecer, noche, tormenta) para exteriores 3D
    Todos aceptan {a} (opacidad) para fundir de uno a otro. */
 (function (VE) {
   const V = VE.vol = VE.vol || {}, F = V.fondo = {};
@@ -33,6 +34,22 @@
       const p = Math.round(Math.min(W, H) / 22); x.strokeStyle = 'rgba(120,170,255,0.07)'; x.lineWidth = 1;
       for (let i = 0; i <= W; i += p) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); } for (let j = 0; j <= H; j += p) { x.beginPath(); x.moveTo(0, j); x.lineTo(W, j); x.stroke(); }
       x.strokeStyle = 'rgba(120,170,255,0.13)'; for (let i = 0; i <= W; i += p * 5) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); } for (let j = 0; j <= H; j += p * 5) { x.beginPath(); x.moveTo(0, j); x.lineTo(W, j); x.stroke(); }
+    }), o.a);
+  };
+
+  /* Cielo de una hora del dia (colores de VE.real.horas): degradado, sol o luna y nubes suaves. sol: {x, y} en fraccion de pantalla (o null). */
+  F.cielo = function (esc, o = {}) {
+    const H0 = VE.real.hora(o.hora || 'atardecer'), sol = o.sol === undefined ? H0.sol : o.sol;
+    pegar(esc, hornear(esc, 'cielo|' + (o.hora || 'atardecer') + '|' + JSON.stringify(sol) + '|' + (o.horizonte || 0.55) + '|' + (o.nubes == null ? 1 : o.nubes), (x, W, H) => {
+      const hz = (o.horizonte || 0.55) * H, g = x.createLinearGradient(0, 0, 0, hz); g.addColorStop(0, H0.cielo[0]); g.addColorStop(0.55, H0.cielo[1]); g.addColorStop(1, H0.niebla || H0.cielo[2]);
+      x.fillStyle = g; x.fillRect(0, 0, W, H); x.fillStyle = H0.niebla || H0.cielo[2]; x.fillRect(0, hz, W, H - hz);
+      if (sol) { const sx = sol.x * W, sy = sol.y * H, R = Math.max(W, H) * 0.5, h = x.createRadialGradient(sx, sy, 0, sx, sy, R);
+        h.addColorStop(0, VE.color.a(sol.color, 0.65)); h.addColorStop(0.15, VE.color.a(sol.color, 0.25)); h.addColorStop(1, VE.color.a(sol.color, 0)); x.fillStyle = h; x.fillRect(0, 0, W, H);
+        x.fillStyle = sol.color; x.beginPath(); x.arc(sx, sy, sol.r * Math.min(W, H) * 0.8, 0, 7); x.fill(); }
+      const r = VE.rng('cielo' + (o.hora || '')), n = Math.round(14 * (o.nubes == null ? 1 : o.nubes));
+      for (let i = 0; i < n; i++) { const cx = r() * W, cy = hz * (0.12 + r() * 0.75), w = W * (0.25 + r() * 0.45);
+        for (let k = 0; k < 22; k++) { const px = cx + (r() - 0.5) * w, py = cy + (r() - 0.5) * w * 0.06, rr = w * (0.07 + r() * 0.1), q = x.createRadialGradient(px, py - rr * 0.3, 0, px, py, rr);
+          q.addColorStop(0, VE.color.a(H0.luz, 0.16)); q.addColorStop(0.6, VE.color.a(H0.cielo[1], 0.09)); q.addColorStop(1, VE.color.a(H0.cielo[1], 0)); x.fillStyle = q; x.beginPath(); x.ellipse(px, py, rr * 3, rr * 0.7, 0, 0, 7); x.fill(); } }
     }), o.a);
   };
 

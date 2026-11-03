@@ -171,7 +171,8 @@
   MO.maniqui = function (o = {}) {
     const P = Object.assign({}, POSES.de_pie, typeof o.pose === 'string' ? POSES[o.pose] : (o.pose || {})), r = (g) => g * D;
     const madera = o.color || '#e2a565', res = o.resaltar || {}, k = MED;
-    const mat = (nombre) => ({ color: res[nombre] || madera, esp: 0.3, dureza: 26, envolver: 0.25, emision: res[nombre] ? 0.08 : 0 });
+    const col = o.colores || {}, colDe = (n) => col[n] || col[n.replace(/_[di]$/, '')];
+    const mat = (nombre) => ({ color: res[nombre] || colDe(nombre) || madera, esp: o.colores ? 0.12 : 0.3, dureza: 26, envolver: 0.25, emision: res[nombre] ? 0.08 : 0 });
     const bola = (rad, nombre, pos) => V.nodo({ nombre: nombre + '_art', malla: MA.esfera(24), esc: rad, pos: pos || [0, 0, 0], mat: mat(nombre) });
     const pierna = (lado, z) => {
       const nm = (s) => s + '_' + lado;
@@ -204,6 +205,7 @@
         V.nodo({ nombre: 'cabeza', malla: MA.esfera(32), pos: [0.015, k.cuello + 0.11, 0], esc: [0.095, 0.125, 0.09], mat: mat('cabeza') })] }),
       brazo('d', 0.19), brazo('i', -0.19)] });
     const pelvis = V.nodo({ nombre: 'pelvis', malla: MA.esfera(32), pos: [0, 0.0, 0], esc: [0.12, 0.1, 0.16], mat: mat('pelvis') });
+    /* equipo: piezas colgadas de una articulacion: { cuello, tronco, hombro_d, codo_d, codo_i, cadera_d, rodilla_i, maniqui (pelvis), ... }: [nodos] */
     const raiz = V.nodo({ nombre: 'maniqui', pos: (o.pos || [0, 0, 0]).slice(), rot: o.rot, esc: o.esc, hijos: [pelvis, tronco, pierna('d', 0.085), pierna('i', -0.085)] });
     /* apoyo: 'pies' -> se sube o baja la figura para que el pie mas bajo toque el suelo (y = o.suelo, 0 por defecto);
        piesX: ademas se desplaza en X para que los pies queden en esa X (los pies no patinan al cambiar de pose). */
@@ -213,6 +215,8 @@
         for (const q of [[0, 0, 0], [0, -k.pie, 0], [0, -k.pie * 0.5, 0]]) { const w = V.m4.ap(e.M, q); minY = Math.min(minY, w[1] - 0.034 * s); } const c = V.m4.ap(e.M, [0, -k.pie * 0.5, 0]); sx += c[0]; n++; }
       raiz.pos[1] += (o.suelo || 0) - minY; if (o.piesX != null && n) raiz.pos[0] += o.piesX - sx / n;
     }
+    if (o.equipo) { const buscar = (n, nom) => { if (!n) return null; if (n.nombre === nom) return n; for (const h of n.hijos || []) { const r = buscar(h, nom); if (r) return r; } return null; };
+      for (const k in o.equipo) { const g = k === 'maniqui' ? raiz : buscar(raiz, k); if (!g) throw new Error('maniqui: no hay articulacion ' + k); g.hijos = (g.hijos || []).concat(o.equipo[k]); } }
     return raiz;
   };
 
