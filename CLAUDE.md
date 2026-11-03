@@ -19,7 +19,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **`VE.real`** (`engine/realismo/`): paisajes y objetos pintados con volumen y luz por hora del día. **Estilo general** (shorts, largos de divulgación).
 - **`VE.short`** (`engine/estilos/shorts.js`): rótulos, pastillas, flechas, iconos y el letrero final.
 - **`VE.vol`** (`engine/volumen/`): **3D de verdad** (WebGL2 por CPU): objetos con volumen, luz suave, sombras, cámara que se mueve y modo **rayos X** (plano técnico). Modelos: Tierra con costas reales, avión, maniquí articulado con poses (vestible: vikingo), barco vikingo, castillo, terreno costero y mar con olas, silla, nube, árbol, sala; se añaden más montando piezas (esfera, cápsula, caja redondeada, torno, loft, tubo). Grafismos 2D anclados a puntos 3D (`V.proyectar`, `V.linea`, `V.marcador`). Revisión: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra`.
-  - **Fútbol 3D** (jugadas, planos de cámara, estadio, público): seguir `docs/FUTBOL_3D.md` (ficha de recreación a partir de las indicaciones del usuario).
+  - **Fútbol 3D** (jugadas, planos de cámara, estadio, público): seguir `docs/FUTBOL_3D.md` (ficha de recreación a partir de las indicaciones del usuario). Módulo `engine/volumen/futbol.js`; ejemplo `demo/futbol.html` (gol de cabeza en 5 planos).
 - **`VE.trazo` / `VE.med` / `VE.paisaje`**: estilo LUZ (contornos sin relleno) para meditación.
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 

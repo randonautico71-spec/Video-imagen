@@ -2,7 +2,19 @@
 
 Instrucciones para convertir unas **indicaciones** del usuario (una jugada, un gol, un partido, un estadio, un ambiente de grada…) en una animación 3D con varios planos de cámara, hecha **solo con código** sobre el motor `VE.vol` (`engine/volumen/`). Antes de empezar: `docs/GUIA_IMAGEN.md` (sección 3 bis) y `docs/REFERENCIA_TECNICA.md` (sección VOLUMEN 3D).
 
-Estado: **guía de diseño**. El motor, el maniquí, las poses de carrera, las trayectorias en parábola (`V.efectos.flecha`), el terreno, el cielo, la niebla y las sombras ya existen y están medidos. Lo que tiene que ver con el fútbol (campo, porterías, balón, estadio, público, poses de chutar) todavía **no está programado**. Aquí está diseñado con piezas que ya existen, y la sección 9 dice qué hay que crear y cómo revisarlo.
+Estado: **programado y revisado en fotogramas** (`engine/volumen/futbol.js`). Ejemplo completo: `demo/futbol.html`, un ataque por la banda derecha con centro y gol de cabeza, de noche y con el estadio lleno, montado en 5 planos (11,2 s). La sección 9 dice qué queda pendiente.
+
+| API (`V = VE.vol`, `F = V.futbol`) | Qué hace |
+|---|---|
+| `V.modelos.campo()` | césped con franjas y líneas pintadas en la textura (medidas de §3) |
+| `V.modelos.porterias({ t, gol: {t, p, lado} })` | porterías con red; la red se abomba en el punto del gol |
+| `V.modelos.balon({ pos, giro })` | balón de paneles (radio 0,11) |
+| `V.modelos.futbolista({ kit, dorsal, portero, pose, pos, rot, apoyo, suelo })` | maniquí con equipación, dorsal en la espalda, pelo y guantes de portero |
+| `V.modelos.estadio({ t, celebra, aficiones, colores, vallas, densidad, sinPublico })` | 4 gradas de dos anfiteatros, esquinas curvas, cubierta con focos, vallas y público |
+| `F.jugada(def)` | guion de toques → `balon(t)`, `jugador(id, t)`, `nodo(id, t, kit)`, `revisar()` |
+| `F.planos.general / cenital / raso / porteria / seguimiento / spidercam / grada` | cámaras que solo dependen de `t` |
+| `F.halos(esc, cam)` · `F.ambienteNoche` · `F.balonSuave(J, t)` · `F.brazos(pose, brazos, k)` | halos de los focos, luz de noche, balón suavizado para la cámara, mezclar solo los brazos |
+| `V.pose.chutar(f)` · `cabezazo(f)` · `estirada(k)` · `celebrar(f)` · `V.poses.portero` | gestos (contacto en fase 0,5) |
 
 ---
 
@@ -96,7 +108,9 @@ Se monta en módulos, para poder cambiar el tamaño según las indicaciones:
 - **Exterior**: si un plano muestra el estadio desde fuera o desde arriba, se pone un `V.modelos.terreno` plano alrededor, con niebla del color del horizonte (como en los vikingos).
 
 ### 4.6 Público
-Hay miles de personas y no pueden ser maniquíes (cada uno son unas 30 piezas). Se trabaja en tres niveles, según lo cerca que esté la cámara:
+**Programado**: cada persona es un cuerpo (caja) más una cabeza (esfera de pocos lados), y los brazos levantados son una segunda malla. Todas las personas de un bloque (≈ 8 filas × 30 m) forman **una sola malla**, y el color de cada una sale de una **paleta en textura** (un uv fijo por persona). Así se dibujan unas 30 000 personas con ≈ 100 llamadas por fotograma. Cada bloque es un nodo: salta en Y y cambia a «de pie con brazos arriba» cuando `celebra(lado, bloque, t, aficion)` lo pide. La misma semilla sirve para todas las variantes, así que nadie cambia de sitio al levantarse. En los planos generales funciona sin pasar a textura: el nivel «lejos» de la tabla siguiente queda como optimización posible.
+
+Hay miles de personas y no pueden ser maniquíes (cada uno son unas 30 piezas). Diseño por niveles, según lo cerca que esté la cámara:
 
 | Distancia | Técnica | Animación |
 |---|---|---|
@@ -142,7 +156,7 @@ Cada plano es una función `camara(t) → V.camara({...})` que **solo depende de
 | Plano | Cámara (metros) | Uso |
 |---|---|---|
 | **General de TV** | `pos: [bx·0,85, 22, −58]` (alta, en un lateral, cerca de medio campo), `mira: balón suavizado`, `fov: 28–34`. Se mueve en X detrás del balón, sin desplazarse | Contexto de la jugada |
-| **Cenital / pizarra** | `pos: [cx, 90, cz + 0.01]`, `arriba: [1, 0, 0]`, o `orto: 40` | Táctica: `V.linea` para pases y desmarques, `V.marcador` en los jugadores; con `rayosx: 1` + `V.fondo.plano` se convierte en un esquema técnico |
+| **Cenital (táctico)** | `pos: [cx, 90, cz + 0.01]`, `arriba: [1, 0, 0]`, o `orto: 40` | Táctica: `V.linea` para pases y desmarques, `V.marcador` en los jugadores; con `rayosx: 1` + `V.fondo.plano` se convierte en un esquema técnico |
 | **A ras de césped** | `pos` a 0,4 m de altura, `fov: 50`, `cerca: 0.05` | Pase raso, regate, tensión |
 | **Detrás de la portería** | `pos: [60, 3.5, 0]`, `mira: [40, 1, bz]` | Tiro y gol; se ve la red moverse |
 | **Seguimiento** | detrás del jugador: `pos = jugador − 6·dirección + [0, 2.2, 0]`, `mira = jugador + 4·dirección` | Conducción y contraataque |
@@ -159,30 +173,24 @@ Cada plano es una función `camara(t) → V.camara({...})` que **solo depende de
 
 1. `python3 pipeline/vid.py nuevo <tema> --tipo short|largo`, y escribir la ficha (§1) y `datos.md` si es un partido real (§2).
 2. Cada párrafo del guion es una escena de `escenas.js`. Una escena de fútbol llama a `FUT.dibujar(esc, t, { plano, jugada, ficha })`: pinta el fondo, `V.render` del estadio y el campo, los jugadores y el balón, y luego los grafismos.
-3. Revisión rápida sin vídeo: página `demo/volumen.html?modo=futbol&plano=general|cenital|porteria|…` con `window.renderAt(t)`, y `qa --stills t1,t2,…` en el proyecto. **Hay que mirar las imágenes**: el instante de cada toque, el gol, cada cambio de plano y un plano de público.
-4. Clip suelto sin audio (solo si lo pide): `node render/demo.cjs --pagina "demo/volumen.html?modo=futbol" --duracion D --salida X.mp4 [--lienzo yt]`.
+3. Revisión rápida sin vídeo: página `demo/futbol.html?plano=montaje|general|cenital|raso|porteria|seguimiento|spidercam|grada|repeticion&lienzo=yt|vertical` con `window.renderAt(t)`, y `qa --stills t1,t2,…` en el proyecto. **Hay que mirar las imágenes**: el instante de cada toque, el gol, cada cambio de plano y un plano de público. Antes, `jugada.revisar()` tiene que salir vacío (lo comprueba `pipeline/autotest.sh`).
+4. Clip suelto sin audio (solo si lo pide): `node render/demo.cjs --pagina "demo/futbol.html" --duracion 11.2 --lienzo yt --ss 1 --salida X.mp4`.
 5. Vídeo completo: la cadena de siempre, `voz → musica → mezcla → qa → render`. Si el vídeo dura de 3 a 5 minutos, también versión vertical (entrega doble).
 
 ## 8. Rendimiento (lo que se sabe y lo que no)
 
 - **Medido** (de otras escenas, ver `GUIA_IMAGEN.md`): maniquí en sala ≈ 0,9 s/fotograma (ss 1,5); vikingos en exteriores ≈ 1,1–1,5 s/fotograma (ss 1), unos 8 maniquíes más terreno y mar; combate ≈ 2–2,5 s/fotograma.
-- **Sin medir**: 22 jugadores con el estadio y el público. Estimación **sin verificar**: entre 2 y 4 s/fotograma a ss 1. Lo primero es renderizar 3 fotogramas sueltos de cada plano y apuntar el tiempo en este documento.
+- **Medido** (`demo/futbol.html`, 1920×1080, ss 1, un proceso): 23 jugadores, balón, estadio con unas 30 000 personas, sombras y halos ≈ **2,5–3,5 s/fotograma**. El primer fotograma de cada proceso tarda ≈ 7 s, porque hornea las texturas y monta las mallas del público. Clip entero (11,2 s, 336 fotogramas, 4 procesos con `render/demo.cjs`): **927 s** (≈ 2,8 s por fotograma en total; cada proceso va a ≈ 11 s/fotograma porque comparten 4 CPU) y 29,8 MB con CRF 19.
 - Para que vaya más rápido: sombras con `radio` pequeño en la zona de la jugada; jugadores fuera del encuadre fuera del árbol (comprobar con `V.proyectar` y un margen); público en textura en los planos generales; `niebla` para la grada lejana; todas las texturas horneadas **una vez** (césped, grada, dorsales, vallas).
 - 30 fps × 60 s = 1800 fotogramas. A 3 s/fotograma con 4 procesos son unos 23 min. Calcularlo antes de prometer plazos.
 
-## 9. Pendiente de programar (orden propuesto)
+## 9. Hecho y pendiente
 
-Todo en un módulo nuevo, `engine/volumen/futbol.js` (cargado en `engine/video/index.html` y `demo/volumen.html`, y añadido a `pipeline/autotest.sh`). Cada pieza se revisa en fotogramas antes de pasar a la siguiente.
+**Hecho** (`engine/volumen/futbol.js`, cargado en `engine/video/index.html`; demo `demo/futbol.html`; comprobado en `pipeline/autotest.sh`): campo, porterías con red que se abomba, balón con giro, futbolista, poses `chutar`, `cabezazo`, `estirada`, `celebrar` y `portero`, jugada con comprobaciones, estadio con esquinas curvas, público animado, vallas, focos con halo, catálogo de planos y montaje de 5 planos con repetición a cámara lenta.
 
-1. `V.modelos.campo({ franjas, colores })`: textura del césped con las medidas de §3 y las porterías (§4.2).
-2. `V.modelos.balon()` y `FUT.balon(jugada, t)` (§4.3, §5).
-3. `V.modelos.futbolista({ kit, dorsal, portero, pose, … })`: el maniquí con colores y dorsal (§4.4).
-4. Poses nuevas en `V.pose`, con las mismas claves que las demás y revisadas en fotogramas: `chutar(fase)` (impacto en fase 0,5), `pase(fase)`, `cabezazo(fase)` (salto en Y aparte), `control`, `estirada(fase, lado)` del portero (el cuerpo gira en `rot` z: el maniquí no se tumba solo), `celebrar` (brazos arriba), `rodillas` (deslizarse de rodillas), `aplaudir(fase)`.
-5. `FUT.jugada(def)`: guion de toques → `{ balon(t), jugador(id, t) }`, con las comprobaciones automáticas de §5.
-6. `V.modelos.estadio({ tamano, cubierta, colorAsientos, aficiones, t })` (§4.5) con el público por niveles (§4.6).
-7. `FUT.planos`: el catálogo de §6 como funciones.
-8. Modo `futbol` en `demo/volumen.html`: un ataque de unos 8 s que acaba en gol, con 4 planos (general → seguimiento → portería → repetición lenta) y una grada que celebra.
-9. Apuntar en `GUIA_IMAGEN.md` lo medido y los errores vistos en los fotogramas, como se hizo con los vikingos.
+**Errores vistos en los fotogramas y corregidos**: las esquinas del estadio eran bloques grises (ahora son gradas curvas con público); después del gol, el balón atravesaba la red y acababa fuera del poste (ahora se limita al volumen de la portería con `F.fondoRed(y)`); la red proyectaba una sombra opaca enorme (`sinSombra`); en la repetición y en la celebración, un defensa tapaba al goleador (rutas y cámara); la cámara de celebración, apuntada a la grada, dejaba al jugador en el borde (ahora mira al jugador).
+
+**Pendiente**: el nivel «lejos» del público como textura (más rápido en planos generales); poses `pase`, `control`, `rodillas` y `aplaudir`; banquillos, túnel y marcador 3D; varias sombras de focos; plano vertical revisado a fondo (la página acepta `&lienzo=vertical`, pero los encuadres están pensados para 16:9); una plantilla de proyecto que use `F.jugada` desde `escenas.js`.
 
 ## 10. Lista de revisión de fotogramas
 

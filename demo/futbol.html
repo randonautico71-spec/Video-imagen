@@ -1,0 +1,140 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Fútbol 3D</title>
+<style>
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}
+  html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/shorts.js"></script>
+<script src="../engine/volumen/motor.js"></script><script src="../engine/volumen/mallas.js"></script>
+<script src="../engine/volumen/modelos.js"></script><script src="../engine/volumen/fondos.js"></script>
+<script src="../engine/volumen/futbol.js"></script>
+<script>
+/* Recreacion de futbol en 3D (docs/FUTBOL_3D.md): ataque por la banda derecha, centro y gol de cabeza, de noche y con el estadio lleno.
+   ?plano=montaje (por defecto: general -> seguimiento -> porteria -> celebracion -> repeticion, 11,2 s)
+          general | cenital | raso | porteria | seguimiento | spidercam | grada | repeticion   (un solo plano durante toda la jugada)
+   &lienzo=yt|vertical &ss=1 · &revisar=1 escribe en la consola los avisos de la jugada */
+const Q = new URLSearchParams(location.search), V = VE.vol, F = V.futbol, E = VE.ease, PL = F.planos;
+const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'yt', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+const W = esc.W, H = esc.H, vertical = H > W;
+
+// ---- equipaciones (colores inventados, sin escudos)
+const KIT = {
+  local: { camiseta: '#c8102e', pantalon: '#f4f4f4', medias: '#c8102e', numero: '#ffffff' },
+  visitante: { camiseta: '#f2f2f2', pantalon: '#1d3f8f', medias: '#f2f2f2', numero: '#1d3f8f' },
+  porLocal: { camiseta: '#2f9e55', pantalon: '#1b1b1b', medias: '#2f9e55', numero: '#ffffff', guantes: '#f0f0f0' },
+  porVisitante: { camiseta: '#f08a24', pantalon: '#1b1b1b', medias: '#f08a24', numero: '#1b1b1b', guantes: '#d0ff40' },
+  arbitro: { camiseta: '#d4e83a', pantalon: '#1b1b1b', medias: '#1b1b1b', numero: '#1b1b1b' }
+};
+const PIEL = ['#e3b896', '#c99a74', '#a8764f', '#7a5034', '#eac3a4'], PELO = ['#1d140e', '#3b2416', '#6b4a2a', '#c9a46a', '#111111'];
+
+// ---- la jugada (metros; el local ataca hacia +X). Toques: el jugador que toca se coloca solo junto al balon.
+const T_GOL = 3.91;
+const jugada = F.jugada({
+  balon: [17, -3], gol: true,
+  toques: [
+    { t: 0.0, de: 'L6', tipo: 'raso', a: [31, -22], vuelo: 1.25 },
+    { t: 1.25, de: 'L7', tipo: 'raso', a: [37.5, -25.5], vuelo: 0.95 },
+    { t: 2.3, de: 'L7', tipo: 'alto', a: [46.6, 2.25, 1.6], vuelo: 1.25 },
+    { t: 3.55, de: 'L9', tipo: 'cabezazo', a: [53.1, 1.45, -2.55], vuelo: 0.36 }],
+  jugadores: {
+    L1: { equipo: 'local', dorsal: 1, portero: true, ruta: [[0, -46, 0], [7, -40, -2]] },
+    L2: { equipo: 'local', dorsal: 2, ruta: [[0, 10, -27], [7, 24, -26]] },
+    L3: { equipo: 'local', dorsal: 3, ruta: [[0, 6, 24], [7, 14, 20]] },
+    L4: { equipo: 'local', dorsal: 4, ruta: [[0, -6, -8], [7, 4, -8]] },
+    L5: { equipo: 'local', dorsal: 5, ruta: [[0, -6, 8], [7, 4, 8]] },
+    L6: { equipo: 'local', dorsal: 6, ruta: [[0, 16, -3], [2, 22, -6], [7, 30, -12]] },
+    L7: { equipo: 'local', dorsal: 7, ruta: [[0, 26, -19], [3.4, 41, -21], [5.6, 45.5, -22], [8, 46.5, -25]], extra: abrazo(5.2) },
+    L8: { equipo: 'local', dorsal: 8, ruta: [[0, 12, 8], [7, 26, 2]] },
+    L9: { equipo: 'local', dorsal: 9, ruta: [[0, 33, 4], [2.3, 41, 3.6], [3.95, 46.9, 1.2], [6.2, 46, -16], [7.6, 44.5, -27]], extra: (t, e) => { e.pose = F.brazos(e.pose, V.pose.celebrar(t * 1.3), VE.tramo(t, 4.35, 0.45)); } },
+    L10: { equipo: 'local', dorsal: 10, ruta: [[0, 24, 10], [3.5, 36, 6], [7.6, 43, -22]], extra: abrazo(5.6) },
+    L11: { equipo: 'local', dorsal: 11, ruta: [[0, 30, 20], [3.5, 45, 10], [7.6, 47.5, -22.5]], extra: abrazo(5.0) },
+    V1: { equipo: 'visitante', dorsal: 1, portero: true, ruta: [[0, 50.2, -1], [2.3, 51.2, -1.6], [3.45, 51.4, 0.5]], extra: estirada },
+    V2: { equipo: 'visitante', dorsal: 2, ruta: [[0, 36, -20], [2.3, 42, -22.5], [3.5, 45.5, -14], [7, 42, -6]] },
+    V3: { equipo: 'visitante', dorsal: 4, ruta: [[0, 37, -6], [2.3, 44, -3], [3.5, 47.6, -0.3], [7, 49.5, 2.5]] },
+    V4: { equipo: 'visitante', dorsal: 5, ruta: [[0, 37, 6], [2.3, 44, 5], [3.5, 44.6, 4.6], [7, 42.5, 6]] },
+    V5: { equipo: 'visitante', dorsal: 3, ruta: [[0, 36, 20], [3.5, 42, 12], [7, 41, 8]] },
+    V6: { equipo: 'visitante', dorsal: 8, ruta: [[0, 26, -14], [2.3, 33, -21], [3.6, 38.5, -22], [7, 36.5, -25]] },
+    V7: { equipo: 'visitante', dorsal: 6, ruta: [[0, 25, -3], [3.5, 36, -5], [7, 38, -6]] },
+    V8: { equipo: 'visitante', dorsal: 10, ruta: [[0, 25, 8], [3.5, 35, 6], [7, 36, 4]] },
+    V9: { equipo: 'visitante', dorsal: 7, ruta: [[0, 24, 18], [3.5, 32, 14], [7, 33, 11]] },
+    V10: { equipo: 'visitante', dorsal: 9, ruta: [[0, 8, -6], [7, 14, -6]] },
+    V11: { equipo: 'visitante', dorsal: 11, ruta: [[0, 6, 6], [7, 12, 6]] },
+    ARB: { equipo: 'arbitro', ruta: [[0, 22, 7], [4, 33, 0], [7.5, 36, -12]] }
+  }
+});
+function abrazo(t0) { return (t, e) => { e.pose = F.brazos(e.pose, V.pose.celebrar(t * 1.1 + t0), VE.tramo(t, t0, 0.5) * 0.85); }; }
+/* El portero se estira tarde hacia el palo izquierdo y queda tendido. */
+function estirada(t, e) {
+  const k = VE.tramo(t, 3.6, 0.42, E.suaveSalida); if (k <= 0) return;
+  const zc = 0.5 + (-1.9 - 0.5) * k, y = 0.9 * (1 - k) + 0.22 * k + 0.55 * Math.sin(Math.PI * Math.min(1, k * 1.05));
+  Object.assign(e, { z: zc, y, apoyo: false, dir: Math.PI, rx: k * Math.PI / 2 * 0.95, pose: V.pose.estirada(k) });
+}
+const KITDE = (id) => { const j = jugada.J[id]; if (id === 'ARB') return KIT.arbitro; if (j.portero) return j.equipo === 'local' ? KIT.porLocal : KIT.porVisitante; return KIT[j.equipo]; };
+const kitCon = (id) => { const r = VE.rng('pj' + id); return Object.assign({ piel: PIEL[(r() * PIEL.length) | 0], pelo: PELO[(r() * PELO.length) | 0] }, KITDE(id)); };
+
+// ---- publico: el local celebra el gol (de pie, saltando, brazos arriba)
+function celebra(lado, bloque, t, af) {
+  if (af !== 'local' || t < T_GOL + 0.12) return { salto: 0, brazos: 0 };
+  const r = VE.rng('cel' + lado + bloque), f = 1.7 + r() * 0.5, k = t - T_GOL - 0.12 - r() * 0.25; if (k < 0) return { salto: 0, brazos: 0, dePie: true };
+  return { dePie: true, brazos: 1, salto: 0.2 * Math.max(0, Math.sin(2 * Math.PI * f * k)) };
+}
+
+// ---- montaje
+const MONTAJE = [
+  { hasta: 2.3, plano: 'general' }, { hasta: 3.5, plano: 'seguimiento' }, { hasta: 5.4, plano: 'porteria' },
+  { hasta: 7.6, plano: 'grada' }, { hasta: 11.2, plano: 'repeticion' }];
+const REP = { desde: 7.6, t0: 2.95, vel: 0.36 };
+function camara(plano, t) {
+  const b = F.balonSuave(jugada, t, 0.5);
+  switch (plano) {
+    case 'general': return vertical ? PL.general(jugada, t, { alto: 26, fov: 36, z: 52 }) : PL.general(jugada, t);
+    case 'cenital': return PL.cenital(jugada, t, { centro: [b[0] * 0.5 + 20, 0, b[2] * 0.5 - 4], alto: vertical ? 95 : 70 });
+    case 'raso': return PL.raso(jugada, t, {});
+    case 'porteria': return PL.porteria(jugada, t, vertical ? { pos: [58.5, 2.6, -0.6], fov: 52 } : {});
+    case 'seguimiento': { const e = jugada.jugador('L7', t), k = VE.tramo(t, 2.1, 1.2), p = [e.x, 0, e.z];
+      return V.camara({ pos: V.v3.sum(p, [-8.5 + 2.5 * k, 3.4, -4.2 - 1.6 * k]), mira: V.v3.mezcla([e.x + 4, 1.2, e.z + 1], [47, 1.6, 1.5], 0.35 + 0.5 * k), fov: vertical ? 58 : 46, cerca: 0.1, lejos: 900 }); }
+    case 'spidercam': return PL.spidercam(jugada, t, { rumbo0: -1.2, dist: 22 });
+    case 'grada': { const e = jugada.jugador('L9', t); return V.camara({ pos: [e.x - 6.5, 1.5, e.z + 2.2], mira: [e.x + 1.2, 2.5, e.z - 1.4], fov: vertical ? 56 : 46, cerca: 0.1, lejos: 900 }); }
+    case 'repeticion': { const k = (t - 2.95) / 1.3; return V.camara({ pos: [48.4 + 0.8 * k, 1.1, 8.6 - 0.6 * k], mira: [47.4, 1.85, 0.4], fov: vertical ? 50 : 38, cerca: 0.05, lejos: 900 }); }
+  }
+  throw new Error('Plano desconocido: ' + plano);
+}
+
+function pintar(tj, plano, tReal) {
+  V.fondo.cielo(esc, { hora: 'noche', horizonte: 0.42, nubes: 0.3 });
+  const cam = camara(plano, tj), bal = jugada.balon(tj);
+  const hijos = [MO('campo', {}), MO('porterias', { t: tj, gol: { t: T_GOL, p: [53.1, 1.45, -2.55], lado: 1 } }), MO('estadio', { t: tj, celebra })];
+  for (const id of jugada.ids) { const e = jugada.jugador(id, tj), q = V.proyectar(esc, cam, [e.x, 1, e.z]);
+    if (!q.delante || q.x < -400 || q.x > W + 400 || q.y < -600 || q.y > H + 600) continue;      // fuera de cuadro: no se dibuja
+    hijos.push(jugada.nodo(id, tj, kitCon(id))); }
+  hijos.push(V.modelos.balon({ pos: bal.p, giro: bal.giro }));
+  // sombras ajustadas a la accion
+  const foco = plano === 'grada' ? (() => { const e = jugada.jugador('L9', tj); return [e.x, 0, e.z]; })() : [bal.p[0], 0, bal.p[2]];
+  const radio = plano === 'general' || plano === 'cenital' || plano === 'spidercam' ? 26 : 14;
+  V.render(esc, V.nodo({ hijos }), cam, { ambiente: F.ambienteNoche, sombras: { centro: foco, radio }, niebla: { color: '#1a2442', cerca: 140, lejos: 650 } });
+  F.halos(esc, cam, { a: 0.55 });
+  // grafismos
+  if (plano === 'cenital') { const pts = []; for (let i = 0; i <= 80; i++) pts.push(jugada.balon(i / 80 * 4.3).p.map((v, k) => (k === 1 ? 0.05 : v)));
+    V.linea(esc, cam, pts, { color: '#ffd36b', ancho: 4, discontinua: [12, 10], progreso: Math.min(1, tj / 4.3) }); }
+  const marc = tReal >= T_GOL + 0.05 ? '1 – 0' : '0 – 0';
+  VE.short.pastilla(esc, 'LOCAL  ' + marc + '  VISITANTE', vertical ? W / 2 : W * 0.2, vertical ? H * 0.08 : H * 0.075, { tam: vertical ? 34 : 28 });
+  if (tReal > T_GOL + 0.3 && tReal < REP.desde) VE.short.pastilla(esc, '¡GOL!', W / 2, vertical ? H * 0.2 : H * 0.2, { a: VE.tramo(tReal, T_GOL + 0.3, 0.4) * (1 - VE.tramo(tReal, REP.desde - 0.5, 0.4)), tam: vertical ? 90 : 76, color: '#ffd36b' });
+  if (plano === 'repeticion') { VE.short.pastilla(esc, 'REPETICIÓN', vertical ? W / 2 : W * 0.86, vertical ? H * 0.14 : H * 0.075, { tam: 26, color: '#7fd0ff' });
+    const e = jugada.jugador('L9', tj), q = V.proyectar(esc, cam, [e.x, e.y + 2.35, e.z]); if (q.delante) VE.short.pastilla(esc, '9', q.x, q.y, { a: VE.tramo(tj, 3.0, 0.3), tam: 30, color: KIT.local.camiseta }); }
+}
+const MO = (n, o) => V.modelos[n](o);
+
+window.renderAt = (t) => {
+  esc.abrir();
+  const fijo = Q.get('plano') && Q.get('plano') !== 'montaje' ? Q.get('plano') : null;
+  if (fijo) return pintar(fijo === 'repeticion' ? REP.t0 + t * REP.vel : t, fijo, t);
+  const tramo = MONTAJE.find(m => t < m.hasta) || MONTAJE[MONTAJE.length - 1];
+  if (tramo.plano === 'repeticion') { pintar(REP.t0 + (t - REP.desde) * REP.vel, 'repeticion', t);
+    const k = (t - REP.desde) / 0.35; if (k < 1) { const x = esc.ctx; x.save(); x.fillStyle = '#ffffff'; x.globalAlpha = 1 - k; x.fillRect(0, 0, W, H); x.restore(); } return; }
+  pintar(t, tramo.plano, t);
+};
+window.DURACION = 11.2;
+window.jugada = jugada;
+window.ready = Promise.all([document.fonts.load('700 50px Fredoka')]).catch(() => {});
+</script>
