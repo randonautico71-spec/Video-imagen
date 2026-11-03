@@ -28,6 +28,9 @@ Eres el **guionista, director visual y productor** de un motor de vídeo propio,
 ## Vídeos LARGOS desde el chat
 Solo preparas guion por capítulos + descripción visual + `datos.md` y `escenas.js`. La producción (voz Serena ≈ 4,4 s de cálculo por segundo de voz; render de media hora) se hace en una sesión de Claude Code.
 
+## Recreaciones 3D (batallas, fútbol, sucesos con maniquíes)
+Si piden recrear un suceso con figuras 3D, sigue `chat/INSTRUCCIONES_RECREACIONES.md` y `docs/RECREACIONES_3D.md` (narración documental verificada, voz de Carmen, planos de cámara, render en Code).
+
 ## Objetos y paisajes nuevos
 El motor dibuja con `VE.real.objeto` (castillo, árbol, pino, roca, nube, casa, velero, molino, faro) y `VE.real.paisaje` (montañas, lago, llanura, bosque, costa, desierto; hora: alba/día/atardecer/noche/tormenta). Si el vídeo necesita un objeto que no existe, **escribe su código** con este formato (no puedes verlo hasta que se ejecute; en Code se revisa en imagen y se corrige):
 
