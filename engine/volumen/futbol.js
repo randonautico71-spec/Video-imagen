@@ -140,7 +140,9 @@
     /* Estirada del portero (k 0..1): brazos por encima de la cabeza. El giro del cuerpo va en rot[0] (alrededor de la direccion a la que mira). */
     estirada: (k) => V.pose.mezclar(V.poses.portero, { tronco: 4, cuello: 0, cadera_d: 22, cadera_i: -6, rodilla_d: 26, rodilla_i: 8, tobillo_d: 0, tobillo_i: 0, hombro_d: 168, hombro_i: 172, codo_d: 8, codo_i: 8, abrir: 22 }, suave(k)),
     /* Celebracion: brazos arriba con un leve vaiven (fase en vueltas). */
-    celebrar: (f) => { const s = Math.sin(f * 2 * PI); return { hombro_d: 150 + 12 * s, hombro_i: 150 - 12 * s, codo_d: 30 + 10 * s, codo_i: 30 - 10 * s, abrir: 42 }; },
+    /* Celebracion: brazos arriba en V con puños que suben y bajan (fase en vueltas). Ojo: con el brazo levantado, 'abrir' positivo lo mete
+       hacia dentro (la abduccion se aplica antes que la flexion), asi que aqui va negativo para abrirlos hacia fuera. */
+    celebrar: (f) => { const s = Math.sin(f * 2 * PI), c = Math.sin(f * 2 * PI + 1.3); return { hombro_d: 160 + 7 * s, hombro_i: 160 + 7 * c, codo_d: 28 + 14 * Math.max(0, s), codo_i: 28 + 14 * Math.max(0, c), abrir: -34 }; },
     /* Entrada del defensor (k 0..1): se lanza con la pierna derecha estirada hacia el balon. */
     entrada: (k) => V.pose.mezclar(V.poses.portero, { tronco: 34, cuello: -16, cadera_d: 78, cadera_i: -18, rodilla_d: 6, rodilla_i: 70, tobillo_d: 0, tobillo_i: 0, hombro_d: 45, hombro_i: -30, codo_d: 40, codo_i: 40, abrir: 34 }, suave(k)),
     /* La misma pose con los lados cambiados (zurdos: chutar con la izquierda = espejo(chutar(f))). */
@@ -374,7 +376,7 @@
       return { p: [sx * Math.min(xs, lim), yy, Math.max(-PA + R + 0.08, Math.min(PA - R - 0.08, ult.p1[2] + hz[2]))], giro: V.m4.mul(F.rotEje(ult.eje, k * 6), gi) };
     }
     // rutas: insertar la posicion de cada toque
-    const J = {}; for (const id in def.jugadores) { const j = def.jugadores[id]; J[id] = Object.assign({}, j, { ruta: j.ruta.map(r => r.slice()) }); }
+    const J = {}; for (const id in def.jugadores) { const j = def.jugadores[id], rv = VE.rng('var' + id); J[id] = Object.assign({}, j, { ruta: j.ruta.map(r => r.slice()), varia: 0.9 + rv() * 0.2 }); }
     for (const s of seg) { const k = s.k, j = J[k.de]; if (!j) throw new Error('jugada: no hay jugador ' + k.de);
       const d = v3.norm([s.p1[0] - s.p0[0], 0, s.p1[2] - s.p0[2]]), lado = [-d[2], 0, d[0]], cab = k.tipo === 'cabezazo';
       const sl = k.pie === 'i' ? -1 : 1, pos = cab ? [s.p0[0] - d[0] * 0.12, s.p0[2] - d[2] * 0.12] : [s.p0[0] - d[0] * 0.32 - lado[0] * 0.1 * sl, s.p0[2] - d[2] * 0.32 - lado[2] * 0.1 * sl];
@@ -387,19 +389,25 @@
       const m0 = tan(i), m1 = tan(i + 1), h00 = 2 * u * u * u - 3 * u * u + 1, h10 = u * u * u - 2 * u * u + u, h01 = -2 * u * u * u + 3 * u * u, h11 = u * u * u - u * u;
       return [h00 * a[1] + h10 * dt * m0[0] + h01 * b[1] + h11 * dt * m1[0], h00 * a[2] + h10 * dt * m0[1] + h01 * b[2] + h11 * dt * m1[1]]; }
     function ruta(j, t) {
-      if (!j.tabla) { const r = j.ruta, t0 = r[0][0], t1 = r[r.length - 1][0], N = Math.max(2, Math.ceil((t1 - t0) * 60)), S = [0]; let p = posEn(r, t0);
-        for (let i = 1; i <= N; i++) { const q = posEn(r, t0 + (t1 - t0) * i / N); S.push(S[i - 1] + Math.hypot(q[0] - p[0], q[1] - p[1])); p = q; } j.tabla = { t0, t1, N, S }; }
-      const T = j.tabla, p = posEn(j.ruta, t), f = c01((t - T.t0) / ((T.t1 - T.t0) || 1)) * T.N, i = Math.min(T.N - 1, Math.floor(f));
-      return { x: p[0], z: p[1], s: T.S[i] + (T.S[i + 1] - T.S[i]) * (f - i) }; }
+      if (!j.tabla) { const r = j.ruta, t0 = r[0][0], t1 = r[r.length - 1][0], N = Math.max(2, Math.ceil((t1 - t0) * 60)), dt = (t1 - t0) / N, S = [0], FA = [0]; let p = posEn(r, t0);
+        // la fase de la zancada se integra (dfase = ds / longitud del ciclo a esa velocidad): siempre avanza, aunque el jugador frene o cambie de ritmo
+        for (let i = 1; i <= N; i++) { const q = posEn(r, t0 + dt * i), ds = Math.hypot(q[0] - p[0], q[1] - p[1]); S.push(S[i - 1] + ds); FA.push(FA[i - 1] + ds / cicloZancada(ds / dt, j.varia || 1)); p = q; }
+        j.tabla = { t0, t1, N, S, FA }; }
+      const T = j.tabla, p = posEn(j.ruta, t), f = c01((t - T.t0) / ((T.t1 - T.t0) || 1)) * T.N, i = Math.min(T.N - 1, Math.floor(f)), k = f - i;
+      return { x: p[0], z: p[1], s: T.S[i] + (T.S[i + 1] - T.S[i]) * k, fase: T.FA[i] + (T.FA[i + 1] - T.FA[i]) * k }; }
+    /* Longitud de un ciclo (dos pasos) segun la velocidad: andando ~1,5 m; corriendo crece con la amplitud de la zancada. */
+    function cicloZancada(v, varia) { const amp = Math.max(0.3, Math.min(1, v / 8 * varia)), andar = 1.3 + 0.12 * v, correr = 1.6 + 3.2 * amp, k = c01((v - 2.2) / 1.2); return andar + (correr - andar) * k; }
     function jugador(id, t) {
       const j = J[id], q = ruta(j, t), a = ruta(j, t - 0.18), b = ruta(j, t + 0.18), vx = (b.x - a.x) / 0.36, vz = (b.z - a.z) / 0.36, v = Math.hypot(vx, vz);
       const bp = balon(t).p, haciaBalon = Math.atan2(-(bp[2] - q.z), bp[0] - q.x);
       let dir = v > 0.6 ? Math.atan2(-vz, vx) : haciaBalon; if (v > 0.6 && v < 1.4) { const k = (v - 0.6) / 0.8, d0 = haciaBalon; let dd = dir - d0; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); dir = d0 + dd * k; }
-      const rr = VE.rng('var' + id), varia = 0.9 + rr() * 0.2, amp = Math.max(0.3, Math.min(1, v / 8 * varia)), fase = q.s / (1.6 + 3.2 * amp) + rr(), quieto = j.portero ? V.poses.portero : V.pose.mezclar('de_pie', { tronco: 6, rodilla_d: 10, rodilla_i: 10, cadera_d: 6, cadera_i: 6 }, 0.6);
-      let pose = V.pose.mezclar(quieto, V.pose.correr(fase, amp), c01((v - 0.4) / 1.4)), y = 0, rx = 0;
+      const rr = VE.rng('var' + id), varia = 0.9 + rr() * 0.2, amp = Math.max(0.3, Math.min(1, v / 8 * varia)), fase = q.fase + rr(), quieto = j.portero ? V.poses.portero : V.pose.mezclar('de_pie', { tronco: 6, rodilla_d: 10, rodilla_i: 10, cadera_d: 6, cadera_i: 6 }, 0.6);
+      // parado -> andando -> corriendo (la misma fase para los dos ciclos: el cambio de paso no salta)
+      const marcha = V.pose.mezclar(V.pose.andar(fase, Math.min(1, 0.6 + v / 3)), V.pose.correr(fase, amp), c01((v - 2.2) / 1.2));
+      let pose = V.pose.mezclar(quieto, marcha, c01((v - 0.25) / 0.6)), y = 0, rx = 0;
       for (const k of j.toques || []) {
         const chute = (f) => (k.pie === 'i' ? V.pose.espejo(V.pose.chutar(f)) : V.pose.chutar(f));
-        if (k.tipo === 'conduccion') { const w = c01(1 - Math.abs(t - k.t) / 0.24); if (w > 0) pose = V.pose.mezclar(pose, chute(0.5 + (t - k.t) / 0.6), 0.42 * suave(w)); continue; }
+        if (k.tipo === 'conduccion') { const w = c01(1 - Math.abs(t - k.t) / 0.24); if (w > 0) pose = V.pose.mezclar(pose, chute(0.5 + (t - k.t) / 0.6), 0.28 * suave(w)); continue; }
         const w = c01(1 - Math.abs(t - k.t) / 0.5); if (w <= 0) continue; const f = 0.5 + (t - k.t) / 0.9;
         if (k.tipo === 'cabezazo') { pose = V.pose.mezclar(pose, V.pose.cabezazo(f), suave(w * 1.6)); const fs = (t - (k.t - 0.42)) / 0.84; if (fs > 0 && fs < 1) y = Math.max(y, Math.sin(PI * fs) * Math.max(0, k.alto - 1.88)); }
         else pose = V.pose.mezclar(pose, chute(f), suave(w * 1.6));
