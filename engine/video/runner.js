@@ -101,7 +101,7 @@
       const i = escenaEn(tg), e = esce[i];                      // la escena se resuelve ANTES de pintar el fondo
       ctx.i = i; ctx.ini = e.ini; ctx.fin = e.fin; ctx.dur = e.fin - e.ini; ctx.tg = tg; ctx.t = tg - e.ini;
       ctx.p = Math.min(1, Math.max(0, ctx.t / ctx.dur));
-      ctx.entra = Math.min(1, ctx.t / tr.entrada); ctx.sale = Math.min(1, (e.fin - tg) / tr.salida);
+      ctx.entra = i === 0 ? 1 : Math.min(1, ctx.t / tr.entrada); ctx.sale = Math.min(1, (e.fin - tg) / tr.salida);   // la 1.a escena no funde: el fotograma 0 es el gancho (y la miniatura)
       ctx.palabras = e.pal.map(w => Object.assign({}, w, { ini: w.ini - e.ini, fin: w.fin - e.ini }));
       ctx.palabra = (txt, desde = 0) => { const n = norm(txt); return ctx.palabras.find(w => w.ini >= desde && norm(w.t) === n) || null; };
       ctx.parrafo = Math.max(0, e.parrafos.findIndex(q => tg < q.fin)); if (ctx.parrafo < 0) ctx.parrafo = e.parrafos.length - 1;
