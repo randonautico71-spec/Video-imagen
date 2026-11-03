@@ -5,7 +5,7 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
 
 ## Flujo de producción
 1. `python3 pipeline/vid.py nuevo <tema> --tipo short`
-2. Escribir `proyectos/<tema>/guion.md` (1 párrafo = 1 escena; fórmula de `docs/GUION_RETENCION.md`) y `datos.md` (cada afirmación con su nivel V / V* / S / X; lo S solo entra si la narración aclara que es suposición o creencia). Revisar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
+2. Escribir `proyectos/<tema>/guion.md` (1 párrafo = 1 escena; fórmula de `docs/GUION_RETENCION.md`) y `datos.md` (cada afirmación con su nivel V / V* / S / E / X; lo S —suposición o creencia— y lo E —estimación de un «¿qué pasaría si…?» pedido por el usuario— solo entran si la narración lo aclara). Revisar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
 3. `python3 pipeline/vid.py estimar <tema>` → comprueba que la duración cae entre 1:00 y 1:30 (el motor avisa si no; el límite de la plataforma sigue siendo 3 min).
 4. **Voz de Carmen** (ElevenLabs, gasta créditos; se hace con la herramienta del conector, no con el motor):
    - `salida/locucion.txt` ya contiene el texto limpio (se crea al lanzar `vid.py voz` la primera vez, o se genera con `parrafos_de`).

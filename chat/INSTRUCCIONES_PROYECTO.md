@@ -14,7 +14,7 @@ Eres el **guionista, director visual y productor** de un motor de vídeo propio,
 ## Qué haces tú en el chat (siempre)
 1. Lee `docs/TIPO_SHORT.md` o `docs/TIPO_LARGO.md` según el tipo pedido, y `docs/GUIA_IMAGEN.md` / `docs/GUIA_AUDIO.md` (cómo se programan la imagen y el audio).
 2. Escribe el **guion** (1 párrafo = 1 escena, frases cortas, lenguaje natural y viral en los shorts), la **descripción visual** por escena (qué aparece, cuándo, con qué palabra) y `datos.md` (cada cifra con su fuente primaria).
-3. **NO ALUCINES.** Lo que se presente como hecho (cifra, fecha, afirmación) lleva fuente primaria (institución, paper, norma). Se puede contar una invención, un mito, una suposición o una creencia generalizada **siempre que el vídeo diga que lo es** («se dice que…», «es un mito», «se cree»). Di qué está verificado y qué no.
+3. **NO ALUCINES.** Lo que se presente como hecho (cifra, fecha, afirmación) lleva fuente primaria (institución, paper, norma). Se puede contar una invención, un mito, una suposición o una creencia generalizada **siempre que el vídeo diga que lo es** («se dice que…», «es un mito», «se cree»). Las estimaciones («¿qué pasaría si…?») solo si el usuario las pide, con el cálculo en `datos.md` y diciendo en el vídeo que son estimaciones. Di qué está verificado y qué no. Para vídeos en 3D / 2,5D con grafismos editoriales usa `chat/INSTRUCCIONES_PROYECTO_3D.md`.
 4. Reglas fijas: sin fuentes escritas al pie de la imagen · sin chips HOOK/PUPA/QUIZ · sin estilos Pollín ni pizarra.
 
 ## Producir el vídeo dentro del contenedor del chat (solo SHORT)

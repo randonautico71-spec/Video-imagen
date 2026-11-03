@@ -8,7 +8,7 @@ TU = r"\b(tú|tu|tus|te|ti|contigo|tuyo|tuya|tuyos|tuyas)\b"
 SALUDO = r"\b(hola|hoy vamos|en este v[ií]deo|bienvenid|os voy a|te voy a contar)\b"
 GIRO = r"\b(pero|en realidad|y no te libras|int[ée]ntalo|resulta|lo has o[ií]do|aunque|sin embargo)\b"
 REENG = r"(\bpero\b|y lo peor|resulta que|hace algo m[aá]s|\?|¡|ahora\b|y adem[aá]s|lo m[aá]s raro|de hecho|o sea|as[ií] que|no era|^t[uú],|y ah[ií]|en realidad|y no )"
-ACLARA = r"(se dice|dicen que|se cree|es un mito|mito|nadie (lo )?ha (medido|demostrado|visto)|no se sabe|probablemente|quiz[aá]s?|seg[uú]n la leyenda|se supone|lo has o[ií]do)"
+ACLARA = r"(se dice|dicen que|se cree|es un mito|mito|nadie (lo )?ha (medido|demostrado|visto)|no se sabe|probablemente|quiz[aá]s?|seg[uú]n la leyenda|se supone|lo has o[ií]do|suponiendo|supongamos|ser[ií]a[n]? (unos|unas|aproximadamente|m[aá]s o menos)|aproximadamente|estimaci[oó]n|calcul|qu[eé] pasar[ií]a si)"
 CTA = r"(env[ií]a(selo|lo)|comp[aá]rte|comenta|s[ií]gueme|sigue a)"
 
 
@@ -69,8 +69,8 @@ def revisar(texto, wpm=180, rango=(60, 90), datos=None):
     elif rango: ok.append(f'Duracion estimada {seg:.0f} s (rango {rango[0]}-{rango[1]} s).')
     # regla NO ALUCINES aclarada: lo de nivel S (suposicion, mito, creencia) solo entra si la narracion lo dice
     if datos is not None:
-        S = [l for l in datos.splitlines() if re.search(r'\|\s*S\s*\|', l) or re.match(r'\s*[-*]?\s*\[?S\]?\s*[:|-]', l)]
-        if S and not re.search(ACLARA, todo, re.I): fallos.append(f'datos.md tiene {len(S)} afirmacion(es) de nivel S (suposicion/creencia) y la narracion no lo aclara en ningun momento ("se dice que", "es un mito", "se cree"...).')
+        S = [l for l in datos.splitlines() if re.search(r'\|\s*[SE]\s*\|', l) or re.match(r'\s*[-*]?\s*\[?[SE]\]?\s*[:|-]', l)]
+        if S and not re.search(ACLARA, todo, re.I): fallos.append(f'datos.md tiene {len(S)} afirmacion(es) de nivel S/E (suposicion, creencia o estimacion) y la narracion no lo aclara en ningun momento ("se dice que", "es un mito", "suponiendo que", "seria aproximadamente"...).')
         elif S: ok.append(f'{len(S)} afirmacion(es) de nivel S y la narracion avisa de que son suposicion o creencia (revisar a mano que cada una lo diga).')
     return {'palabras': n, 'segundos_estimados': round(seg), 'frases': len(F), 'ok': ok, 'avisos': avisos, 'fallos': fallos}
 
