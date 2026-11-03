@@ -71,7 +71,7 @@ def revisar(texto, wpm=180, rango=(60, 90), datos=None):
     if datos is not None:
         S = [l for l in datos.splitlines() if re.search(r'\|\s*[SE]\s*\|', l) or re.match(r'\s*[-*]?\s*\[?[SE]\]?\s*[:|-]', l)]
         if S and not re.search(ACLARA, todo, re.I): fallos.append(f'datos.md tiene {len(S)} afirmacion(es) de nivel S/E (suposicion, creencia o estimacion) y la narracion no lo aclara en ningun momento ("se dice que", "es un mito", "suponiendo que", "seria aproximadamente"...).')
-        elif S: ok.append(f'{len(S)} afirmacion(es) de nivel S y la narracion avisa de que son suposicion o creencia (revisar a mano que cada una lo diga).')
+        elif S: ok.append(f'{len(S)} afirmacion(es) de nivel S/E y la narracion avisa de que son suposicion, creencia o estimacion (revisar a mano que cada una lo diga).')
     return {'palabras': n, 'segundos_estimados': round(seg), 'frases': len(F), 'ok': ok, 'avisos': avisos, 'fallos': fallos}
 
 
