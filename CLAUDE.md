@@ -20,6 +20,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **`VE.short`** (`engine/estilos/shorts.js`): rótulos, pastillas, flechas, iconos y el letrero final.
 - **`VE.vol`** (`engine/volumen/`): **3D de verdad** (WebGL2 por CPU): objetos con volumen, luz suave, sombras, cámara que se mueve y modo **rayos X** (plano técnico). Modelos: Tierra con costas reales, avión, maniquí articulado con poses (vestible: vikingo), barco vikingo, castillo, terreno costero y mar con olas, silla, nube, árbol, sala; se añaden más montando piezas (esfera, cápsula, caja redondeada, torno, loft, tubo). Grafismos 2D anclados a puntos 3D (`V.proyectar`, `V.linea`, `V.marcador`). Revisión: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra`.
   - **Fútbol 3D** (jugadas, planos de cámara, estadio, público): seguir `docs/FUTBOL_3D.md` (ficha de recreación a partir de las indicaciones del usuario). Módulo `engine/volumen/futbol.js`; ejemplo `demo/futbol.html` (gol de cabeza en 5 planos).
+  - **Batallas medievales**: `engine/volumen/batalla.js` (caballos, caballeros, lanceros, infantes, puente, banderas, salpicaduras y ejércitos horneados). Revisión: `demo/batalla.html?modo=piezas|horno|carga`. Recreaciones históricas propias, no de películas.
 - **`VE.trazo` / `VE.med` / `VE.paisaje`**: estilo LUZ (contornos sin relleno) para meditación.
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 

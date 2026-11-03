@@ -175,43 +175,43 @@
   const MED = V.maniquiMedidas = { muslo: 0.43, pierna: 0.42, pie: 0.21, tronco: 0.46, brazo: 0.29, antebrazo: 0.26, cuello: 0.07, cadera: 0.09, hombro: 0.17, alturaPelvis: 0.9 };
   MO.maniqui = function (o = {}) {
     const P = Object.assign({}, POSES.de_pie, typeof o.pose === 'string' ? POSES[o.pose] : (o.pose || {})), r = (g) => g * D;
-    const madera = o.color || '#e2a565', res = o.resaltar || {}, k = MED;
+    const madera = o.color || '#e2a565', res = o.resaltar || {}, k = MED, Sg = (n) => Math.max(5, Math.round(n * (o.detalle || 1)));   // detalle < 1: menos poligonos (multitudes)
     const col = o.colores || {}, colDe = (n) => col[n] || col[n.replace(/_[di]$/, '')];
     const mapas = o.mapas || {}, mapaDe = (n) => mapas[n] || mapas[n.replace(/_[di]$/, '')];   // mapas: { pecho: <canvas> } (rayas de una camiseta...)
     const mat = (nombre) => { const mp = res[nombre] ? null : mapaDe(nombre);
       return { color: mp ? '#ffffff' : (res[nombre] || colDe(nombre) || madera), mapa: mp || undefined, esp: o.colores ? 0.12 : 0.3, dureza: 26, envolver: 0.25, emision: res[nombre] ? 0.08 : 0 }; };
-    const bola = (rad, nombre, pos) => V.nodo({ nombre: nombre + '_art', malla: MA.esfera(24), esc: rad, pos: pos || [0, 0, 0], mat: mat(nombre) });
+    const bola = (rad, nombre, pos) => V.nodo({ nombre: nombre + '_art', malla: MA.esfera(Sg(24)), esc: rad, pos: pos || [0, 0, 0], mat: mat(nombre) });
     const pierna = (lado, z) => {
       const nm = (s) => s + '_' + lado;
-      return V.nodo({ nombre: nm('cadera'), pos: [0, -0.02, z], rot: [0, 0, r(P[nm('cadera')])], hijos: [
+      return V.nodo({ nombre: nm('cadera'), pos: [0, -0.02, z], rot: [0, -r(P.abrir_piernas || 0) * (z > 0 ? 1 : -1), r(P[nm('cadera')])], hijos: [   // abrir_piernas: a horcajadas (jinete)
         bola(0.068, nm('muslo')),
-        V.nodo({ nombre: nm('muslo'), malla: MA.capsula(0.07, 0.052, k.muslo, 28), mat: mat(nm('muslo')) }),
+        V.nodo({ nombre: nm('muslo'), malla: MA.capsula(0.07, 0.052, k.muslo, Sg(28)), mat: mat(nm('muslo')) }),
         V.nodo({ nombre: nm('rodilla'), pos: [0, -k.muslo, 0], rot: [0, 0, -r(P[nm('rodilla')])], hijos: [
           bola(0.05, nm('pierna')),
-          V.nodo({ nombre: nm('pierna'), malla: MA.capsula(0.05, 0.037, k.pierna, 28), mat: mat(nm('pierna')) }),
+          V.nodo({ nombre: nm('pierna'), malla: MA.capsula(0.05, 0.037, k.pierna, Sg(28)), mat: mat(nm('pierna')) }),
           V.nodo({ nombre: nm('tobillo'), pos: [0, -k.pierna, 0], rot: [0, 0, r(P[nm('tobillo')])], hijos: [
             bola(0.036, nm('pie')),
-            V.nodo({ nombre: nm('pie'), malla: MA.capsula(0.038, 0.03, k.pie, 20), rot: [0, 0, PI / 2 + 0.12], pos: [-0.03, -0.035, 0], esc: [1, 1, 1.15], mat: mat(nm('pie')) })] })] })] });
+            V.nodo({ nombre: nm('pie'), malla: MA.capsula(0.038, 0.03, k.pie, Sg(20)), rot: [0, 0, PI / 2 + 0.12], pos: [-0.03, -0.035, 0], esc: [1, 1, 1.15], mat: mat(nm('pie')) })] })] })] });
     };
     const brazo = (lado, z) => {
       const nm = (s) => s + '_' + lado, ab = -r(P.abrir) * (z > 0 ? 1 : -1);
       return V.nodo({ nombre: nm('hombro'), pos: [0, k.tronco - 0.07, z], rot: [ab, 0, r(P[nm('hombro')])], hijos: [
         bola(0.048, nm('brazo')),
-        V.nodo({ nombre: nm('brazo'), malla: MA.capsula(0.045, 0.036, k.brazo, 24), mat: mat(nm('brazo')) }),
+        V.nodo({ nombre: nm('brazo'), malla: MA.capsula(0.045, 0.036, k.brazo, Sg(24)), mat: mat(nm('brazo')) }),
         V.nodo({ nombre: nm('codo'), pos: [0, -k.brazo, 0], rot: [0, 0, r(P[nm('codo')])], hijos: [
           bola(0.036, nm('antebrazo')),
-          V.nodo({ nombre: nm('antebrazo'), malla: MA.capsula(0.036, 0.028, k.antebrazo, 24), mat: mat(nm('antebrazo')) }),
-          V.nodo({ nombre: nm('mano'), malla: MA.capsula(0.034, 0.026, 0.09, 18), pos: [0, -k.antebrazo - 0.02, 0], esc: [0.8, 1, 1.15], mat: mat(nm('mano')) })] })] });
+          V.nodo({ nombre: nm('antebrazo'), malla: MA.capsula(0.036, 0.028, k.antebrazo, Sg(24)), mat: mat(nm('antebrazo')) }),
+          V.nodo({ nombre: nm('mano'), malla: MA.capsula(0.034, 0.026, 0.09, Sg(18)), pos: [0, -k.antebrazo - 0.02, 0], esc: [0.8, 1, 1.15], mat: mat(nm('mano')) })] })] });
     };
     const tronco = V.nodo({ nombre: 'tronco', rot: [0, 0, -r(P.tronco)], hijos: [
-      V.nodo({ nombre: 'vientre', malla: MA.esfera(32), pos: [0.0, 0.13, 0], esc: [0.1, 0.12, 0.13], mat: mat('vientre') }),
-      V.nodo({ nombre: 'pecho', malla: MA.esfera(32), pos: [0.0, 0.33, 0], esc: [0.12, 0.17, 0.17], mat: mat('pecho') }),
+      V.nodo({ nombre: 'vientre', malla: MA.esfera(Sg(32)), pos: [0.0, 0.13, 0], esc: [0.1, 0.12, 0.13], mat: mat('vientre') }),
+      V.nodo({ nombre: 'pecho', malla: MA.esfera(Sg(32)), pos: [0.0, 0.33, 0], esc: [0.12, 0.17, 0.17], mat: mat('pecho') }),
       bola(0.05, 'cintura', [0, 0.06, 0]),
       V.nodo({ nombre: 'cuello', pos: [0, k.tronco + 0.02, 0], rot: [0, 0, -r(P.cuello)], hijos: [
-        V.nodo({ malla: MA.capsula(0.032, 0.035, k.cuello, 16), pos: [0, k.cuello, 0], mat: mat('cuello') }),
-        V.nodo({ nombre: 'cabeza', malla: MA.esfera(32), pos: [0.015, k.cuello + 0.11, 0], esc: [0.095, 0.125, 0.09], mat: mat('cabeza') })] }),
+        V.nodo({ malla: MA.capsula(0.032, 0.035, k.cuello, Sg(16)), pos: [0, k.cuello, 0], mat: mat('cuello') }),
+        V.nodo({ nombre: 'cabeza', malla: MA.esfera(Sg(32)), pos: [0.015, k.cuello + 0.11, 0], esc: [0.095, 0.125, 0.09], mat: mat('cabeza') })] }),
       brazo('d', 0.19), brazo('i', -0.19)] });
-    const pelvis = V.nodo({ nombre: 'pelvis', malla: MA.esfera(32), pos: [0, 0.0, 0], esc: [0.12, 0.1, 0.16], mat: mat('pelvis') });
+    const pelvis = V.nodo({ nombre: 'pelvis', malla: MA.esfera(Sg(32)), pos: [0, 0.0, 0], esc: [0.12, 0.1, 0.16], mat: mat('pelvis') });
     /* equipo: piezas colgadas de una articulacion: { cuello, tronco, hombro_d, codo_d, codo_i, cadera_d, rodilla_i, maniqui (pelvis), ... }: [nodos] */
     const raiz = V.nodo({ nombre: 'maniqui', pos: (o.pos || [0, 0, 0]).slice(), rot: o.rot, esc: o.esc, hijos: [pelvis, tronco, pierna('d', 0.085), pierna('i', -0.085)] });
     /* apoyo: 'pies' -> se sube o baja la figura para que el pie mas bajo toque el suelo (y = o.suelo, 0 por defecto);

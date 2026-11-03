@@ -1,0 +1,56 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Batalla 3D</title>
+<style>
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}
+  html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/shorts.js"></script>
+<script src="../engine/volumen/motor.js"></script><script src="../engine/volumen/mallas.js"></script>
+<script src="../engine/volumen/modelos.js"></script><script src="../engine/volumen/fondos.js"></script><script src="../engine/volumen/escenarios.js"></script>
+<script src="../engine/volumen/historia.js"></script><script src="../engine/volumen/batalla.js"></script>
+<script>
+/* Revision de las piezas de batalla (engine/volumen/batalla.js).
+   ?modo=piezas   catalogo: caballo al paso/trote/galope, caballero, lancero (alzada, ristre, estocada), infante, puente, bandera, tienda
+   ?modo=horno    las mismas figuras horneadas (una malla por soldado) para comparar
+   ?modo=carga    20 caballeros al galope y 40 lanceros en ristre (horneados), para medir el coste */
+const Q = new URLSearchParams(location.search), modo = Q.get('modo') || 'piezas', V = VE.vol, B = V.batalla, MO = V.modelos;
+const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'yt', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+const suelo = () => V.nodo({ malla: V.malla.plano(120, 60, 1), mat: { color: '#5d7a42', esp: 0, borde: 0 } });
+const ESC = {
+  piezas(t) {
+    V.fondo.cielo(esc, { hora: 'dia', horizonte: 0.55, nubes: 0.6 });
+    const f = t * 0.7, h = [suelo(),
+      MO.caballo({ fase: t * 0.6, marcha: 'paso', pos: [-9, 0, 0] }), MO.caballo({ fase: t * 1.0, marcha: 'trote', pos: [-6, 0, 2.2], capa: ['#1d4f9a', '#e8c040'] }),
+      MO.caballero({ fase: t * 1.4, marcha: 'galope', lanza: 'ristre', bandera: 'jorge', pos: [-2.5, 0, -0.5] }),
+      MO.caballero({ fase: 0, marcha: 'parado', lanza: 'alzada', librea: ['#2a5a2a', '#e8d8a0'], blason: 'banda', pos: [-4.2, 0, -3.2], rot: [0, 0.6, 0] }),
+      MO.lancero({ semilla: 'a', pose: 'lanzaAlzada', lanza: 'alzada', pos: [1.2, 0, 0], rot: [0, -0.6, 0], apoyo: 'pies' }),
+      MO.lancero({ semilla: 'b', pose: V.pose.lanzaRistre(f), lanza: 'ristre', pos: [3.0, 0, 1.2], rot: [0, -0.3, 0], apoyo: 'pies' }),
+      MO.lancero({ semilla: 'c', pose: V.pose.estocada(t * 0.8), lanza: 'estocada', golpe: Math.max(0, Math.sin(t * 5)), pos: [4.6, 0, -0.6], rot: [0, -0.9, 0], apoyo: 'pies' }),
+      MO.infante({ semilla: 'd', pose: 'lanzaAlzada', pos: [6.4, 0, 0.6], rot: [0, -1.4, 0], apoyo: 'pies' }),
+      MO.infante({ semilla: 'e', pose: V.pose.correr(f), arma: 'espada', pos: [8, 0, -1.2], rot: [0, -2.4, 0], apoyo: 'pies' }),
+      MO.bandera({ cruz: 'aspa', fase: t * 0.7, pos: [10, 0, -3] }), MO.bandera({ cruz: 'jorge', fase: t * 0.7 + 0.3, pos: [-11, 0, -3] }),
+      MO.tienda({ pos: [12.5, 0, -7] }), MO.puente({ largo: 14, pos: [-1, -1.6, -11], rot: [0, Math.PI / 2, 0] })];
+    V.render(esc, V.nodo({ hijos: h }), V.camara({ pos: [0, 3.8, 15], mira: [0, 1.4, -1], fov: 52 }), { ambiente: 'dia', sombras: { centro: [0, 0, -1], radio: 14 } });
+  },
+  horno(t) {
+    V.fondo.cielo(esc, { hora: 'dia', horizonte: 0.55, nubes: 0.6 });
+    const D = 0.35, mat = B.material(), h = [suelo()];
+    h.push(B.instancia(B.hornear(MO.caballero({ fase: 0.3, marcha: 'galope', lanza: 'ristre', bandera: 'jorge', detalle: D }), 'cab'), { pos: [-3, 0, 0], mat }));
+    h.push(B.instancia(B.hornear(MO.lancero({ semilla: 'b', pose: V.pose.lanzaRistre(0.2), lanza: 'ristre', apoyo: 'pies', detalle: D }), 'lan'), { pos: [1.5, 0, 0], rot: [0, -0.3, 0], mat }));
+    h.push(B.instancia(B.hornear(MO.infante({ semilla: 'd', pose: 'lanzaAlzada', apoyo: 'pies', detalle: D }), 'inf'), { pos: [4, 0, 0], rot: [0, -1.4, 0], mat }));
+    V.render(esc, V.nodo({ hijos: h }), V.camara({ pos: [0, 2.6, 9], mira: [0, 1.3, 0], fov: 50 }), { ambiente: 'dia', sombras: { centro: [0, 0, 0], radio: 8 } });
+  },
+  carga(t) {
+    V.fondo.cielo(esc, { hora: 'dia', horizonte: 0.55, nubes: 0.6 });
+    const D = 0.35, mat = B.material(), h = [suelo()];
+    const cab = [0, 1, 2, 3, 4, 5, 6, 7].map(k => B.hornear(MO.caballero({ fase: k / 8, marcha: 'galope', lanza: 'ristre', detalle: D }), 'cg' + k));
+    const lan = [0, 1, 2, 3, 4, 5, 6, 7].map(k => B.hornear(MO.lancero({ semilla: 's' + (k % 4), pose: V.pose.lanzaRistre(k / 8), lanza: 'ristre', apoyo: 'pies', detalle: D }), 'lg' + k));
+    for (let i = 0; i < 20; i++) { const x = -30 + (i % 5) * 3 + t * 9, z = -6 + Math.floor(i / 5) * 3.2, f = ((x / 5.2) % 1 + 1) % 1; h.push(B.instancia(cab[Math.floor(f * 8) % 8], { pos: [x, 0, z], mat })); }
+    for (let i = 0; i < 40; i++) { const x = 30 - (i % 10) * 1.3 - t * 5, z = -6 + Math.floor(i / 10) * 1.4, f = (((30 - x) / 3.4) % 1 + 1) % 1; h.push(B.instancia(lan[Math.floor(f * 8) % 8], { pos: [x, 0, z], rot: [0, Math.PI, 0], mat })); }
+    V.render(esc, V.nodo({ hijos: h }), V.camara({ pos: [0, 9, 26], mira: [0, 1, -2], fov: 50 }), { ambiente: 'dia', sombras: { centro: [0, 0, 0], radio: 30 } });
+  }
+};
+window.renderAt = (t) => { esc.abrir(); ESC[modo](t); };
+window.ready = Promise.all([document.fonts.load('700 50px Fredoka')]).catch(() => {});
+</script>
