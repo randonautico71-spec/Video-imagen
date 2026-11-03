@@ -18,6 +18,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 ## Herramientas visuales (la elección de cuál usar es del vídeo, no fija)
 - **`VE.real`** (`engine/realismo/`): paisajes y objetos pintados con volumen y luz por hora del día. **Estilo general** (shorts, largos de divulgación).
 - **`VE.short`** (`engine/estilos/shorts.js`): rótulos, pastillas, flechas, iconos y el letrero final.
+- **`VE.vol`** (`engine/volumen/`): **3D de verdad** (WebGL2 por CPU): objetos con volumen, luz suave, sombras, cámara que se mueve y modo **rayos X** (plano técnico). Modelos: Tierra con costas reales, avión, maniquí articulado con poses, silla, nube, árbol, sala; se añaden más montando piezas (esfera, cápsula, caja redondeada, torno, loft, tubo). Grafismos 2D anclados a puntos 3D (`V.proyectar`, `V.linea`, `V.marcador`). Revisión: `demo/volumen.html?modo=avion|maniqui|piezas|tierra`.
 - **`VE.trazo` / `VE.med` / `VE.paisaje`**: estilo LUZ (contornos sin relleno) para meditación.
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 

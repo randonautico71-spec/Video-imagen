@@ -34,5 +34,10 @@ if node -e "const n=require('./render/navegador.cjs');process.exit(n.EXE&&n.PW?0
 const n=require('./render/navegador.cjs'),fs=require('fs');(async()=>{const {chromium}=require(n.PW);const b=await chromium.launch({executablePath:n.EXE,args:n.FLAGS});const pg=await b.newPage({viewport:{width:960,height:540}});const er=[];pg.on('pageerror',e=>er.push(String(e)));pg.on('console',m=>{if(m.type()==='error')er.push(m.text())});
 await pg.goto('file://'+process.cwd()+'/demo/realismo.html?modo=$m&ss=0.5');await pg.evaluate(()=>window.renderAt(0));const d=await pg.evaluate(()=>document.getElementById('c').toDataURL('image/jpeg',0.8).length);await b.close();if(er.length||d<5000){console.error(er.join('|')||'imagen vacia');process.exit(1)}})()" 2>/dev/null && ok "demo/realismo.html?modo=$m" || mal "demo realismo $m"
   done
+  for m in "avion" "maniqui" "piezas"; do
+    node -e "
+const n=require('./render/navegador.cjs');(async()=>{const {chromium}=require(n.PW);const b=await chromium.launch({executablePath:n.EXE,args:n.FLAGS});const pg=await b.newPage({viewport:{width:540,height:960}});const er=[];pg.on('pageerror',e=>er.push(String(e)));pg.on('console',m=>{if(m.type()==='error')er.push(m.text())});
+await pg.goto('file://'+process.cwd()+'/demo/volumen.html?modo=$m&ss=0.5');await pg.evaluate(()=>window.ready);await pg.evaluate(()=>window.renderAt(6));const d=await pg.evaluate(()=>document.getElementById('c').toDataURL('image/jpeg',0.8).length);await b.close();if(er.length||d<5000){console.error(er.join('|')||'imagen vacia');process.exit(1)}})()" 2>/dev/null && ok "demo/volumen.html?modo=$m (3D WebGL)" || mal "demo volumen $m"
+  done
 else mal "no hay Playwright/Chromium (ver chat/bootstrap.sh)"; fi
 echo; [ $fallos = 0 ] && echo "TODO BIEN" || { echo "$fallos FALLO(S)"; exit 1; }

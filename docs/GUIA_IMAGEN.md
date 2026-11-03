@@ -20,6 +20,17 @@
 - **Nubes:** muchas motas con degradado radial que se desvanece (no bolas con brillo, que parecen globos).
 - Objetos: `VE.real.objeto(esc, nombre, {x, y, tam, hora})` (castillo, árbol, pino, roca, nube, casa, velero, molino, faro). Nuevo: `VE.real.definirObjeto` y revisión en `demo/realismo.html?modo=objetos`.
 
+## 3 bis. Estilo VOLUMEN 3D (`VE.vol`, engine/volumen/)
+Ilustración 3D tipo «animación explicativa»: piezas lisas con volumen, luz cálida con brillo de borde, sombras suaves y una cámara que se mueve. Sirve para cualquier tema (vehículos, personas, planetas, objetos, procesos) porque los modelos se **montan con piezas** y se animan con `t`.
+- **Motor**: WebGL2 propio (sin librerías). En este contenedor va por SwiftShader (CPU). Medido (vertical, ss 1,5): avión sobre el globo ≈ 0,6 s/fotograma; maniquí en una sala con sombras ≈ 0,9 s/fotograma; el primer fotograma hornea texturas (≈ 5 s la Tierra). **Determinista**: dos procesos dan la misma huella de imagen.
+- **Capas**: `V.render` pinta sobre el lienzo 2D, así que se mezcla con `VE.real`, rótulos y subtítulos. Para que un objeto tape un grafismo 2D (la ruta, una etiqueta) se pinta en dos pasadas: fondo 3D → grafismo 2D → objeto 3D.
+- **Luz**: ambientes `estudio` (interior cálido), `dia`, `atardecer`, `noche`, `espacio` (luz pegada a la cámara: el sujeto siempre se ve iluminado), `plano` (rayos X). Sombras con `sombras: {centro, radio}` (caja ajustada a lo que importa: más pequeña = más nítida).
+- **Rayos X**: `rayosx: 0..1` mezcla el modelo normal con su contorno luminoso; `1` = plano técnico (con `V.fondo.plano`). El decorado se marca `sinRayos` para que desaparezca.
+- **Personas**: `V.modelos.maniqui({pose, apoyo: 'pies', piesX})` coloca la figura en el suelo sola y los pies no patinan al cambiar de pose. Poses: `de_pie`, `sentado`, `inclinado`, `saludar`, `pensar`, `V.pose.andar(fase)`, `V.pose.correr(fase)`, `V.pose.mezclar(a, b, p)`. `resaltar: {muslo_d: '#ff7a3d'}` colorea piezas («estos músculos trabajan»).
+- **Tierra**: costas de Natural Earth 1:50m (dominio público) simplificadas en `tierra_datos.js` (`pipeline/generar_tierra.py`); `V.geo.punto/ruta/enRuta/distancia/visible`. Colores de desiertos, hielo y nubes: estilizados, no datos reales. La distancia de gran círculo sí es cálculo real (radio medio 6.371 km).
+- **Errores encontrados al revisar fotogramas**: Tierra en el lado nocturno (luz fija en el mundo → ahora `espacio` lleva la luz con la cámara); pellizco de textura en los polos (ruido calculado sobre la esfera); horizonte poligonal de cerca (esfera de 192 segmentos); atmósfera y nubes como una lámina cian al rozar (se desvanecen de canto y al acercarse); línea 2D gigante con puntos detrás de la cámara (se corta); pies flotando al inclinarse (apoyo automático).
+- **Límites**: estilo de ilustración lisa, no fotorrealismo; sin pelo, telas ni agua animada; las caras del maniquí no tienen rasgos. Los modelos nuevos se revisan siempre en fotogramas (`demo/volumen.html` o `qa --stills`).
+
 ## 4. Estilo LUZ (meditación)
 Contornos **sin relleno**, color del trazo = color real del objeto aclarado, mezcla aditiva, trazos que se dibujan poco a poco (`VE.trazo`, `VE.med`, `VE.paisaje`), fondos oníricos o terrestres, efectos acordes al guion que se superponen y aparecen gradualmente.
 
