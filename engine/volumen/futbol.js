@@ -156,16 +156,39 @@
       x.lineWidth = 6; x.strokeStyle = 'rgba(0,0,0,0.25)'; x.strokeText(String(n), W / 2, H * 0.53); x.fillText(String(n), W / 2, H * 0.53);
     });
   }
-  const parcheDorsal = () => MA.parametrica(10, 10, (u, v) => { const z = (u - 0.5) * 0.19, y = (v - 0.5) * 0.2, q = 1 - (z / 0.17) ** 2 - (y / 0.17) ** 2;
-    return [-(0.12 * Math.sqrt(Math.max(0.02, q)) + 0.006), 0.33 + y, z]; }, { clave: 'dorsal_parche', abierta: true });
+  /* Torso de la camiseta: revolucion de un perfil en V (hombros anchos, cintura estrecha) aplastada en profundidad. */
+  const TORSO = [[0, 0.52], [0.07, 0.515], [0.15, 0.475], [0.19, 0.41], [0.188, 0.34], [0.172, 0.24], [0.152, 0.12], [0.148, 0.03], [0.15, -0.02], [0, -0.03]], TORSO_X = 0.7;
+  const radioTorso = (y) => { for (let i = 0; i < TORSO.length - 1; i++) { const a = TORSO[i], b = TORSO[i + 1]; if (y <= a[1] && y >= b[1]) return a[0] + (b[0] - a[0]) * (a[1] - y) / ((a[1] - b[1]) || 1); } return 0; };
+  const parcheDorsal = () => MA.parametrica(10, 10, (u, v) => { const z = (u - 0.5) * 0.2, y = 0.2 + v * 0.2, r = radioTorso(y);
+    return [-(TORSO_X * Math.sqrt(Math.max(1e-4, r * r - z * z)) + 0.005), y, z]; }, { clave: 'dorsal_parche2', abierta: true });
+  /* Piezas que dan volumen de futbolista al maniqui (camiseta, mangas, pantalon con vuelo, muslos, gemelos, botas, orejas, nariz). */
+  function cuerpoAtleta(k, portero, mapaCam) {
+    const m = (c, extra) => Object.assign({ color: c, esp: 0.1, dureza: 18, envolver: 0.3, borde: 0.6 }, extra || {}), tela = (c) => m(mapaCam ? '#ffffff' : c, mapaCam ? { mapa: mapaCam } : null);
+    const piel = m(k.piel, { esp: 0.18, dureza: 24 }), n = V.nodo;
+    const brazo = () => [n({ malla: MA.esfera(16), esc: 0.068, mat: tela(k.camiseta) }), n({ malla: MA.cilindro(0.064, 0.056, 0.17, 18), pos: [0, -0.075, 0], mat: tela(k.camiseta) }),
+      n({ malla: MA.capsula(0.047, 0.04, 0.24, 18), pos: [0, -0.04, 0], mat: portero ? tela(k.camiseta) : piel })];
+    const ante = () => [n({ malla: MA.capsula(0.043, 0.032, 0.25, 16), mat: portero ? tela(k.camiseta) : piel })];
+    const muslo = () => [n({ malla: MA.capsula(0.085, 0.062, 0.42, 20), mat: piel }), n({ malla: MA.cilindro(0.108, 0.118, 0.24, 20), pos: [0, -0.1, 0], mat: m(k.pantalon) })];
+    const pierna = () => [n({ malla: MA.capsula(0.062, 0.042, 0.4, 18), mat: m(k.medias) }), n({ malla: MA.esfera(16), pos: [-0.02, -0.13, 0], esc: [0.066, 0.115, 0.064], mat: m(k.medias) })];
+    const bota = () => [n({ malla: MA.capsula(0.046, 0.036, 0.24, 16), rot: [0, 0, PI / 2 + 0.12], pos: [-0.035, -0.04, 0], esc: [1, 1, 1.2], mat: m(k.botas, { esp: 0.5, dureza: 50 }) })];
+    return {
+      tronco: [n({ malla: MA.torno(TORSO, 28, 'torso_cam'), esc: [TORSO_X, 1, 1], mat: tela(k.camiseta) })],
+      cuello: [n({ malla: MA.capsula(0.05, 0.053, 0.1, 14), pos: [0, 0.1, 0], mat: piel }),
+        n({ malla: MA.esfera(10), pos: [0.0, 0.17, 0.09], esc: [0.02, 0.034, 0.014], mat: piel }), n({ malla: MA.esfera(10), pos: [0.0, 0.17, -0.09], esc: [0.02, 0.034, 0.014], mat: piel }),
+        n({ malla: MA.esfera(10), pos: [0.105, 0.165, 0], esc: [0.022, 0.03, 0.017], mat: piel })],
+      maniqui: [n({ malla: MA.torno([[0, 0.12], [0.15, 0.11], [0.172, 0.02], [0.175, -0.06], [0, -0.08]], 24, 'cadera_pant'), esc: [0.8, 1, 1], mat: m(k.pantalon) })],
+      hombro_d: brazo(), hombro_i: brazo(), codo_d: ante(), codo_i: ante(), cadera_d: muslo(), cadera_i: muslo(), rodilla_d: pierna(), rodilla_i: pierna(), tobillo_d: bota(), tobillo_i: bota()
+    };
+  }
   MO.futbolista = function (o = {}) {
     const k = Object.assign({ camiseta: '#c8102e', pantalon: '#f2f2f2', medias: '#c8102e', botas: '#1a1a1a', piel: '#c99a74', pelo: '#2a1c12', numero: '#ffffff', mangas: null, guantes: '#e8e8e8' }, o.kit || {});
     const colores = { pecho: k.camiseta, vientre: k.camiseta, cintura: k.camiseta, brazo: k.camiseta, antebrazo: o.portero ? k.camiseta : k.piel, mano: k.piel, cuello: k.piel, cabeza: k.piel,
       pelvis: k.pantalon, muslo: k.pantalon, pierna: k.medias, pie: k.botas };
     const mapas = k.rayas ? (() => { const tx = texRayas(k.rayas, k.nRayas || 10); return { pecho: tx, vientre: tx, cintura: tx, brazo: tx }; })() : null;
     const equipo = { cuello: [V.nodo({ malla: MA.esfera(20), pos: [-0.008, 0.207, 0], esc: [0.1, 0.104, 0.096], mat: { color: k.pelo, esp: 0.15, dureza: 20 } })] };
-    if (o.dorsal != null) equipo.tronco = [V.nodo({ malla: parcheDorsal(), mat: { color: '#ffffff', mapa: texDorsal(o.dorsal, k.fondoDorsal || k.camiseta, k.numero), dobleCara: true, esp: 0.12, dureza: 26, envolver: 0.25 } })];
-    if (o.portero) { const guante = (l) => V.nodo({ malla: MA.esfera(16), pos: [0, -0.33, 0], esc: [0.048, 0.07, 0.06], mat: { color: k.guantes } }); equipo.codo_d = [guante('d')]; equipo.codo_i = [guante('i')]; }
+    if (o.cuerpo !== 'maniqui') { const c = cuerpoAtleta(k, o.portero, mapas && mapas.pecho); for (const a in c) equipo[a] = (equipo[a] || []).concat(c[a]); }
+    if (o.dorsal != null) (equipo.tronco = equipo.tronco || []).push(V.nodo({ malla: parcheDorsal(), mat: { color: '#ffffff', mapa: texDorsal(o.dorsal, k.fondoDorsal || k.camiseta, k.numero), dobleCara: true, esp: 0.1, dureza: 18, envolver: 0.3, borde: 0.6 } }));
+    if (o.portero) { const guante = (l) => V.nodo({ malla: MA.esfera(16), pos: [0, -0.33, 0], esc: [0.05, 0.075, 0.064], mat: { color: k.guantes } }); equipo.codo_d = (equipo.codo_d || []).concat(guante('d')); equipo.codo_i = (equipo.codo_i || []).concat(guante('i')); }
     return MO.maniqui({ pose: o.pose, pos: o.pos, rot: o.rot, esc: o.esc, apoyo: o.apoyo, suelo: o.suelo, piesX: o.piesX, colores, equipo, mapas });
   };
   /* Camiseta a rayas verticales: [color1, color2], n pares alrededor del cuerpo (u de la esfera = vuelta alrededor de Y). */
@@ -260,7 +283,7 @@
         const tramos = 4, lt = L.largo / tramos, af = AF[L.nombre], prop = af === 'local' ? loc : vis;
         for (let b = 0; b < bloques.length; b++) for (let s = 0; s < tramos; s++) {
           const fl = FL.slice(bloques[b][0], bloques[b][1]), zc = -L.largo / 2 + (s + 0.5) * lt, cel = o.celebra ? o.celebra(L.nombre, b * tramos + s, t, af) : { salto: 0, brazos: 0 };
-          const base = { largo: lt, filas: fl, densidad: o.densidad || 0.9, pieles, color: (r) => (r() < 0.72 ? prop[(r() * prop.length) | 0] : neutros[(r() * neutros.length) | 0]) };
+          const base = { largo: lt, filas: fl, densidad: o.densidad || 0.9, pieles, color: (r) => (r() < (o.propEquipo == null ? 0.72 : o.propEquipo) ? prop[(r() * prop.length) | 0] : neutros[(r() * neutros.length) | 0]) };
           const sem = 'publico|' + L.nombre + '|' + b + '|' + s + '|' + lt, cl = sem + (cel.dePie ? '|pie' : ''); base.semilla = sem;
           g.push(V.nodo({ pos: [0, cel.salto || 0, zc], sinSombra: true, hijos: [
             V.nodo({ malla: F.publico(cl, Object.assign({ dePie: cel.dePie }, base)), mat: { color: '#ffffff', mapa: tex, esp: 0.08, dureza: 14, envolver: 0.35, borde: 0.15 }, sinSombra: true }),
@@ -282,7 +305,7 @@
       for (let b = 0; b < bloques.length; b++) {
         const lug = []; for (const f of FL.slice(bloques[b][0], bloques[b][1])) { const rr = f.a + 0.42, n = Math.floor(rr * PI / 2 / 0.55); for (let i = 0; i < n; i++) { const q = d((i + 0.5) / n * PI / 2); lug.push([C[0] + q[0] * rr, f.y, C[2] + q[2] * rr]); } }
         const cel = o.celebra ? o.celebra(nombre, b, t, af) : { salto: 0, brazos: 0 }, sem = 'publico|' + nombre + '|' + b, cl = sem + (cel.dePie ? '|pie' : '');
-        const base = { lugares: lug, densidad: o.densidad || 0.9, pieles, semilla: sem, color: (r) => (r() < 0.72 ? prop[(r() * prop.length) | 0] : neutros[(r() * neutros.length) | 0]) };
+        const base = { lugares: lug, densidad: o.densidad || 0.9, pieles, semilla: sem, color: (r) => (r() < (o.propEquipo == null ? 0.72 : o.propEquipo) ? prop[(r() * prop.length) | 0] : neutros[(r() * neutros.length) | 0]) };
         if (!o.sinPublico) g.push(V.nodo({ pos: [0, cel.salto || 0, 0], sinSombra: true, hijos: [
           V.nodo({ malla: F.publico(cl, Object.assign({ dePie: cel.dePie }, base)), mat: { color: '#ffffff', mapa: tex, esp: 0.08, dureza: 14, envolver: 0.35, borde: 0.15 }, sinSombra: true }),
           cel.brazos > 0.5 ? V.nodo({ malla: F.publico(cl + '|brazos', Object.assign({ brazos: true, dePie: cel.dePie }, base)), mat: { color: '#ffffff', mapa: tex, esp: 0.08, envolver: 0.35 }, sinSombra: true }) : null].filter(Boolean) }));
@@ -357,15 +380,22 @@
       const sl = k.pie === 'i' ? -1 : 1, pos = cab ? [s.p0[0] - d[0] * 0.12, s.p0[2] - d[2] * 0.12] : [s.p0[0] - d[0] * 0.32 - lado[0] * 0.1 * sl, s.p0[2] - d[2] * 0.32 - lado[2] * 0.1 * sl];
       j.ruta = j.ruta.filter(r => Math.abs(r[0] - k.t) > 0.08); j.ruta.push([k.t, pos[0], pos[1]]); j.ruta.sort((a, b) => a[0] - b[0]);
       (j.toques = j.toques || []).push({ t: k.t, tipo: k.tipo, dir: d, alto: cab ? s.p0[1] : 0, pie: k.pie }); }
-    function ruta(j, t) { const r = j.ruta; if (t <= r[0][0]) return { x: r[0][1], z: r[0][2], v: [0, 0], s: 0 };
-      let s = 0; for (let i = 0; i < r.length - 1; i++) { const a = r[i], b = r[i + 1], l = Math.hypot(b[1] - a[1], b[2] - a[2]), dt = b[0] - a[0];
-        if (t <= b[0]) { const u = (t - a[0]) / dt; return { x: a[1] + (b[1] - a[1]) * u, z: a[2] + (b[2] - a[2]) * u, v: [(b[1] - a[1]) / dt, (b[2] - a[2]) / dt], s: s + l * u }; } s += l; }
-      const z = r[r.length - 1]; return { x: z[1], z: z[2], v: [0, 0], s }; }
+    /* Posicion por curvas de Hermite que pasan por cada punto de la ruta (sin giros en seco); la distancia recorrida se tabula una vez. */
+    function posEn(r, t) { const n = r.length; if (n === 1 || t <= r[0][0]) return [r[0][1], r[0][2]]; if (t >= r[n - 1][0]) return [r[n - 1][1], r[n - 1][2]];
+      let i = 0; while (t > r[i + 1][0]) i++; const a = r[i], b = r[i + 1], dt = b[0] - a[0], u = (t - a[0]) / dt;
+      const tan = (k) => { if (k === n - 1) return [0, 0]; const p = r[Math.max(0, k - 1)], q = r[k + 1], d = q[0] - p[0] || 1; return [(q[1] - p[1]) / d, (q[2] - p[2]) / d]; };
+      const m0 = tan(i), m1 = tan(i + 1), h00 = 2 * u * u * u - 3 * u * u + 1, h10 = u * u * u - 2 * u * u + u, h01 = -2 * u * u * u + 3 * u * u, h11 = u * u * u - u * u;
+      return [h00 * a[1] + h10 * dt * m0[0] + h01 * b[1] + h11 * dt * m1[0], h00 * a[2] + h10 * dt * m0[1] + h01 * b[2] + h11 * dt * m1[1]]; }
+    function ruta(j, t) {
+      if (!j.tabla) { const r = j.ruta, t0 = r[0][0], t1 = r[r.length - 1][0], N = Math.max(2, Math.ceil((t1 - t0) * 60)), S = [0]; let p = posEn(r, t0);
+        for (let i = 1; i <= N; i++) { const q = posEn(r, t0 + (t1 - t0) * i / N); S.push(S[i - 1] + Math.hypot(q[0] - p[0], q[1] - p[1])); p = q; } j.tabla = { t0, t1, N, S }; }
+      const T = j.tabla, p = posEn(j.ruta, t), f = c01((t - T.t0) / ((T.t1 - T.t0) || 1)) * T.N, i = Math.min(T.N - 1, Math.floor(f));
+      return { x: p[0], z: p[1], s: T.S[i] + (T.S[i + 1] - T.S[i]) * (f - i) }; }
     function jugador(id, t) {
       const j = J[id], q = ruta(j, t), a = ruta(j, t - 0.18), b = ruta(j, t + 0.18), vx = (b.x - a.x) / 0.36, vz = (b.z - a.z) / 0.36, v = Math.hypot(vx, vz);
       const bp = balon(t).p, haciaBalon = Math.atan2(-(bp[2] - q.z), bp[0] - q.x);
       let dir = v > 0.6 ? Math.atan2(-vz, vx) : haciaBalon; if (v > 0.6 && v < 1.4) { const k = (v - 0.6) / 0.8, d0 = haciaBalon; let dd = dir - d0; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); dir = d0 + dd * k; }
-      const amp = Math.max(0.3, Math.min(1, v / 8)), fase = q.s / (1.6 + 3.2 * amp), quieto = j.portero ? V.poses.portero : V.pose.mezclar('de_pie', { tronco: 6, rodilla_d: 10, rodilla_i: 10, cadera_d: 6, cadera_i: 6 }, 0.6);
+      const rr = VE.rng('var' + id), varia = 0.9 + rr() * 0.2, amp = Math.max(0.3, Math.min(1, v / 8 * varia)), fase = q.s / (1.6 + 3.2 * amp) + rr(), quieto = j.portero ? V.poses.portero : V.pose.mezclar('de_pie', { tronco: 6, rodilla_d: 10, rodilla_i: 10, cadera_d: 6, cadera_i: 6 }, 0.6);
       let pose = V.pose.mezclar(quieto, V.pose.correr(fase, amp), c01((v - 0.4) / 1.4)), y = 0, rx = 0;
       for (const k of j.toques || []) {
         const chute = (f) => (k.pie === 'i' ? V.pose.espejo(V.pose.chutar(f)) : V.pose.chutar(f));
@@ -374,6 +404,9 @@
         if (k.tipo === 'cabezazo') { pose = V.pose.mezclar(pose, V.pose.cabezazo(f), suave(w * 1.6)); const fs = (t - (k.t - 0.42)) / 0.84; if (fs > 0 && fs < 1) y = Math.max(y, Math.sin(PI * fs) * Math.max(0, k.alto - 1.88)); }
         else pose = V.pose.mezclar(pose, chute(f), suave(w * 1.6));
         if (Math.abs(t - k.t) < 0.3) dir = Math.atan2(-k.dir[2], k.dir[0]); }
+      // inclinacion hacia dentro de la curva (aceleracion lateral)
+      if (v > 1.5) { const a1 = ruta(j, t - 0.25), a2 = ruta(j, t + 0.25), ax = ((a2.x - q.x) - (q.x - a1.x)) / 0.0625, az = ((a2.z - q.z) - (q.z - a1.z)) / 0.0625, zl = [Math.sin(dir), Math.cos(dir)];
+        rx = Math.max(-0.22, Math.min(0.22, 0.7 * Math.atan((ax * zl[0] + az * zl[1]) / 9.8))); }
       const e = { id, x: q.x, z: q.z, y, dir, rx, pose, v, j, apoyo: true };
       if (j.extra) j.extra(t, e);
       return e;
@@ -381,7 +414,9 @@
     F.ultimaJugada = { seg, J };
     return { seg, J, balon, jugador, ids: Object.keys(J),
       nodo(id, t, kit) { const e = jugador(id, t), j = J[id];
-        return MO.futbolista({ kit, dorsal: j.dorsal, portero: j.portero, pose: e.pose, pos: e.apoyo ? [e.x, 0, e.z] : [e.x, e.y, e.z], rot: [e.rx, e.dir, 0], apoyo: e.apoyo ? 'pies' : null, suelo: e.y }); },
+        const cuerpo = MO.futbolista({ kit, dorsal: j.dorsal, portero: j.portero, pose: e.pose, pos: e.apoyo ? [e.x, 0, e.z] : [e.x, e.y, e.z], rot: [e.rx, e.dir, 0], apoyo: e.apoyo ? 'pies' : null, suelo: e.y });
+        const alto = e.apoyo ? e.y : Math.max(0, e.y - 0.25), a = 0.5 * Math.max(0, 1 - alto / 1.2);
+        return a > 0.02 ? V.nodo({ hijos: [cuerpo, V.nodo({ malla: MA.plano(1.3, 1.3, 1), pos: [e.x, 0.015, e.z], rot: [0, e.dir, 0], sinSombra: true, mat: { tipo: 'plano', color: '#000000', mapa: texContacto(), alfa: a } })] }) : cuerpo; },
       /* Comprobaciones: choques entre jugadores, balon bajo el cesped, pie lejos del balon en un toque, velocidades imposibles. */
       revisar(t0 = 0, t1 = 10, paso = 0.1) { const avisos = [];
         for (let t = t0; t <= t1 + 1e-9; t += paso) { const E = Object.keys(J).map(id => jugador(id, t)), b = balon(t).p;
@@ -391,6 +426,30 @@
         for (const s of seg) { const e = jugador(s.k.de, s.k.t), d = Math.hypot(e.x - s.p0[0], e.z - s.p0[2]); if (d > 0.45) avisos.push(`toque t=${s.k.t}: ${s.k.de} a ${d.toFixed(2)} m del balon`); }
         return [...new Set(avisos)]; } };
   };
+
+  /* Sombra de contacto bajo los pies (oclusion: asienta a los jugadores en el cesped). */
+  function texContacto() { return V.textura('contacto', 128, 128, (x, W, H) => { const g = x.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
+    g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.35, 'rgba(255,255,255,0.45)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H); }); }
+
+  /* Etalonaje de retransmision (despues de V.render, antes de los rotulos): menos saturacion, tono calido, vineta y grano.
+     Todo con composiciones del lienzo y capas horneadas (sin ctx.filter). o: { saturacion 0..1 (cuanto se quita), calido, vineta, grano, fotograma } */
+  F.etalonar = function (esc, o = {}) {
+    const x = esc.ctx, W = esc.W, H = esc.H; x.save();
+    if (o.saturacion !== 0) { x.globalCompositeOperation = 'saturation'; x.globalAlpha = o.saturacion == null ? 0.22 : o.saturacion; x.fillStyle = '#808080'; x.fillRect(0, 0, W, H); }
+    if (o.calido !== 0) { x.globalCompositeOperation = 'soft-light'; x.globalAlpha = o.calido == null ? 0.22 : o.calido; x.fillStyle = '#ffcf8a'; x.fillRect(0, 0, W, H); }
+    x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+    const vin = esc.cache.obtener('vineta|' + W + 'x' + H + '|' + esc.ss, () => { const c = document.createElement('canvas'); c.width = Math.round(W * esc.ss / 2); c.height = Math.round(H * esc.ss / 2);
+      const g = c.getContext('2d'), r = g.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * 0.35, c.width / 2, c.height / 2, Math.hypot(c.width, c.height) * 0.55);
+      r.addColorStop(0, 'rgba(0,0,0,0)'); r.addColorStop(1, 'rgba(0,0,0,0.42)'); g.fillStyle = r; g.fillRect(0, 0, c.width, c.height); return c; });
+    x.globalAlpha = o.vineta == null ? 1 : o.vineta; x.drawImage(vin, 0, 0, W, H);
+    if (o.grano !== 0) { const k = ((o.fotograma || 0) % 4 + 4) % 4, gr = esc.cache.obtener('grano|' + k + '|' + W + 'x' + H, () => { const c = document.createElement('canvas'); c.width = Math.round(W / 2); c.height = Math.round(H / 2);
+        const g = c.getContext('2d'), im = g.createImageData(c.width, c.height), r = VE.rng('grano' + k); for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (r() - 0.5) * 120; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+        g.putImageData(im, 0, 0); return c; });
+      x.globalCompositeOperation = 'overlay'; x.globalAlpha = o.grano == null ? 0.12 : o.grano; x.drawImage(gr, 0, 0, W, H); }
+    x.restore();
+  };
+  /* Temblor de camara de operador (determinista): desplazamiento pequeno para sumar a 'mira'. */
+  F.pulso = (t, amp = 1) => [amp * (0.6 * Math.sin(t * 1.7) + 0.3 * Math.sin(t * 4.3 + 1.1) + 0.1 * Math.sin(t * 9.1)), amp * (0.5 * Math.sin(t * 2.1 + 2) + 0.3 * Math.sin(t * 5.2 + 0.3)), amp * 0.4 * Math.sin(t * 1.3 + 4)];
 
   // ---------------------------------------------------------------- planos de camara (solo dependen de t)
   /* Media del balon en una ventana (seguir con suavidad sin guardar estado). */

@@ -19,6 +19,14 @@ Estado: **programado y revisado en fotogramas** (`engine/volumen/futbol.js`). Ej
 | Toques `{ tipo: 'conduccion', pie: 'i' }` | conducción con toques cortos (gesto ligero) y pie izquierdo |
 | `kit.rayas: [c1, c2]`, `kit.nRayas`, `kit.fondoDorsal` | camiseta a rayas verticales (textura en pecho, vientre y mangas); `V.modelos.maniqui({ mapas })` acepta texturas por pieza |
 
+**Realismo** (revisado en fotogramas con el Gol del Siglo):
+- **Cuerpo de futbolista** (por defecto; `cuerpo: 'maniqui'` lo quita): camiseta con forma de V y hombros, mangas, pantalón corto con vuelo, muslos y gemelos con músculo, botas, cuello, orejas y nariz. Todo va colgado de las articulaciones del maniquí, así que sigue a cualquier pose.
+- **Movimiento**: las rutas pasan por curvas de Hermite (sin giros en seco), la zancada sale de la distancia tabulada, el cuerpo se inclina hacia dentro en las curvas y cada jugador tiene su propio ritmo de carrera.
+- **Sombra de contacto** bajo los pies, que asienta a los jugadores en el césped.
+- **Cámaras de retransmisión**: teleobjetivo desde la grada (fov 11–22), seguimiento del balón con retraso (`F.balonSuave`) y temblor de operador (`F.pulso(t, amp)`). Es lo que más acerca la imagen a una retransmisión real. Con teleobjetivo, el público de cerca se ve de bloques: subir la cámara para que el fondo sea césped y vallas.
+- **Etalonaje** `F.etalonar(esc, { fotograma })`, aplicado después de `V.render` y antes de los rótulos: quita saturación, da un tono cálido, viñeta y grano. Usa composiciones del lienzo y capas horneadas (sin `ctx.filter`).
+- `estadio({ propEquipo })`: la proporción de público con los colores del equipo (el resto, ropa neutra).
+
 **Ejemplo de jugada real**: el Gol del Siglo (Maradona, México 86) en vertical, recreación aproximada. La carrera es una lista de puntos que se convierte en toques a velocidad constante. Los defensores tienen rutas ligadas al instante en que Maradona pasa por cada punto (`tM(i)`), así que si cambia el ritmo todos se ajustan solos. El último plano es cenital, con la ruta y el nombre de cada jugador superado. Los datos con niveles van en `datos.md` y el proyecto no se sube (`proyectos/`).
 
 ---
