@@ -5,7 +5,7 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
 
 ## Flujo de producción
 1. `python3 pipeline/vid.py nuevo <tema> --tipo short`
-2. Escribir `proyectos/<tema>/guion.md` (1 párrafo = 1 escena; frases cortas) y `datos.md` (cada cifra con su fuente primaria; sin fuente = no entra).
+2. Escribir `proyectos/<tema>/guion.md` (1 párrafo = 1 escena; fórmula de `docs/GUION_RETENCION.md`) y `datos.md` (cada cifra con su fuente primaria; sin fuente = no entra). Revisar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
 3. `python3 pipeline/vid.py estimar <tema>` → comprueba que la duración cae entre 1:00 y 3:00 (el motor avisa si no).
 4. **Voz de Carmen** (ElevenLabs, gasta créditos; se hace con la herramienta del conector, no con el motor):
    - `salida/locucion.txt` ya contiene el texto limpio (se crea al lanzar `vid.py voz` la primera vez, o se genera con `parrafos_de`).
@@ -16,11 +16,12 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
 6. `python3 pipeline/vid.py qa <tema> --stills t1,t2,...` (uno por escena, en el momento en que aparece cada gráfico) y **mirar las imágenes**: el linter no ve todo.
 7. `python3 pipeline/vid.py render <tema>` → pesado (1080×1920) + ligero (<10 MB). Si se corta, repetir el mismo comando: continúa por trozos.
 
-## Estructura del guion (retención)
-- **0–3 s: gancho.** Una pregunta o promesa concreta + decir qué va a pasar («Cuatro trucos para…»). Sin saludos ni presentaciones.
-- **Bloques de 8–15 s**, uno por idea (truco, dato, paso). Cada bloque = una escena con su propio gráfico.
-- Mezclar **datos curiosos** y una **pregunta abierta** a mitad. Cerrar con una pregunta para comentarios y «guarda este vídeo».
-- Lenguaje viral: frases cortas, segunda persona, números («cuatro trucos»), «ojo», «dato loco». **Nada de cifras o afirmaciones sin fuente.**
+## Estructura del guion (retención) — fórmula completa en `docs/GUION_RETENCION.md`
+Sacada de 4 cortos de referencia del usuario (44–88 s, ~180 pal/min, frases de 8–14 palabras, siempre en 2.ª persona):
+- **Gancho 0–3 s** sobre TU cuerpo o tu vida que choca: reto («No puedes… Inténtalo ahora»), mito dicho como verdad, amenaza íntima («Esta noche, mientras duermes…») o pregunta + dato sorprendente en ≤ 5 s. Sin saludos.
+- **Giro antes de 8 s** («Lo has oído mil veces, pero…», «Y no te libras»), **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras), **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…»), **giro final** que cambia el punto de vista, **vuelta al gancho** («Así que…») y **CTA de compartir con destinatario** («Envíaselo a alguien que todavía no lo sabía»).
+- Comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md` (sale con 1 si hay fallos graves).
+- Duración: dentro de 60–180 s del tipo; las referencias duran 44–88 s, así que apuntar a **60–90 s**. **Nada de cifras o afirmaciones sin fuente** (datos.md); la fuente nunca en pantalla.
 - Cierre (últimos ~5 s): `VE.ed.cierre(esc, t, t0, {captura})` = móvil «Envíaselo» (~2,6 s) y **después** el **letrero** «SIGUE A @randonautico». El móvil NO sustituye al letrero (decisión del usuario). Sin móvil: solo `VE.short.letrero(esc, t, tInicio)` (la palabra «sigue» marca cuándo entra).
 
 ## Diseño visual (herramientas del motor)

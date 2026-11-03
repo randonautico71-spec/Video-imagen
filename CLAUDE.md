@@ -13,6 +13,8 @@ El usuario dice **LARGO** o **SHORT** + tema (+ descripción visual); tú ya sab
 2. `python3 pipeline/vid.py nuevo <tema> --tipo short|largo` → `guion.md` (1 párrafo = 1 escena) y `escenas.js` (1 función por párrafo) en `proyectos/<tema>/`.
 3. `estimar` → `voz` (short: ver docs/TIPO_SHORT.md; largo: Serena, reanudable) → `musica` → `mezcla` → `qa --stills t1,t2,…` (**mirar las imágenes**) → `render` (pesado + ligero) · `todo` hace la cadena. `estado` para retomar. Otros: `voz-importar <tema> <audio>`, `plan`.
 
+**Guion**: fórmula de retención de las referencias del usuario en `docs/GUION_RETENCION.md` (gancho sobre TU cuerpo/vida en 0–3 s, giro antes de 8 s, mecanismo en pasos, reenganche cada ~15–20 s, giro final, vuelta al gancho «Así que…», «Envíaselo a alguien que…»); comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
+
 Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, demo de realismo; sin render ni voz).
 
 ## Herramientas visuales (la elección de cuál usar es del vídeo, no fija)
