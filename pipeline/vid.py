@@ -176,6 +176,18 @@ def cmd_voz_importar(a):
     cmd_voz(argparse.Namespace(tema=a.tema, whisper=a.whisper))
 
 
+def cmd_sin_voz(a):
+    """Modo sin sonido: tiempos sinteticos a ritmo de locucion + audio en silencio (ver pipeline/sin_voz.py)."""
+    import sin_voz
+    d = dir_proyecto(a.tema); meta = leer_meta(d); s = d / 'salida'
+    pars = parrafos_de(d)
+    dur = sin_voz.generar(d, pars, meta, ppm=a.ppm)
+    tl = compilar_timeline(d, meta)
+    sin_voz.silencio(s / 'mezcla.wav', tl['duracion_total'] + 0.1, 44100, 2)
+    print(f'Sin sonido: {len(pars)} escenas, voz sintetica {dur:.1f} s, total {tl["duracion_total"]:.1f} s a {a.ppm:g} palabras/min')
+    avisar_rango(meta, tl['duracion_total'])
+
+
 # ------------------------------------------------------------------ musica + mezcla
 def cmd_musica(a):
     import musica, numpy as np
@@ -351,6 +363,7 @@ if __name__ == '__main__':
     p = sp.add_parser('voz-importar'); p.add_argument('tema'); p.add_argument('audio'); p.add_argument('--whisper', default='small'); p.set_defaults(f=cmd_voz_importar)
     for nombre, f in (('voz', cmd_voz), ('musica', cmd_musica), ('mezcla', cmd_mezcla)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
+    p = sp.add_parser('sin-voz'); p.add_argument('tema'); p.add_argument('--ppm', type=float, default=180.0); p.set_defaults(f=cmd_sin_voz)
     p = sp.add_parser('qa'); p.add_argument('tema'); p.add_argument('--paso', type=float, default=0.5); p.add_argument('--stills'); p.set_defaults(f=cmd_qa)
     for nombre, f in (('render', cmd_render), ('todo', cmd_todo)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--version'); p.add_argument('--workers', type=int, default=None, help='procesos de render; por defecto segun CPU y RAM del contenedor')
