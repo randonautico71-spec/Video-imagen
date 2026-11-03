@@ -13,6 +13,7 @@
 /* Revision de las piezas de batalla (engine/volumen/batalla.js).
    ?modo=piezas   catalogo: caballo al paso/trote/galope, caballero, lancero (alzada, ristre, estocada), infante, puente, bandera, tienda
    ?modo=horno    las mismas figuras horneadas (una malla por soldado) para comparar
+   ?modo=fuego    campamento ardiendo al atardecer (fuego, brasas, humo y resplandor)
    ?modo=carga    20 caballeros al galope y 40 lanceros en ristre (horneados), para medir el coste */
 const Q = new URLSearchParams(location.search), modo = Q.get('modo') || 'piezas', V = VE.vol, B = V.batalla, MO = V.modelos;
 const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'yt', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
@@ -40,6 +41,18 @@ const ESC = {
     h.push(B.instancia(B.hornear(MO.lancero({ semilla: 'b', pose: V.pose.lanzaRistre(0.2), lanza: 'ristre', apoyo: 'pies', detalle: D }), 'lan'), { pos: [1.5, 0, 0], rot: [0, -0.3, 0], mat }));
     h.push(B.instancia(B.hornear(MO.infante({ semilla: 'd', pose: 'lanzaAlzada', apoyo: 'pies', detalle: D }), 'inf'), { pos: [4, 0, 0], rot: [0, -1.4, 0], mat }));
     V.render(esc, V.nodo({ hijos: h }), V.camara({ pos: [0, 2.6, 9], mira: [0, 1.3, 0], fov: 50 }), { ambiente: 'dia', sombras: { centro: [0, 0, 0], radio: 8 } });
+  },
+  fuego(t) {
+    // campamento que arde al atardecer: tiendas, una empalizada y humo que se lleva el viento (efectos de engine/volumen/batalla.js)
+    V.fondo.cielo(esc, { hora: 'atardecer', horizonte: 0.55, nubes: 0.7 });
+    const cam = V.camara({ pos: [2, 3.2, 15], mira: [0, 2.2, -2], fov: 50 }), h = [suelo()], focos = [];
+    for (const [x, z, tam] of [[-4, -2, 1.6], [3.5, -4, 2.2], [9, -9, 1.4]]) { h.push(MO.tienda({ pos: [x, 0, z], color: '#3a2a20', franja: '#1a1410' })); h.push(...V.efectos.fuego('t' + x, [x, 0.4, z], t, { cam, tam }));
+      h.push(...V.efectos.humo('h' + x, [x, 1.5, z], t, { cam, tam: tam * 0.8, viento: [0.5, -0.3], oscuro: 0.8 })); focos.push([[x, 0.4, z], tam, x]); }
+    for (let i = 0; i < 12; i++) h.push(V.nodo({ malla: V.malla.cilindro(0.12, 0.1, 2.4, 8), pos: [-9 + i * 0.32, 1.2, 1.5], mat: { color: '#3a2614' } }));
+    h.push(...V.efectos.fuego('emp', [-7.2, 0.3, 1.5], t, { cam, tam: 1.3 })); focos.push([[-7.2, 0.3, 1.5], 1.3, 7]);
+    h.push(MO.lancero({ semilla: 'f', pose: 'lanzaAlzada', lanza: 'alzada', pos: [1, 0, 6], rot: [0, 1.9, 0], apoyo: 'pies' }));
+    V.render(esc, V.nodo({ hijos: h }), cam, { ambiente: { base: 'atardecer', luz: { intensidad: 0.9 }, ambiente: 0.45 }, sombras: { centro: [0, 0, 0], radio: 14 }, niebla: { color: '#6a4a40', cerca: 30, lejos: 160 } });
+    V.batalla.brillos(esc, cam, focos, t);
   },
   carga(t) {
     V.fondo.cielo(esc, { hora: 'dia', horizonte: 0.55, nubes: 0.6 });

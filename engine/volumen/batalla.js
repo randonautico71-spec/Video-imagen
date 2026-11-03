@@ -110,8 +110,12 @@
     /* Carrera con la lanza en ristre (los brazos sujetan la lanza delante; las piernas corren). */
     lanzaRistre: (fase, amp = 1) => Object.assign(V.pose.correr(fase, amp), { hombro_d: 52, hombro_i: 68, codo_d: 72, codo_i: 38, abrir: 10, tronco: 18 * amp }),
     /* Estocada con la lanza (f en vueltas): recoge y empuja. */
-    estocada: (f) => { const k = ((f % 1) + 1) % 1, e = k < 0.35 ? k / 0.35 : (k < 0.5 ? 1 : 1 - (k - 0.5) / 0.5), s = e * e * (3 - 2 * e);
-      return { tronco: 14 + 16 * s, cuello: -10, cadera_d: 34, cadera_i: -14, rodilla_d: 34, rodilla_i: 14, tobillo_d: 0, tobillo_i: 0, hombro_d: 40 + 34 * s, hombro_i: 58 + 26 * s, codo_d: 92 - 52 * s, codo_i: 50 - 30 * s, abrir: 8 }; }
+    /* Estocada con anticipacion (f en vueltas): recoge despacio (0..0,45), empuja de golpe (0,45..0,55), aguanta y recupera. */
+    estocada: (f) => { const k = ((f % 1) + 1) % 1, atras = k < 0.45 ? suave(k / 0.45) : (k < 0.55 ? 1 - suave((k - 0.45) / 0.1) : 0), golpe = k < 0.45 ? 0 : (k < 0.55 ? suave((k - 0.45) / 0.1) : 1 - suave((k - 0.62) / 0.38));
+      return { tronco: 12 - 8 * atras + 22 * golpe, cuello: -10, cadera_d: 30 + 10 * golpe, cadera_i: -10 - 8 * golpe, rodilla_d: 30 + 8 * atras, rodilla_i: 12, tobillo_d: 0, tobillo_i: 0,
+        hombro_d: 40 - 12 * atras + 38 * golpe, hombro_i: 58 - 10 * atras + 30 * golpe, codo_d: 95 + 15 * atras - 60 * golpe, codo_i: 50 + 10 * atras - 36 * golpe, abrir: 8 }; },
+    /* Retroceso al recibir un golpe (k 0..1): el cuerpo se echa atras y los brazos suben. */
+    retroceso: (k) => V.pose.mezclar('de_pie', { tronco: -22, cuello: 14, cadera_d: -12, cadera_i: 8, rodilla_d: 26, rodilla_i: 10, tobillo_d: 0, tobillo_i: 0, hombro_d: 75, hombro_i: 95, codo_d: 50, codo_i: 30, abrir: 34 }, suave(k)),
   });
 
   // ---------------------------------------------------------------- armas
@@ -155,12 +159,15 @@
       : (o.lanza === 'alzada' ? lanza(3.7, { arandela: true, grosor: 0.028, banderola: o.bandera, detalle: D, pos: [0.28, -0.35, 0.22], rot: [0, 0, PI / 2 - 0.08] }) : null);
     if (lz) equipo.tronco.push(lz);
     const colores = { cabeza: piel, cuello: malla.colorHorneado, mano: '#3a2a1a', pie: '#2a2a2e', pelvis: lib[0] };
+    // a pie (descabalgado o derribado): solo el jinete, con la pose que se pida y apoyado en el suelo
+    if (o.aPie) { const j = MO.maniqui({ pose: o.pose || 'de_pie', pos: o.pos, rot: o.rot, apoyo: o.apoyo, suelo: o.suelo, colores, mapas: { brazo: malla.mapa, antebrazo: malla.mapa, muslo: malla.mapa, pierna: malla.mapa }, equipo, detalle: D * 0.7 });
+      marcarHorneado(j, '#868c92'); return j; }
     const jinete = MO.maniqui({ pose: Object.assign({}, V.poses.jinete, o.pose || {}), colores, mapas: { brazo: malla.mapa, antebrazo: malla.mapa, muslo: malla.mapa, pierna: malla.mapa }, equipo, detalle: D * 0.7 });
     // la malla de brazos y piernas: el maniqui pone color blanco con mapa; para hornear se usa el gris
     marcarHorneado(jinete, '#868c92');
     const caballo = MO.caballo({ fase: o.fase, marcha: o.marcha, capa: o.capa === false ? null : lib, color: o.colorCaballo, encabritado: o.encabritado, detalle: D });
     // el jinete va en la silla y se mueve con el cuerpo del caballo (mismo bote y encabritado)
-    const cuerpo = caballo.hijos[0]; cuerpo.hijos[0].hijos.push(n({ pos: [0.04, 1.83, 0], hijos: [jinete] }));
+    const cuerpo = caballo.hijos[0]; if (!o.sinJinete) cuerpo.hijos[0].hijos.push(n({ pos: [0.04, 1.83, 0], hijos: [jinete] }));
     return n({ nombre: 'caballero', pos: o.pos, rot: o.rot, m: o.m, hijos: [caballo] });
   };
   function marcarHorneado(nodo, c) { for (const e of V.aplanar(nodo)) { const m = e.n.mat; if (m && m.mapa && !m.colorHorneado) m.colorHorneado = c; } }
@@ -228,6 +235,44 @@
     out.push(n({ malla: MA.toro(1, 0.025, 32, 5), pos: [origen[0], origen[1] + 0.03, origen[2]], esc: [0.3 + k * 1.3, 1, 0.3 + k * 1.3], sinSombra: true, mat: { color: '#f2f6f6', alfa: 0.7 * (1 - k / vida), esp: 0.4 } }));
     return out;
   };
+
+  // ---------------------------------------------------------------- fuego y humo (sprites que miran a la camara, todo funcion de t)
+  /* Llama: lagrima con nucleo blanco-amarillo y bordes rojos (4 formas). Humo: bocanada gris suave. Brasa: punto incandescente. */
+  function texLlama(k) { return V.textura('llama|' + k, 64, 128, (x, W, H) => { const r = VE.rng('llama' + k);
+    for (let i = 0; i < 3; i++) { const cx = W / 2 + (r() - 0.5) * 8, cy = H * (0.62 + r() * 0.1), g = x.createRadialGradient(cx, cy, 2, cx, cy * 0.85, H * 0.5);
+      g.addColorStop(0, 'rgba(255,250,220,0.95)'); g.addColorStop(0.25, 'rgba(255,200,80,0.85)'); g.addColorStop(0.55, 'rgba(240,110,30,0.55)'); g.addColorStop(1, 'rgba(160,30,10,0)');
+      x.fillStyle = g; x.beginPath(); x.moveTo(cx, H * 0.04 + r() * 12); x.bezierCurveTo(cx + W * 0.55, H * 0.45, cx + W * 0.48, H * 0.98, cx, H * 0.98); x.bezierCurveTo(cx - W * 0.48, H * 0.98, cx - W * 0.55, H * 0.45, cx, H * 0.04 + r() * 12); x.fill(); } }); }
+  function texHumo(k) { return V.textura('humo|' + k, 128, 128, (x, W, H) => { const r = VE.rng('humo' + k);
+    for (let i = 0; i < 14; i++) { const cx = W * (0.3 + r() * 0.4), cy = H * (0.3 + r() * 0.4), rr = W * (0.15 + r() * 0.2), g = x.createRadialGradient(cx, cy, 0, cx, cy, rr);
+      g.addColorStop(0, 'rgba(255,255,255,0.35)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H); } }); }
+  function texBrasa() { return V.textura('brasa', 32, 32, (x, W, H) => { const g = x.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
+    g.addColorStop(0, 'rgba(255,240,180,1)'); g.addColorStop(0.4, 'rgba(255,140,40,0.8)'); g.addColorStop(1, 'rgba(255,80,0,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H); }); }
+  /* Plano vertical que mira a la camara (en horizontal) en p, de ancho w y alto h, con su pie en p. */
+  function cartel(cam, p, w, h, mat, giro = 0) { const d = [cam.pos[0] - p[0], 0, cam.pos[2] - p[2]], l = Math.hypot(d[0], d[2]) || 1;
+    const m = M4.mul(M4.mul(M4.mul(M4.base([d[0] / l, 0, d[2] / l], [0, 1, 0], [p[0], p[1] + h / 2, p[2]]), M4.rotZ(giro)), M4.rotX(PI / 2)), M4.esc(w, 1, h));
+    return n({ malla: MA.plano(1, 1, 1), m, sinSombra: true, mat }); }
+  /* Fuego en 'pos' de tamano 'tam' (m): lenguas que suben, se estrechan y parpadean; brasas que saltan. o: { cam (obligatoria), tam, intensidad } */
+  EF.fuego = function (semilla, pos, t, o = {}) { const cam = o.cam, tam = o.tam || 1, r = VE.rng('fuego' + semilla), N = Math.round(9 + 9 * tam), out = [];
+    for (let i = 0; i < N; i++) { const vel = 0.9 + r() * 0.8, fase = ((t * vel + r()) % 1 + 1) % 1, dx = (r() - 0.5) * tam * 0.9, dz = (r() - 0.5) * tam * 0.9, alto = tam * (0.9 + r() * 0.9);
+      const y = pos[1] + fase * alto * 0.55, w = tam * (0.55 + r() * 0.35) * (1 - fase * 0.7), h = alto * (0.7 + 0.5 * Math.sin(PI * fase)), a = Math.sin(PI * Math.min(1, fase * 1.4)) * (o.intensidad || 0.9);
+      const vaiven = Math.sin(t * 7 + i) * 0.12 * tam * fase;
+      out.push(cartel(cam, [pos[0] + dx + vaiven, y, pos[2] + dz], w, h, { tipo: 'plano', color: '#ffffff', mapa: texLlama(i % 4), alfa: a, dobleCara: true, sinNiebla: true }, (r() - 0.5) * 0.3)); }
+    for (let i = 0; i < Math.round(6 * tam); i++) { const vel = 0.5 + r() * 0.5, fase = ((t * vel + r()) % 1 + 1) % 1, s = 0.05 + r() * 0.05;
+      out.push(cartel(cam, [pos[0] + (r() - 0.5) * tam + Math.sin(t * 3 + i) * 0.3 * fase, pos[1] + tam * 0.6 + fase * tam * 3.2, pos[2] + (r() - 0.5) * tam], s, s,
+        { tipo: 'plano', color: '#ffffff', mapa: texBrasa(), alfa: 1 - fase, dobleCara: true, sinNiebla: true })); }
+    return out; };
+  /* Columna de humo: bocanadas que suben, crecen, se aclaran y se las lleva el viento. o: { cam, tam, viento: [vx, vz], oscuro 0..1, alto } */
+  EF.humo = function (semilla, pos, t, o = {}) { const cam = o.cam, tam = o.tam || 1, r = VE.rng('humo' + semilla), N = Math.round(10 + 8 * tam), out = [], vi = o.viento || [0.6, 0.2], H = o.alto || 14 * tam;
+    for (let i = 0; i < N; i++) { const vida = 6 + r() * 4, fase = (((t + r() * vida) / vida) % 1 + 1) % 1, y = pos[1] + tam * 1.2 + fase * H, s = tam * (1.2 + fase * 5) * (0.7 + r() * 0.6);
+      const gris = Math.round(70 + (1 - (o.oscuro == null ? 0.6 : o.oscuro)) * 90 + fase * 50), c = `rgb(${gris},${gris - 4},${gris - 8})`;
+      out.push(cartel(cam, [pos[0] + vi[0] * fase * H * 0.8 + (r() - 0.5) * tam, y - s / 2, pos[2] + vi[1] * fase * H * 0.8 + (r() - 0.5) * tam], s, s,
+        { tipo: 'plano', color: c, mapa: texHumo(i % 3), alfa: 0.55 * Math.sin(PI * Math.min(1, fase * 1.3)) * (1 - fase * 0.4), dobleCara: true }, r() * 6)); }
+    return out; };
+  /* Resplandor del fuego (despues de V.render): halo calido en cada foco, con un parpadeo determinista. */
+  B.brillos = function (esc, cam, focos, t) { const x = esc.ctx; x.save(); x.globalCompositeOperation = 'lighter';
+    for (const [p, tam, k] of focos) { const q = V.proyectar(esc, cam, [p[0], p[1] + tam * 0.6, p[2]]); if (!q.delante) continue; const r = Math.max(8, Math.min(400, V.escalaPantalla(esc, cam, p, tam * 2.6)));
+      x.globalAlpha = 0.35 + 0.12 * Math.sin(t * 13 + (k || 0)) + 0.08 * Math.sin(t * 29 + 2 * (k || 0)); esc.pegar(esc.cache.halo(Math.round(r), '#ff9a40', 0.25), q.x, q.y, 1); }
+    x.restore(); };
 
   // ---------------------------------------------------------------- horneado de soldados (una malla por soldado y estado)
   const PAL = { n: 256, colores: [], lienzo: null };
