@@ -13,7 +13,7 @@ const total = Math.round(dur * fps), RAIZ = path.resolve(__dirname, '..');
 
 function codificador(f) {
   return spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps), '-vcodec', 'mjpeg', '-i', '-',
-    '-vf', 'scale=in_range=pc:in_color_matrix=bt601:out_range=tv:out_color_matrix=bt709,format=yuv420p',
+    '-vf', `scale=${AN}:${AL}:flags=lanczos:in_range=pc:in_color_matrix=bt601:out_range=tv:out_color_matrix=bt709,format=yuv420p`,   // el lienzo mide W*ss: se reduce al tamano final
     '-c:v', 'libx264', '-preset', 'medium', '-crf', String(crf), '-x264-params', 'aq-mode=3', '-r', String(fps),
     '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv', '-movflags', '+faststart', f], { stdio: ['pipe', 'inherit', 'inherit'] });
 }
