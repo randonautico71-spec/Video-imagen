@@ -9,7 +9,7 @@
        estilo: 'LAB' | { ...paleta propia },          // opcional
        fondo(esc, tg, ctx)  {...},                    // opcional: capa persistente bajo las escenas
        escenas: [ (esc, t, ctx) => {...}, ... ],      // UNA por parrafo del guion, en orden
-       subtitulos: false | { palabras (por grupo), tam (letra maxima), resalte },     // opcional
+       subtitulos: false | { palabras (por grupo), tam (letra maxima), resalte } | { estilo: 'editorial', clave: [...], marca, tam },  // editorial = arriba (VE.ed)
        progreso: true|false, transicion: {entrada, salida}
      });
    ctx: { i, n, ini, fin, dur, t (local), tg (global), p (0-1), entra (0-1), sale (0-1), zonas, tp/dp (tiempo y duracion del PARRAFO actual), pars (limites de parrafos), pw(palabra,n)=segundos desde el inicio del parrafo,
@@ -75,7 +75,9 @@
     const lienzo = Q.get('lienzo') || meta.lienzo || 'yt';
     const esc = VE.crearEscenario({ formato: lienzo, estilo: CFG.estilo || meta.estilo || 'LAB', ss: parseFloat(Q.get('ss') || '1.5') });
     VE.__esc = esc; VE.lintCfg = CFG.lint || {};
-    const zonas = VE.zonas(esc, CFG.subtitulos !== false);
+    const editorial = CFG.subtitulos && CFG.subtitulos.estilo === 'editorial';      // subtitulos arriba (VE.ed): el cuerpo empieza debajo
+    const zonas = VE.zonas(esc, CFG.subtitulos !== false && !editorial);
+    if (editorial) { const d = Math.round((esc.vertical ? 190 : 130) * esc.k); zonas.cuerpo.y += d; zonas.cuerpo.h -= d; zonas.cuerpo.cy = zonas.cuerpo.y + zonas.cuerpo.h / 2; }
     const x = esc.ctx, W = esc.W, H = esc.H;
 
     const so = parseFloat(Q.get('so') || '1');                                          // escala de SALIDA: 0.5 = 960x540 para calidad baja
@@ -114,7 +116,8 @@
       x.restore();
       x.setTransform(esc.ss, 0, 0, esc.ss, 0, 0);
       const g = VE.grupoEn(grupos, tg);
-      if (g) VE.texto.subtitulo(esc, g, tg, Object.assign({ caja: zonas.sub, resalte: esc.estilo.aviso }, subOpt));
+      if (editorial) VE.ed.subtitulos(esc, grupos, tg, subOpt);
+      else if (g) VE.texto.subtitulo(esc, g, tg, Object.assign({ caja: zonas.sub, resalte: esc.estilo.aviso }, subOpt));
       if (CFG.progreso !== false) {
         const h = 6 * esc.k;
         x.fillStyle = 'rgba(255,255,255,0.14)'; x.fillRect(0, H - h, W, h);

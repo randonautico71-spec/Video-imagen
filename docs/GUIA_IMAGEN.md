@@ -33,6 +33,17 @@ Ilustración 3D tipo «animación explicativa»: piezas lisas con volumen, luz c
 - **Exteriores** (ejemplo `modo=vikingos`, 3 planos): terreno con una función de altura, mar con olas, cielo de `VE.real.horas` y niebla del mismo color que el horizonte. Personajes = maniquí con `colores` y `equipo` (casco, barba, escudo, hacha). Medido: ≈ 1,1–1,5 s/fotograma (ss 1). Errores vistos en fotogramas: castillo en el aire en el borde de la colina (cimientos), cámara de espaldas al barco, todos saltando a la vez, nubes del cielo como burbujas.
 - **Límites**: estilo de ilustración lisa, no fotorrealismo; sin pelo, telas ni agua animada; las caras del maniquí no tienen rasgos. Los modelos nuevos se revisan siempre en fotogramas (`demo/volumen.html` o `qa --stills`).
 
+## 3 ter. Línea editorial de referencia (4 cortos analizados fotograma a fotograma, nov. 2026)
+Cortos verticales divulgativos de 45–88 s (maniquí y silla; arañas al dormir; ácaros Demodex; picadura de mosquito). Lo común, que es lo que se imita (el lenguaje, no sus personajes ni escenas):
+- **Plano continuo**: casi sin cortes (detección de cortes: 0 en tres de ellos, 7 en el otro). Se pasa de un plano a otro **ampliando a través** (cara → cama → araña → boca; piel → poro → ácaro), con fundidos cortos. Cambio visual cada 2–4 s.
+- **Escala macro ↔ micro**: personaje entero → detalle → interior (corte de piel con capas, vasos y nervios) y vuelta.
+- **Subtítulos arriba**, 1–2 líneas, palabra a palabra: dichas en gris, la activa en blanco negrita, las que faltan no se ven; las palabras clave llevan un **marco de selección azul con tiradores**. Marca en mayúsculas espaciadas encima.
+- **Grafismos finos y escasos**: etiquetas con línea guía y punto («respira», «corazón», «calor», «aliento»), **ondas concéntricas** (vibración, latido), **tarjetas de dato** (número grande + etiqueta + fuente pequeña; el dato falso se **tacha en rojo**), comparativas en tarjeta oscura, **regla de medida** verde con pastilla («0,3 mm»), chip de año, **lupa** circular sobre un detalle, partículas que brillan, burbujas de aliento.
+- **Acabado**: luz baja y cálida o azul nocturna, viñeta oscura arriba (para el texto), grano fino, colores apagados y un acento (rojo, verde o cian).
+- **Cierre**: móvil con la hoja de compartir y un dedo que pulsa «Enviar» («Envíaselo a alguien que todavía no lo sabía»). En SHORT se mantiene además el letrero «SIGUE A @randonautico».
+- **Materia**: ilustración 2,5D pintada (cara de persona dormida, edredón acolchado, araña con pelos), ilustración plana con textura (ácaros, siluetas) y 3D casi realista (mosquito, piel). Personas con **rasgos** (ojos cerrados, boca), no maniquíes.
+Hecho en el motor: `VE.ed` (engine/estilos/edicion.js) con todo lo anterior salvo la materia; revisión en `demo/edicion.html` (16 s). Pendiente (se hace al pedir un vídeo de ese tema): cabezas con rasgos, artrópodos articulados (araña, mosquito, ácaro), corte de piel por capas, telas acolchadas.
+
 ## 4. Estilo LUZ (meditación)
 Contornos **sin relleno**, color del trazo = color real del objeto aclarado, mezcla aditiva, trazos que se dibujan poco a poco (`VE.trazo`, `VE.med`, `VE.paisaje`), fondos oníricos o terrestres, efectos acordes al guion que se superponen y aparecen gradualmente.
 

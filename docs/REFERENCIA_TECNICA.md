@@ -63,6 +63,10 @@ Demo/revision: `demo/realismo.html?modo=paisaje|objetos|rayo&tipo=montanas|lago|
 - `VE.real.rayo(esc,{x0,y0,x1,y1,semilla,progreso,destello})` dinamico. La HORA fija luz/sombra/niebla de todo: usar la misma hora en paisaje y objetos.
 - Revisado a ojo solo en fotogramas fijos (sin video). Falta: ciudad/edificios, animales realistas, lluvia, mas objetos (torre, puente, barco de vapor...), personas.
 
+## EDICION EDITORIAL (engine/estilos/edicion.js, VE.ed)
+Subtitulos arriba: en escenas.js `subtitulos: { estilo: 'editorial', clave: ['palabra', ...], marca: 'RANDONAUTICO', tam: 46 }` (el cuerpo se desplaza hacia abajo).
+Piezas: dato, tarjeta, etiqueta, ondas, medida, lupa, lupaImagen, chip, particulas, chorro, grano, vineta, zoom (camara 2D para transiciones «a traves»), captura, movil (cierre). Firma y opciones en la cabecera del fichero. Revision: `demo/edicion.html`.
+
 ## VOLUMEN 3D (engine/volumen/: motor.js, mallas.js, modelos.js, fondos.js, tierra_datos.js)
 Ya cargado en `engine/video/index.html`. Revision: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra&rayosx=1&ss=1`. Video de una demo (sin audio): `node render/demo.cjs --pagina "demo/volumen.html?modo=vikingos" --duracion 22.5 --salida X.mp4`.
     const V = VE.vol;

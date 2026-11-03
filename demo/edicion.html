@@ -1,0 +1,77 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Edicion editorial</title>
+<style>
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin-ext.woff2) format('woff2');font-weight:300 700;unicode-range:U+0100-02BA,U+1E00-1EFF,U+2020,U+20A0-20AB}
+  html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/shorts.js"></script><script src="../engine/estilos/edicion.js"></script><script src="../engine/video/subtitulos.js"></script>
+<script src="../engine/volumen/motor.js"></script><script src="../engine/volumen/mallas.js"></script><script src="../engine/volumen/tierra_datos.js"></script>
+<script src="../engine/volumen/modelos.js"></script><script src="../engine/volumen/fondos.js"></script>
+<script>
+/* Revision del lenguaje de edicion editorial (VE.ed) sobre escenas 3D (VE.vol). renderAt(t), 16 s:
+   0-5 globo y ruta (dato, etiquetas, ondas) -> zoom a traves -> 5-9 avion (lupa sobre el motor) -> 9-13 maniqui dormido (medida, ondas, aliento)
+   -> 13-16 cierre con el movil. Subtitulos editoriales con tiempos inventados (en un video real salen de la voz). */
+const Q = new URLSearchParams(location.search), V = VE.vol, E = VE.ease, ED = VE.ed;
+const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') }), W = esc.W, H = esc.H;
+const TXT = 'De Madrid a Nueva York hay 5.770 kilómetros en línea recta. Un avión los cruza mientras tú duermes, y tu cuerpo sigue trabajando: respira, late y vigila. Envíaselo a alguien que todavía no lo sabía.';
+const palabras = []; { let t = 0.3; for (const w of TXT.split(' ')) { const d = 0.14 + w.length * 0.045; palabras.push({ t: w, ini: t, fin: t + d }); t += d + (/[.,:]$/.test(w) ? 0.35 : 0.06); } }
+const grupos = VE.agruparSubtitulos(palabras, { palabras: 5 });
+const pw = (w, n = 0) => { const l = palabras.filter(p => p.t.replace(/[^\wáéíóúñ.]/gi, '').toLowerCase().startsWith(w)); return l[n] ? l[n].ini : 0; };
+const MAD = [40.42, -3.70], NY = [40.71, -74.01], ruta = V.geo.ruta(MAD, NY, 120, 0.003), rutaA = V.geo.ruta(MAD, NY, 120, (u) => 0.03 * Math.sin(Math.PI * u) ** 0.4);
+
+function globo(t) {
+  V.fondo.espacio(esc, { semilla: 'ed' });
+  const d = 6.2 - 0.6 * VE.tramo(t, 0, 5), cam = V.camara({ pos: V.v3.por(V.v3.norm(V.geo.punto(36, -38 + t * 0.6)), d), mira: [0, -0.35, 0], fov: 40 });
+  V.render(esc, V.modelos.tierra({ giroNubes: t * 0.01 }), cam, { ambiente: 'espacio' });
+  V.linea(esc, cam, ruta, { color: '#ffd36b', ancho: 6, discontinua: [16, 12], progreso: VE.tramo(t, pw('madrid'), 1.6), oculta: (q) => !V.geo.visible(q, cam) });
+  const pm = V.proyectar(esc, cam, V.geo.punto(...MAD, 1.003)), pn = V.proyectar(esc, cam, V.geo.punto(...NY, 1.003));
+  ED.ondas(esc, pm.x, pm.y, t, { color: ED.COL.cian, radio: 90, achatado: 0.6, a: VE.tramo(t, pw('madrid'), 0.4) });
+  ED.etiqueta(esc, { x: pm.x, y: pm.y, tx: pm.x + 120 * esc.k, ty: pm.y - 110 * esc.k, texto: 'Madrid', a: VE.tramo(t, pw('madrid'), 0.7) });
+  ED.etiqueta(esc, { x: pn.x, y: pn.y, tx: pn.x - 90 * esc.k, ty: pn.y - 130 * esc.k, texto: 'Nueva York', a: VE.tramo(t, pw('nueva'), 0.7) });
+  ED.dato(esc, { num: '5.770', etiqueta: 'km en línea recta', fuente: 'gran círculo, radio 6.371 km', x: 90 * esc.k, y: 330 * esc.k, a: VE.tramo(t, pw('5.770'), 0.6), tam: 120 });
+  return cam;
+}
+function avion(t) {
+  V.fondo.espacio(esc, { semilla: 'ed2' });
+  const p = 0.35 + 0.08 * (t - 5) / 4, { pos: P, m } = V.geo.enRuta(rutaA, p, 0.05 * Math.sin(t)), loc = (q) => V.m4.ap(m, V.v3.por(q, 0.06));
+  const cam = V.camara({ pos: loc([1.1, 0.35, -1.9]), mira: loc([-0.15, -0.05, 0.4]), arriba: V.v3.norm(P), fov: 38, cerca: 0.003 });
+  V.render(esc, V.modelos.tierra({ atmosfera: 0, giroNubes: t * 0.01 }), cam, { ambiente: 'espacio' });
+  V.render(esc, V.modelos.avion({ m: V.m4.mul(m, V.m4.esc(0.06)) }), cam, { ambiente: 'espacio' });
+  const mo = V.proyectar(esc, cam, loc([0.19, -0.065, 0.1]));
+  ED.lupaImagen(esc, W * 0.7, H * 0.33, 170 * esc.k, mo.x, mo.y, 2.6, { a: VE.tramo(t, 6.4, 0.6) });
+  ED.etiqueta(esc, { x: W * 0.7 - 120 * esc.k, y: H * 0.33 + 120 * esc.k, tx: W * 0.42, ty: H * 0.27, texto: 'motor', sub: 'turbofán', a: VE.tramo(t, 6.9, 0.6) });
+}
+function dormido(t) {
+  V.fondo.estudio(esc, { pared: '#2c2f3e', foco: [0.5, 0.3] });
+  const resp = Math.sin(t * 2.2) * 0.012;
+  const pose = Object.assign({}, V.poses.de_pie, { hombro_d: 10, hombro_i: 10, codo_d: 30, codo_i: 30, abrir: 4, cuello: 10 });
+  const cama = V.nodo({ hijos: [V.nodo({ malla: V.malla.caja(2.2, 0.35, 1.0, 0.12), pos: [0, 0.35, 0], mat: { color: '#3b4a6a', esp: 0.1, envolver: 0.4 } }),
+    V.nodo({ malla: V.malla.caja(0.5, 0.14, 0.75, 0.07), pos: [-0.85, 0.6, 0], mat: { color: '#d9d6cf', envolver: 0.5 } }),
+    V.nodo({ malla: V.malla.caja(1.45, 0.34 + resp, 1.04, 0.1), pos: [0.38, 0.72, 0], mat: { color: '#4d5f86', esp: 0.08, envolver: 0.45 } })] });   // manta
+  const hombre = V.modelos.maniqui({ pose, pos: [-0.05, 0.62 + resp, 0], rot: [0, 0, Math.PI / 2], colores: { cabeza: '#e2b48c', mano: '#e2b48c' } });
+  const cam = V.camara({ pos: [-0.12, 3.5, 0.35], mira: [-0.12, 0.5, 0], arriba: [-1, 0, 0], fov: 46 });
+  V.render(esc, V.nodo({ hijos: [V.nodo({ malla: V.malla.plano(12, 12), mat: { color: '#3a3240' } }), cama, hombre] }), cam, { ambiente: 'estudio', sombras: { centro: [0, 0.4, 0], radio: 1.8 } });
+  const pecho = V.proyectar(esc, cam, V.posicion(hombre, 'pecho')), boca = V.proyectar(esc, cam, V.posicion(hombre, 'cabeza', [0.9, -0.5, 0]));
+  ED.ondas(esc, pecho.x, pecho.y, t, { color: ED.COL.cian, radio: 150, achatado: 0.75, a: VE.tramo(t, pw('late'), 0.5), periodo: 1.0 });
+  ED.etiqueta(esc, { x: pecho.x, y: pecho.y, tx: pecho.x + 170 * esc.k, ty: pecho.y + 160 * esc.k, texto: 'corazón', a: VE.tramo(t, pw('late'), 0.6) });
+  ED.chorro(esc, 'aliento', t, { x: boca.x, y: boca.y, dir: -Math.PI / 2 - 0.4, alcance: 200, a: VE.tramo(t, pw('respira'), 0.5) });
+  ED.etiqueta(esc, { x: boca.x, y: boca.y, tx: boca.x - 170 * esc.k, ty: boca.y - 130 * esc.k, texto: 'aliento', a: VE.tramo(t, pw('respira'), 0.6) });
+  const pie = V.proyectar(esc, cam, V.posicion(hombre, 'pie_d')), cab = V.proyectar(esc, cam, V.posicion(hombre, 'cabeza'));
+  ED.medida(esc, W * 0.86, Math.min(pie.y, cab.y), Math.max(pie.y, cab.y), '1,75 m', { a: VE.tramo(t, 9.6, 0.6) });
+}
+window.renderAt = (t) => {
+  esc.abrir(); const x = esc.ctx;
+  // planos con transicion «a traves»: el plano saliente se amplia hacia un punto y se funde con el entrante
+  const tr1 = VE.tramo(t, 4.7, 0.6, E.suaveEntrada), tr2 = VE.tramo(t, 8.7, 0.6, E.suaveEntrada);
+  if (t < 5.3) { ED.zoom(esc, { cx: W * 0.45, cy: H * 0.45, escala: 1 + 2.5 * tr1, centrar: tr1 }, () => globo(t)); }
+  if (t >= 4.7 && t < 9.3) { x.save(); x.globalAlpha = t < 5.3 ? VE.tramo(t, 4.9, 0.4) : 1; ED.zoom(esc, { cx: W * 0.5, cy: H * 0.5, escala: 1 + 1.8 * tr2, centrar: tr2 }, () => avion(t)); x.restore(); }
+  if (t >= 8.7) { x.save(); x.globalAlpha = VE.tramo(t, 8.9, 0.4); dormido(t); x.restore(); }
+  ED.vineta(esc, { arriba: 0.3, bordes: 0.45 });
+  if (t >= 13) { const cap = ED.captura(esc, 'cierre'); x.fillStyle = `rgba(8,9,12,${0.85 * VE.tramo(t, 13, 0.5)})`; x.fillRect(0, 0, W, H); ED.movil(esc, t, 13.2, { captura: cap }); }
+  ED.subtitulos(esc, grupos, t, { clave: ['5.770', 'duermes,', 'trabajando:', 'envíaselo'], marca: 'RANDONAUTICO' });
+  ED.grano(esc, t, 0.05);
+};
+window.ready = Promise.all([document.fonts.load('700 50px Fredoka'), document.fonts.load('500 50px Fredoka')]).catch(() => {});
+</script>
