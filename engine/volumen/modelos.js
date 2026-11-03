@@ -177,7 +177,9 @@
     const P = Object.assign({}, POSES.de_pie, typeof o.pose === 'string' ? POSES[o.pose] : (o.pose || {})), r = (g) => g * D;
     const madera = o.color || '#e2a565', res = o.resaltar || {}, k = MED;
     const col = o.colores || {}, colDe = (n) => col[n] || col[n.replace(/_[di]$/, '')];
-    const mat = (nombre) => ({ color: res[nombre] || colDe(nombre) || madera, esp: o.colores ? 0.12 : 0.3, dureza: 26, envolver: 0.25, emision: res[nombre] ? 0.08 : 0 });
+    const mapas = o.mapas || {}, mapaDe = (n) => mapas[n] || mapas[n.replace(/_[di]$/, '')];   // mapas: { pecho: <canvas> } (rayas de una camiseta...)
+    const mat = (nombre) => { const mp = res[nombre] ? null : mapaDe(nombre);
+      return { color: mp ? '#ffffff' : (res[nombre] || colDe(nombre) || madera), mapa: mp || undefined, esp: o.colores ? 0.12 : 0.3, dureza: 26, envolver: 0.25, emision: res[nombre] ? 0.08 : 0 }; };
     const bola = (rad, nombre, pos) => V.nodo({ nombre: nombre + '_art', malla: MA.esfera(24), esc: rad, pos: pos || [0, 0, 0], mat: mat(nombre) });
     const pierna = (lado, z) => {
       const nm = (s) => s + '_' + lado;

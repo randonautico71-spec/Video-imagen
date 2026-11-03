@@ -140,7 +140,11 @@
     /* Estirada del portero (k 0..1): brazos por encima de la cabeza. El giro del cuerpo va en rot[0] (alrededor de la direccion a la que mira). */
     estirada: (k) => V.pose.mezclar(V.poses.portero, { tronco: 4, cuello: 0, cadera_d: 22, cadera_i: -6, rodilla_d: 26, rodilla_i: 8, tobillo_d: 0, tobillo_i: 0, hombro_d: 168, hombro_i: 172, codo_d: 8, codo_i: 8, abrir: 22 }, suave(k)),
     /* Celebracion: brazos arriba con un leve vaiven (fase en vueltas). */
-    celebrar: (f) => { const s = Math.sin(f * 2 * PI); return { hombro_d: 150 + 12 * s, hombro_i: 150 - 12 * s, codo_d: 30 + 10 * s, codo_i: 30 - 10 * s, abrir: 42 }; }
+    celebrar: (f) => { const s = Math.sin(f * 2 * PI); return { hombro_d: 150 + 12 * s, hombro_i: 150 - 12 * s, codo_d: 30 + 10 * s, codo_i: 30 - 10 * s, abrir: 42 }; },
+    /* Entrada del defensor (k 0..1): se lanza con la pierna derecha estirada hacia el balon. */
+    entrada: (k) => V.pose.mezclar(V.poses.portero, { tronco: 34, cuello: -16, cadera_d: 78, cadera_i: -18, rodilla_d: 6, rodilla_i: 70, tobillo_d: 0, tobillo_i: 0, hombro_d: 45, hombro_i: -30, codo_d: 40, codo_i: 40, abrir: 34 }, suave(k)),
+    /* La misma pose con los lados cambiados (zurdos: chutar con la izquierda = espejo(chutar(f))). */
+    espejo: (p) => { const o = {}; for (const k in p) { const m = /_([di])$/.exec(k); o[m ? k.slice(0, -1) + (m[1] === 'd' ? 'i' : 'd') : k] = p[k]; } return o; }
   });
   F.brazos = (pose, brazos, k) => { const o = Object.assign({}, pose); for (const c in brazos) o[c] = (pose[c] == null ? 0 : pose[c]) + (brazos[c] - (pose[c] == null ? 0 : pose[c])) * k; return o; };
 
@@ -158,11 +162,14 @@
     const k = Object.assign({ camiseta: '#c8102e', pantalon: '#f2f2f2', medias: '#c8102e', botas: '#1a1a1a', piel: '#c99a74', pelo: '#2a1c12', numero: '#ffffff', mangas: null, guantes: '#e8e8e8' }, o.kit || {});
     const colores = { pecho: k.camiseta, vientre: k.camiseta, cintura: k.camiseta, brazo: k.camiseta, antebrazo: o.portero ? k.camiseta : k.piel, mano: k.piel, cuello: k.piel, cabeza: k.piel,
       pelvis: k.pantalon, muslo: k.pantalon, pierna: k.medias, pie: k.botas };
+    const mapas = k.rayas ? (() => { const tx = texRayas(k.rayas, k.nRayas || 10); return { pecho: tx, vientre: tx, cintura: tx, brazo: tx }; })() : null;
     const equipo = { cuello: [V.nodo({ malla: MA.esfera(20), pos: [-0.008, 0.207, 0], esc: [0.1, 0.104, 0.096], mat: { color: k.pelo, esp: 0.15, dureza: 20 } })] };
-    if (o.dorsal != null) equipo.tronco = [V.nodo({ malla: parcheDorsal(), mat: { color: '#ffffff', mapa: texDorsal(o.dorsal, k.camiseta, k.numero), dobleCara: true, esp: 0.12, dureza: 26, envolver: 0.25 } })];
+    if (o.dorsal != null) equipo.tronco = [V.nodo({ malla: parcheDorsal(), mat: { color: '#ffffff', mapa: texDorsal(o.dorsal, k.fondoDorsal || k.camiseta, k.numero), dobleCara: true, esp: 0.12, dureza: 26, envolver: 0.25 } })];
     if (o.portero) { const guante = (l) => V.nodo({ malla: MA.esfera(16), pos: [0, -0.33, 0], esc: [0.048, 0.07, 0.06], mat: { color: k.guantes } }); equipo.codo_d = [guante('d')]; equipo.codo_i = [guante('i')]; }
-    return MO.maniqui({ pose: o.pose, pos: o.pos, rot: o.rot, esc: o.esc, apoyo: o.apoyo, suelo: o.suelo, piesX: o.piesX, colores, equipo });
+    return MO.maniqui({ pose: o.pose, pos: o.pos, rot: o.rot, esc: o.esc, apoyo: o.apoyo, suelo: o.suelo, piesX: o.piesX, colores, equipo, mapas });
   };
+  /* Camiseta a rayas verticales: [color1, color2], n pares alrededor del cuerpo (u de la esfera = vuelta alrededor de Y). */
+  function texRayas(c, n) { return V.textura('rayas|' + c.join(',') + '|' + n, 512, 16, (x, W, H) => { for (let i = 0; i < n * 2; i++) { x.fillStyle = c[i % 2]; x.fillRect(i * W / (n * 2), 0, W / (n * 2) + 1, H); } }); }
 
   // ---------------------------------------------------------------- estadio
   /* Perfil de la grada (a = distancia hacia fuera desde el frente, y = altura). Dos anfiteatros. */
@@ -347,9 +354,9 @@
     const J = {}; for (const id in def.jugadores) { const j = def.jugadores[id]; J[id] = Object.assign({}, j, { ruta: j.ruta.map(r => r.slice()) }); }
     for (const s of seg) { const k = s.k, j = J[k.de]; if (!j) throw new Error('jugada: no hay jugador ' + k.de);
       const d = v3.norm([s.p1[0] - s.p0[0], 0, s.p1[2] - s.p0[2]]), lado = [-d[2], 0, d[0]], cab = k.tipo === 'cabezazo';
-      const pos = cab ? [s.p0[0] - d[0] * 0.12, s.p0[2] - d[2] * 0.12] : [s.p0[0] - d[0] * 0.32 - lado[0] * 0.1, s.p0[2] - d[2] * 0.32 - lado[2] * 0.1];
+      const sl = k.pie === 'i' ? -1 : 1, pos = cab ? [s.p0[0] - d[0] * 0.12, s.p0[2] - d[2] * 0.12] : [s.p0[0] - d[0] * 0.32 - lado[0] * 0.1 * sl, s.p0[2] - d[2] * 0.32 - lado[2] * 0.1 * sl];
       j.ruta = j.ruta.filter(r => Math.abs(r[0] - k.t) > 0.08); j.ruta.push([k.t, pos[0], pos[1]]); j.ruta.sort((a, b) => a[0] - b[0]);
-      (j.toques = j.toques || []).push({ t: k.t, tipo: k.tipo, dir: d, alto: cab ? s.p0[1] : 0 }); }
+      (j.toques = j.toques || []).push({ t: k.t, tipo: k.tipo, dir: d, alto: cab ? s.p0[1] : 0, pie: k.pie }); }
     function ruta(j, t) { const r = j.ruta; if (t <= r[0][0]) return { x: r[0][1], z: r[0][2], v: [0, 0], s: 0 };
       let s = 0; for (let i = 0; i < r.length - 1; i++) { const a = r[i], b = r[i + 1], l = Math.hypot(b[1] - a[1], b[2] - a[2]), dt = b[0] - a[0];
         if (t <= b[0]) { const u = (t - a[0]) / dt; return { x: a[1] + (b[1] - a[1]) * u, z: a[2] + (b[2] - a[2]) * u, v: [(b[1] - a[1]) / dt, (b[2] - a[2]) / dt], s: s + l * u }; } s += l; }
@@ -360,9 +367,12 @@
       let dir = v > 0.6 ? Math.atan2(-vz, vx) : haciaBalon; if (v > 0.6 && v < 1.4) { const k = (v - 0.6) / 0.8, d0 = haciaBalon; let dd = dir - d0; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); dir = d0 + dd * k; }
       const amp = Math.max(0.3, Math.min(1, v / 8)), fase = q.s / (1.6 + 3.2 * amp), quieto = j.portero ? V.poses.portero : V.pose.mezclar('de_pie', { tronco: 6, rodilla_d: 10, rodilla_i: 10, cadera_d: 6, cadera_i: 6 }, 0.6);
       let pose = V.pose.mezclar(quieto, V.pose.correr(fase, amp), c01((v - 0.4) / 1.4)), y = 0, rx = 0;
-      for (const k of j.toques || []) { const w = c01(1 - Math.abs(t - k.t) / 0.5); if (w <= 0) continue; const f = 0.5 + (t - k.t) / 0.9;
+      for (const k of j.toques || []) {
+        const chute = (f) => (k.pie === 'i' ? V.pose.espejo(V.pose.chutar(f)) : V.pose.chutar(f));
+        if (k.tipo === 'conduccion') { const w = c01(1 - Math.abs(t - k.t) / 0.24); if (w > 0) pose = V.pose.mezclar(pose, chute(0.5 + (t - k.t) / 0.6), 0.42 * suave(w)); continue; }
+        const w = c01(1 - Math.abs(t - k.t) / 0.5); if (w <= 0) continue; const f = 0.5 + (t - k.t) / 0.9;
         if (k.tipo === 'cabezazo') { pose = V.pose.mezclar(pose, V.pose.cabezazo(f), suave(w * 1.6)); const fs = (t - (k.t - 0.42)) / 0.84; if (fs > 0 && fs < 1) y = Math.max(y, Math.sin(PI * fs) * Math.max(0, k.alto - 1.88)); }
-        else pose = V.pose.mezclar(pose, V.pose.chutar(f), suave(w * 1.6));
+        else pose = V.pose.mezclar(pose, chute(f), suave(w * 1.6));
         if (Math.abs(t - k.t) < 0.3) dir = Math.atan2(-k.dir[2], k.dir[0]); }
       const e = { id, x: q.x, z: q.z, y, dir, rx, pose, v, j, apoyo: true };
       if (j.extra) j.extra(t, e);

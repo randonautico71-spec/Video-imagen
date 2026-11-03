@@ -15,6 +15,11 @@ Estado: **programado y revisado en fotogramas** (`engine/volumen/futbol.js`). Ej
 | `F.planos.general / cenital / raso / porteria / seguimiento / spidercam / grada` | cámaras que solo dependen de `t` |
 | `F.halos(esc, cam)` · `F.ambienteNoche` · `F.balonSuave(J, t)` · `F.brazos(pose, brazos, k)` | halos de los focos, luz de noche, balón suavizado para la cámara, mezclar solo los brazos |
 | `V.pose.chutar(f)` · `cabezazo(f)` · `estirada(k)` · `celebrar(f)` · `V.poses.portero` | gestos (contacto en fase 0,5) |
+| `V.pose.entrada(k)` · `V.pose.espejo(p)` | entrada del defensa; pose con los lados cambiados (zurdos) |
+| Toques `{ tipo: 'conduccion', pie: 'i' }` | conducción con toques cortos (gesto ligero) y pie izquierdo |
+| `kit.rayas: [c1, c2]`, `kit.nRayas`, `kit.fondoDorsal` | camiseta a rayas verticales (textura en pecho, vientre y mangas); `V.modelos.maniqui({ mapas })` acepta texturas por pieza |
+
+**Ejemplo de jugada real**: el Gol del Siglo (Maradona, México 86) en vertical, recreación aproximada. La carrera es una lista de puntos que se convierte en toques a velocidad constante. Los defensores tienen rutas ligadas al instante en que Maradona pasa por cada punto (`tM(i)`), así que si cambia el ritmo todos se ajustan solos. El último plano es cenital, con la ruta y el nombre de cada jugador superado. Los datos con niveles van en `datos.md` y el proyecto no se sube (`proyectos/`).
 
 ---
 
