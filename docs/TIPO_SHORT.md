@@ -1,12 +1,12 @@
 # TIPO SHORT — guía de diseño (se lee al hacer `vid.py nuevo <tema> --tipo short`)
 
-**Ficha** (de `config/tipos.json`): vertical 1080×1920 · 30 fps · 60–180 s · voz **Carmen** (ElevenLabs, peninsular) · música `curiosos` · −14 LUFS · subtítulos con palabra resaltada · letrero final «SIGUE A @randonautico».
+**Ficha** (de `config/tipos.json`): vertical 1080×1920 · 30 fps · 60–90 s · voz **Carmen** (ElevenLabs, peninsular) · música `curiosos` · −14 LUFS · subtítulos con palabra resaltada · letrero final «SIGUE A @randonautico».
 El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de YouTube; los de Instagram/TikTok **no** (comprobar en la app).
 
 ## Flujo de producción
 1. `python3 pipeline/vid.py nuevo <tema> --tipo short`
-2. Escribir `proyectos/<tema>/guion.md` (1 párrafo = 1 escena; fórmula de `docs/GUION_RETENCION.md`) y `datos.md` (cada cifra con su fuente primaria; sin fuente = no entra). Revisar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
-3. `python3 pipeline/vid.py estimar <tema>` → comprueba que la duración cae entre 1:00 y 3:00 (el motor avisa si no).
+2. Escribir `proyectos/<tema>/guion.md` (1 párrafo = 1 escena; fórmula de `docs/GUION_RETENCION.md`) y `datos.md` (cada afirmación con su nivel V / V* / S / X; lo S solo entra si la narración aclara que es suposición o creencia). Revisar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
+3. `python3 pipeline/vid.py estimar <tema>` → comprueba que la duración cae entre 1:00 y 1:30 (el motor avisa si no; el límite de la plataforma sigue siendo 3 min).
 4. **Voz de Carmen** (ElevenLabs, gasta créditos; se hace con la herramienta del conector, no con el motor):
    - `salida/locucion.txt` ya contiene el texto limpio (se crea al lanzar `vid.py voz` la primera vez, o se genera con `parrafos_de`).
    - `creative_generate_speech` con `voice_id = iHGx33VgO2KQ1Fdw6noG` (Carmen - Bold and Magnetic), `model_id = eleven_v4`, **`generations_count = 1`** (por defecto serían 2 y se cobran las dos) y primero `estimate_only = true`.
@@ -21,7 +21,7 @@ Sacada de 4 cortos de referencia del usuario (44–88 s, ~180 pal/min, frases de
 - **Gancho 0–3 s** sobre TU cuerpo o tu vida que choca: reto («No puedes… Inténtalo ahora»), mito dicho como verdad, amenaza íntima («Esta noche, mientras duermes…») o pregunta + dato sorprendente en ≤ 5 s. Sin saludos.
 - **Giro antes de 8 s** («Lo has oído mil veces, pero…», «Y no te libras»), **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras), **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…»), **giro final** que cambia el punto de vista, **vuelta al gancho** («Así que…») y **CTA de compartir con destinatario** («Envíaselo a alguien que todavía no lo sabía»).
 - Comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md` (sale con 1 si hay fallos graves).
-- Duración: dentro de 60–180 s del tipo; las referencias duran 44–88 s, así que apuntar a **60–90 s**. **Nada de cifras o afirmaciones sin fuente** (datos.md); la fuente nunca en pantalla.
+- Duración: **60–90 s** (decisión del usuario; las referencias duran 44–88 s). Lo que se cuente como hecho, con fuente en `datos.md`; un mito, suposición o creencia puede entrar si la narración lo dice («se dice que…», «es un mito»). La fuente nunca en pantalla.
 - Cierre (últimos ~5 s): `VE.ed.cierre(esc, t, t0, {captura})` = móvil «Envíaselo» (~2,6 s) y **después** el **letrero** «SIGUE A @randonautico». El móvil NO sustituye al letrero (decisión del usuario). Sin móvil: solo `VE.short.letrero(esc, t, tInicio)` (la palabra «sigue» marca cuándo entra).
 
 ## Diseño visual (herramientas del motor)

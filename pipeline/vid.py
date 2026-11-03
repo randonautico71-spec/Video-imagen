@@ -60,7 +60,7 @@ def meta_de_tipo(tipo):
 
 
 def avisar_rango(meta, total_s):
-    """Avisa si la duracion se sale del rango del TIPO (largo 30-60 min, short 1-3 min)."""
+    """Avisa si la duracion se sale del rango del TIPO (largo 30-60 min, short 60-90 s)."""
     r = meta.get('duracion_objetivo_s')
     if not r: return
     if total_s < r[0] or total_s > r[1]:

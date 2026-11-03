@@ -5,7 +5,7 @@ Dos tipos de vídeo predeterminados — dices **LARGO** o **SHORT** y el motor y
 
 | | SHORT | LARGO |
 |---|---|---|
-| Formato | vertical 1080×1920 · 30 fps · 1–3 min | YouTube 16:9 · 24 fps · 30–60 min |
+| Formato | vertical 1080×1920 · 30 fps · 60–90 s | YouTube 16:9 · 24 fps · 30–60 min |
 | Voz | Carmen (ElevenLabs, peninsular) | Serena (Qwen3-TTS, local) |
 | Guía de diseño | [docs/TIPO_SHORT.md](docs/TIPO_SHORT.md) | [docs/TIPO_LARGO.md](docs/TIPO_LARGO.md) |
 

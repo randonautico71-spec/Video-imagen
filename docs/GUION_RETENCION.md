@@ -60,8 +60,8 @@ Análisis de los cuatro cortos verticales que pasó el usuario (nov. 2026), tran
 - [ ] Un reenganche al menos cada ~15–20 s de voz (el revisor avisa a partir de 22 s; en las referencias el hueco mayor es de ~25 s) («pero», «y lo peor», «resulta», «hace algo más», pregunta directa).
 - [ ] El cierre vuelve al gancho («así que…» y repite palabras de la primera frase).
 - [ ] CTA de compartir con destinatario + el letrero de la marca.
-- [ ] Duración en el rango del tipo (SHORT 60–180 s; las referencias duran 44–88 s, así que apuntar a 60–90 s).
-- [ ] **Cada cifra y cada afirmación está en `datos.md` con fuente primaria** (regla NO ALUCINES). Las referencias citan expertos de viva voz («un experto del Smithsonian»): se puede, solo si está verificado; nunca la fuente escrita en pantalla.
+- [ ] Duración **60–90 s** (decisión del usuario; las referencias duran 44–88 s). A ~180 pal/min son unas 180–270 palabras.
+- [ ] **Regla NO ALUCINES (aclarada por el usuario)**: lo que se cuenta como hecho está en `datos.md` con fuente (V / V*). Un mito, una suposición o una creencia generalizada **puede entrar si la narración dice que lo es** (nivel S): «se dice que…», «es un mito», «se cree», «nadie lo ha medido». Esto encaja con el gancho de mito (R2): se enuncia el mito y a los 3 s se aclara («Lo has oído mil veces, pero…»). Citar a un experto de viva voz solo si está verificado; nunca la fuente escrita en pantalla.
 
 ## 5. Cómo casan guion e imagen (lo que ya hace el motor)
 - Cada frase del guion = un cambio de plano o un grafismo nuevo (`VE.ed`): la cifra aparece en tarjeta cuando se dice; la palabra clave del gancho y de los giros va enmarcada (`subtitulos.clave`).

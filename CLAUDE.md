@@ -4,7 +4,7 @@ El usuario dice **LARGO** o **SHORT** + tema (+ descripción visual); tú ya sab
 
 | | SHORT | LARGO |
 |---|---|---|
-| Qué es | vertical 1080×1920, 30 fps, **1–3 min**, subtítulos, letrero final «SIGUE A @randonautico» | YouTube 16:9, 24 fps, **30–60 min**, capítulos de 3–5 min |
+| Qué es | vertical 1080×1920, 30 fps, **60–90 s**, subtítulos, letrero final «SIGUE A @randonautico» | YouTube 16:9, 24 fps, **30–60 min**, capítulos de 3–5 min |
 | Voz | **Carmen** (ElevenLabs, peninsular; se genera con la herramienta del conector y se importa) | **Serena** (Qwen3-TTS local, `.venv-qwen`) |
 | Música | `curiosos` · −14 LUFS | `meditacion` · −16/−19 LUFS |
 
@@ -26,7 +26,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 
 ## Reglas del usuario (no reabrir)
-- **NO ALUCINES**: cifra sin fuente primaria no entra; di qué está verificado (`datos.md` con niveles V / V* / X).
+- **NO ALUCINES** (aclarado por el usuario): se puede contar una invención, un mito, una suposición o una creencia generalizada, pero **el vídeo tiene que decir que lo es** («se dice que…», «es un mito», «se cree», «nadie lo ha medido»). Lo que se presente como hecho lleva fuente primaria. `datos.md` con niveles V (verificado) / V* (fuente secundaria fiable) / S (suposición o creencia: entra solo si la narración lo aclara) / X (no entra).
 - Visual: objetos y paisajes reales bien dibujados (no iconos esquemáticos). Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 - No renderizar ni enviar vídeos de prueba salvo que lo pida; validar con linter, medidas y fotogramas. Los entregables que pide sí se renderizan.
 - Voces: **Serena** (Qwen, largos), **Carmen** (ElevenLabs, shorts), **Aiden** (Qwen, voz masculina: `meta.voz = 'aiden'` o `'aiden_meditacion'`, cualquier tipo), **Vivian** (`vivian`, Qwen), `sharvard_1` (Piper, CC BY 3.0: atribuir) y `melo_es` (tal cual), **Carmelot** (`carmelot`: Serena ajustada al estilo de Carmen, sin oír por el usuario), MeloTTS (meditación antigua) y Piper (pendiente de ajuste). Los perfiles de `config/perfiles_voz.json` no se tocan sin que lo pida.

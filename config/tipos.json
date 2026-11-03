@@ -32,14 +32,14 @@
     "viable_en": "Code (4 CPU): voz ~4.4 s de calculo por s de voz (34 min de voz = ~2 h) + render ~1 min por min de video. En un chat de Project (2 CPU) NO es viable."
   },
   "short": {
-    "descripcion": "Short vertical 9:16 de 1-3 min, voz Carmen peninsular (ElevenLabs), musica con ritmo, subtitulos y letrero final.",
+    "descripcion": "Short vertical 9:16 de 60-90 s, voz Carmen peninsular (ElevenLabs), musica con ritmo, subtitulos y letrero final.",
     "formato": "short",
     "lienzo": "vertical",
     "voz": "carmen",
     "musica": "curiosos",
     "duracion_s": [
       60,
-      180
+      90
     ],
     "limite_plataforma_s": 180,
     "fps": 30,
