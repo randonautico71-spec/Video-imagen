@@ -19,10 +19,10 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
 ## Estructura del guion (retención) — fórmula completa en `docs/GUION_RETENCION.md`
 Sacada de 4 cortos de referencia del usuario (44–88 s, ~180 pal/min, frases de 8–14 palabras, siempre en 2.ª persona):
 - **Gancho 0–3 s** sobre TU cuerpo o tu vida que choca: reto («No puedes… Inténtalo ahora»), mito dicho como verdad, amenaza íntima («Esta noche, mientras duermes…») o pregunta + dato sorprendente en ≤ 5 s. Sin saludos.
-- **Giro antes de 8 s** («Lo has oído mil veces, pero…», «Y no te libras»), **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras), **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…»), **giro final** que cambia el punto de vista, **vuelta al gancho** («Así que…») y **CTA de compartir con destinatario** («Envíaselo a alguien que todavía no lo sabía»).
+- **Giro antes de 8 s** («Lo has oído mil veces, pero…», «Y no te libras»), **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras), **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…»), **giro final** que cambia el punto de vista, **vuelta al gancho** («Así que…») y cierre con el letrero «SIGUE A @randonautico» (**sin** «Envíaselo a alguien que…»: el usuario lo ha quitado).
 - Comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md` (sale con 1 si hay fallos graves).
 - Duración: **60–90 s** (decisión del usuario; las referencias duran 44–88 s). Lo que se cuente como hecho, con fuente en `datos.md`; un mito, suposición o creencia puede entrar si la narración lo dice («se dice que…», «es un mito»). La fuente nunca en pantalla.
-- Cierre (últimos ~5 s): `VE.ed.cierre(esc, t, t0, {captura})` = móvil «Envíaselo» (~2,6 s) y **después** el **letrero** «SIGUE A @randonautico». El móvil NO sustituye al letrero (decisión del usuario). Sin móvil: solo `VE.short.letrero(esc, t, tInicio)` (la palabra «sigue» marca cuándo entra).
+- Cierre (últimos ~5 s): `VE.ed.cierre(esc, t, t0)` = el **letrero** «SIGUE A @randonautico» (sin móvil «Envíaselo»; solo con `{movil:true, captura}` entra antes el móvil). También `VE.short.letrero(esc, t, tInicio)`.
 
 ## Diseño visual (herramientas del motor)
 - **Fondo**: un paisaje real por escena con `VE.real.paisaje(...)` (hora del día acorde al tema) y objetos con `VE.real.objeto(...)`.

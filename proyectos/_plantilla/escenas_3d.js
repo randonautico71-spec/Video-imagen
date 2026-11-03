@@ -11,7 +11,7 @@ function sala(esc, rx = 0) {                                                    
 
 VE.proyecto({
   estilo: 'LAB',
-  subtitulos: { estilo: 'editorial', clave: ['delante', 'fuerza', 'gravedad', 'envíaselo'], marca: 'RANDONAUTICO', tam: 46 },
+  subtitulos: { estilo: 'editorial', clave: ['delante', 'fuerza', 'gravedad'], marca: 'RANDONAUTICO', tam: 46 },
   escenas: [
     // 1. GANCHO: reto. Persona sentada; dato grande al decir «silla».
     (esc, t, ctx) => {
@@ -32,7 +32,7 @@ VE.proyecto({
       ED.etiqueta(esc, { x: cg.x, y: cg.y, tx: cg.x + 200 * esc.k, ty: cg.y - 220 * esc.k, texto: 'centro de gravedad', a });
       ED.vineta(esc); ED.grano(esc, ctx.tg);
     },
-    // 3. CIERRE: movil «Envíaselo» y despues SIGUE A @randonautico (VE.ed.cierre).
+    // 3. CIERRE: SIGUE A @randonautico (VE.ed.cierre).
     (esc, t, ctx) => {
       V.render(esc, V.nodo({ hijos: [sala(esc), V.modelos.silla({ pos: [-0.05, 0, 0] }), V.modelos.maniqui({ pose: 'de_pie', apoyo: 'pies', piesX: 0.47 })] }), camSilla(20), { ambiente: 'estudio' });
       ED.cierre(esc, t, 0.2, { captura: ED.captura(esc, 'cierre') });

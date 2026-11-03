@@ -62,8 +62,7 @@ def revisar(texto, wpm=180, rango=(60, 90), datos=None):
     cola = ' '.join(F[-4:]).lower(); clave0 = {w.lower().strip('.,¿?¡!') for w in palabras(f0) if len(w) > 4}
     vuelve = len(F) > 5 and (re.search(r'\bas[ií] que\b', cola) or len(clave0 & {w.lower().strip('.,¿?¡!') for w in palabras(cola)}) >= 2)
     (ok if vuelve else avisos).append('El cierre vuelve al gancho.' if vuelve else 'El cierre no vuelve al gancho (usar "Asi que..." y repetir palabras de la primera frase).')
-    if not re.search(CTA, cola, re.I): fallos.append('Falta llamada a la accion al final ("Envíaselo a alguien que...", "Comenta...").')
-    else: ok.append('Llamada a la accion al final.')
+    # el cierre lo pone el letrero «SIGUE A @randonautico» (VE.ed.cierre); ya no se exige «Envíaselo a alguien que...» en el guion
     # duracion del tipo (SHORT 60-90 s)
     if rango and not (rango[0] <= seg <= rango[1]): avisos.append(f'Duracion estimada {seg:.0f} s fuera de {rango[0]}-{rango[1]} s ({rango[0] * wpm / 60:.0f}-{rango[1] * wpm / 60:.0f} palabras a {wpm:.0f} pal/min).')
     elif rango: ok.append(f'Duracion estimada {seg:.0f} s (rango {rango[0]}-{rango[1]} s).')

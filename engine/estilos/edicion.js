@@ -1,7 +1,7 @@
 /* EDICION «EDITORIAL»: el lenguaje de montaje de los cortos divulgativos de referencia (analizados en docs/GUIA_IMAGEN.md):
    subtitulos ARRIBA palabra a palabra con la palabra clave enmarcada como una seleccion de texto, etiquetas con linea guia,
    ondas concentricas, tarjetas de datos (y tachado cuando se desmiente; SIN fuente en pantalla: regla del usuario), regla de medida, lupa, chip de fecha,
-   particulas, grano y vineta, zoom continuo entre planos y cierre con el movil «Envialo». Todo es funcion de t y sin filtros por fotograma.
+   particulas, grano y vineta, zoom continuo entre planos y cierre con el letrero de la marca (y, si se pide, el movil «Envialo»). Todo es funcion de t y sin filtros por fotograma.
      VE.ed.subtitulos(esc, grupos, tg, {clave, y, tam, marca})   (el runner lo usa con subtitulos: {estilo: 'editorial'})
      VE.ed.dato(esc, {num, etiqueta, x, y, a, tachado, color})
      VE.ed.tarjeta(esc, {x, y, a, columnas: [{num, etiqueta, color}]})
@@ -17,7 +17,7 @@
      VE.ed.grano(esc, t, fuerza) · VE.ed.vineta(esc, {arriba, bordes})
      VE.ed.zoom(esc, {cx, cy, escala}, dibujar)                          camara 2D: ampliar hacia un punto (transiciones «a traves»)
      VE.ed.movil(esc, t, t0, {captura, contactos, texto})                movil con hoja de compartir y dedo que pulsa (dura ~2,4 s)
-     VE.ed.cierre(esc, t, t0, {captura, handle})                         CIERRE DE SHORT: movil «Envialo» y DESPUES el letrero «SIGUE A @randonautico» (no lo sustituye)
+     VE.ed.cierre(esc, t, t0, {captura, handle})                         CIERRE DE SHORT: letrero «SIGUE A @randonautico»; con {movil:true} antes entra el movil «Envialo» (ya no es el cierre por defecto)
    Paleta por defecto: seleccion azul #5b8cff, rojo #ff4d5e, verde #5be08a, texto blanco y gris. */
 (function (VE) {
   const D = VE.ed = {}, PI = Math.PI, E = VE.ease, c01 = (v) => Math.max(0, Math.min(1, v));
@@ -199,11 +199,11 @@
     x.restore();
     if (t > t0 + 1.75 && t < t0 + 2.3) { const f = (t - t0 - 1.75) / 0.55; x.save(); x.strokeStyle = COL.verde; x.globalAlpha = 1 - f; x.lineWidth = 4 * k; x.beginPath(); x.arc(cx, by, (40 + f * 120) * k, 0, 7); x.stroke(); x.restore(); }
   };
-  /* Cierre de un SHORT: oscurece, movil «Envialo» (t0 .. t0+2,6) y a continuacion el letrero de VE.short (desde t0+2,6). */
+  /* Cierre de un SHORT: oscurece y pone el letrero de VE.short «SIGUE A @randonautico». Solo con o.movil === true entra antes el movil «Envialo» (t0 .. t0+2,6). */
   D.cierre = function (esc, t, t0, o = {}) {
-    if (t < t0) return; const x = esc.ctx, tl = t0 + (o.duracionMovil || 2.6);
+    if (t < t0) return; const x = esc.ctx, tl = o.movil === true ? t0 + (o.duracionMovil || 2.6) : t0 + 0.2;
     x.save(); x.fillStyle = `rgba(8,9,12,${0.85 * c01((t - t0) / 0.5)})`; x.fillRect(0, 0, esc.W, esc.H); x.restore();
-    if (t < tl + 0.4) { x.save(); x.globalAlpha *= 1 - c01((t - tl) / 0.4); D.movil(esc, t, t0 + 0.2, { captura: o.captura }); x.restore(); }
+    if (o.movil === true && t < tl + 0.4) { x.save(); x.globalAlpha *= 1 - c01((t - tl) / 0.4); D.movil(esc, t, t0 + 0.2, { captura: o.captura }); x.restore(); }
     if (t >= tl) VE.short.letrero(esc, t, tl + 0.15, { handle: o.handle || '@randonautico', cy: o.cy || esc.H * 0.45 });
   };
 })(window.VE = window.VE || {});

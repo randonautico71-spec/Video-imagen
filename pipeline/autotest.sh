@@ -22,7 +22,7 @@ PY
 python3 pipeline/entrega.py >/dev/null && ok "entrega.py (plan de versiones)" || mal "entrega.py"
 
 echo "== Revisor de guiones (docs/GUION_RETENCION.md)"
-printf "Tu nariz huele mejor de lo que crees, y te lo voy a demostrar.\n\nLo has oído mil veces: que los perros nos ganan. Pero tú también rastreas.\n\nCada vez que respiras, el aire pasa por un techo de células que detectan olores.\n\nY lo peor: casi nunca les prestas atención.\n\nO sea, no es que huelas poco, es que no te fijas.\n\nAsí que tu nariz no es mala. Envíaselo a alguien que todavía no lo sabía.\n" > /tmp/autotest_bueno.md
+printf "Tu nariz huele mejor de lo que crees, y te lo voy a demostrar.\n\nLo has oído mil veces: que los perros nos ganan. Pero tú también rastreas.\n\nCada vez que respiras, el aire pasa por un techo de células que detectan olores.\n\nY lo peor: casi nunca les prestas atención.\n\nO sea, no es que huelas poco, es que no te fijas.\n\nAsí que tu nariz no es mala. Y eso es todo.\n" > /tmp/autotest_bueno.md
 printf "Hola a todos, hoy en este vídeo vamos a hablar de la nariz humana y de todas las cosas que hace cada día sin parar.\n\nGracias por ver.\n" > /tmp/autotest_malo.md
 python3 pipeline/revisar_guion.py /tmp/autotest_bueno.md >/dev/null && ! python3 pipeline/revisar_guion.py /tmp/autotest_malo.md >/dev/null && ok "revisar_guion.py (aprueba el bueno, suspende el malo)" || mal "revisar_guion.py"
 rm -f /tmp/autotest_bueno.md /tmp/autotest_malo.md

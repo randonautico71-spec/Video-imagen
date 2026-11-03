@@ -10,7 +10,7 @@ plantilla de escenas comprobada, voz y entrega. Si el repositorio está conectad
 - SHORT vertical 1080×1920 · 30 fps · **60–90 s** (≈ 180–270 palabras a ~180 palabras/min) · subtítulos editoriales arriba.
 - Voz **Carmen** (ElevenLabs) · música del motor `curiosos` · −14 LUFS.
 - Imagen 3D/2,5D (`VE.vol`) + grafismos editoriales (`VE.ed`).
-- Cierre: móvil «Envíaselo» y **después** «SIGUE A @randonautico» (el móvil no sustituye al letrero).
+- Cierre: solo el letrero «SIGUE A @randonautico» (sin móvil «Envíaselo»: decisión del usuario).
 - Entrega: **siempre dos MP4**, `<tema>_short_pesado.mp4` y `<tema>_short_ligero.mp4` (< 10 MB).
 
 ## 2. Comandos (desde la raíz del repo)
@@ -43,7 +43,7 @@ plano continuo con un cambio visual cada 2–4 s.
 4. **Reenganche cada ~15–20 s**: «Pero mientras…, hace algo más.» · «Y lo peor…» · «Y resulta que…» · «¿Sigues sentado?».
 5. **Giro final** que cambia el punto de vista: «el monstruo de la cama eres tú», «lo que te pica es tu propio cuerpo».
 6. **Vuelta al gancho**: «Así que…» + la frase inicial corregida.
-7. **CTA**: «Envíaselo a alguien que todavía no lo sabía» (destinatario concreto) · «Comenta cuántas veces…» · letrero de la marca.
+7. **Cierre**: el letrero de la marca «SIGUE A @randonautico» (lo pone el motor). Sin «Envíaselo a alguien que…».
    Si hay reto, un «sígueme» justo mientras el espectador lo está intentando funciona (y una serie numerada da motivo para seguir).
 
 **Plantilla:**
@@ -54,10 +54,10 @@ plano continuo con un cambio visual cada 2–4 s.
 [REENGANCHE] «Pero mientras…, hace algo más.» / «Y lo peor…»
 [GIRO FINAL] Cambia el punto de vista.
 [VUELTA] «Así que…» + gancho corregido.
-[CTA] «Envíaselo a alguien que…» + SIGUE A @randonautico (lo pone el motor).
+[CIERRE] SIGUE A @randonautico (lo pone el motor); sin «Envíaselo a alguien que…».
 ```
 **Comprobación** (`revisar_guion.py`): primera frase ≤ 16 palabras (> 20 = fallo) y sin saludo · giro antes de 8 s · frase media ≤ 14 y
-ninguna > 24 · 2.ª persona ≥ 4 % · reenganche al menos cada ~20 s · cierre que vuelve al gancho · CTA · duración 60–90 s ·
+ninguna > 24 · 2.ª persona ≥ 4 % · reenganche al menos cada ~20 s · cierre que vuelve al gancho · duración 60–90 s ·
 datos S/E aclarados en la narración.
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ ED.lupa(esc, cx, cy, r, (x) => {...}, { a }) · ED.lupaImagen(esc, cx, cy, r, fx
 ED.chip(esc, '2022', x, y, { a }) · ED.particulas(esc, 'semilla', t, { caja, n, color }) · ED.chorro(esc, 'semilla', t, { x, y, dir })
 ED.zoom(esc, { cx, cy, escala, centrar }, () => { ... })     // camara 2D: transicion «a traves»
 ED.vineta(esc) · ED.grano(esc, ctx.tg)                         // acabado (al final de cada escena)
-ED.cierre(esc, t, t0, { captura: ED.captura(esc, 'cierre') }) // movil «Envíaselo» + SIGUE A @randonautico
+ED.cierre(esc, t, t0, { captura: ED.captura(esc, 'cierre') }) // letrero SIGUE A @randonautico (movil «Envíaselo» solo con { movil: true })
 ED.COL = { sel, rojo, verde, cian, ... }
 ```
 
@@ -156,7 +156,7 @@ No puedes levantarte de una silla sin echarte hacia delante. Inténtalo ahora.
 
 No es cuestión de fuerza: tu peso tira desde un punto, tu centro de gravedad.
 
-Envíaselo a alguien que todavía no lo sabía.
+Así que la próxima vez, inclínate hacia delante.
 ```
 `escenas.js` (en el repo: `proyectos/_plantilla/escenas_3d.js`):
 ```js
@@ -173,7 +173,7 @@ function sala(esc, rx = 0) {                                                    
 
 VE.proyecto({
   estilo: 'LAB',
-  subtitulos: { estilo: 'editorial', clave: ['delante', 'fuerza', 'gravedad', 'envíaselo'], marca: 'RANDONAUTICO', tam: 46 },
+  subtitulos: { estilo: 'editorial', clave: ['delante', 'fuerza', 'gravedad'], marca: 'RANDONAUTICO', tam: 46 },
   escenas: [
     // 1. GANCHO: reto. Persona sentada; dato grande al decir «silla».
     (esc, t, ctx) => {
@@ -194,7 +194,7 @@ VE.proyecto({
       ED.etiqueta(esc, { x: cg.x, y: cg.y, tx: cg.x + 200 * esc.k, ty: cg.y - 220 * esc.k, texto: 'centro de gravedad', a });
       ED.vineta(esc); ED.grano(esc, ctx.tg);
     },
-    // 3. CIERRE: movil «Envíaselo» y despues SIGUE A @randonautico (VE.ed.cierre).
+    // 3. CIERRE: SIGUE A @randonautico (VE.ed.cierre).
     (esc, t, ctx) => {
       V.render(esc, V.nodo({ hijos: [sala(esc), V.modelos.silla({ pos: [-0.05, 0, 0] }), V.modelos.maniqui({ pose: 'de_pie', apoyo: 'pies', piesX: 0.47 })] }), camSilla(20), { ambiente: 'estudio' });
       ED.cierre(esc, t, 0.2, { captura: ED.captura(esc, 'cierre') });

@@ -17,9 +17,9 @@ Para cada tema, entrega primero y **espera el visto bueno del usuario**:
    - **Nunca datos inventados presentados como hechos.** Si no encuentras fuente, dilo y propón quitar el dato o convertirlo en pregunta.
 2. **Guion** (1 párrafo = 1 escena), con la fórmula de retención de `docs/GUION_RETENCION.md`:
    - **Gancho 0–3 s** sobre TU cuerpo o tu vida que choca: reto («No puedes… Inténtalo ahora»), mito dicho como verdad (y se aclara en ≤ 5 s), amenaza íntima («Esta noche, mientras duermes…») o pregunta + dato sorprendente en ≤ 5 s. Sin saludos.
-   - **Giro antes de 8 s** · **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras) · **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…») · **giro final** que cambia el punto de vista · **vuelta al gancho** («Así que…») · **«Envíaselo a alguien que…»** con destinatario concreto.
+   - **Giro antes de 8 s** · **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras) · **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…») · **giro final** que cambia el punto de vista · **vuelta al gancho** («Así que…») · cierre con el letrero «SIGUE A @randonautico» (**sin** «Envíaselo a alguien que…»).
    - Frases de 8–14 palabras, segunda persona, lenguaje coloquial.
-   - Compruébalo con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md` (falla si el gancho saluda o es largo, si falta el CTA, si hay frases > 24 palabras o si hay datos S sin aclarar).
+   - Compruébalo con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md` (falla si el gancho saluda o es largo, si hay frases > 24 palabras o si hay datos S sin aclarar).
 3. **Plan visual por escena** (una línea por párrafo): qué modelo 3D o ilustración, encuadre y movimiento de cámara, y qué grafismo entra con qué palabra.
 4. **Lista de modelos nuevos** que haría falta construir (si el tema los pide) y una estimación de duración y de coste de voz.
 
@@ -40,7 +40,7 @@ MODELOS NUEVOS · RIESGOS / DUDAS
   - subtítulos **arriba**, palabra a palabra, con las palabras clave enmarcadas (`subtitulos: { estilo: 'editorial', clave: [...], marca: 'RANDONAUTICO' }`);
   - `etiqueta` con línea guía, `ondas` (vibración, latido), `dato` (número grande + etiqueta; `tachado` al desmentir un mito), `tarjeta` comparativa, `medida` (regla verde), `lupa` / `lupaImagen`, `chip` (año), `particulas`, `chorro` (aliento, burbujas), `grano` y `vineta`;
   - grafismos anclados a puntos 3D con `V.proyectar`, `V.linea`, `V.marcador`.
-- **Cierre** (últimos ~5 s): `VE.ed.cierre` = móvil «Envíaselo» y **después** el letrero **«SIGUE A @randonautico»** (el móvil no lo sustituye).
+- **Cierre** (últimos ~5 s): `VE.ed.cierre` = solo el letrero **«SIGUE A @randonautico»** (sin móvil «Envíaselo»; el usuario lo ha quitado).
 - **Reglas fijas**: sin fuentes escritas en pantalla (van en `datos.md`) · sin chips HOOK/PUPA/QUIZ · sin estilos Pollín ni pizarra · objetos reales bien dibujados, no iconos.
 - Rendimiento: sin GPU (WebGL por CPU); nunca `ctx.filter` ni `shadowBlur` por fotograma; texturas y sprites se hornean una vez. Medido: 0,6–2,5 s por fotograma según la escena.
 

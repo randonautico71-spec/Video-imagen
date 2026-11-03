@@ -12,10 +12,10 @@
 <script>
 /* Revision del lenguaje de edicion editorial (VE.ed) sobre escenas 3D (VE.vol). renderAt(t), 16 s:
    0-5 globo y ruta (dato, etiquetas, ondas) -> zoom a traves -> 5-9 avion (lupa sobre el motor) -> 9-13 maniqui dormido (medida, ondas, aliento)
-   -> 13-18 cierre: movil «Envialo» y despues el letrero SIGUE A @randonautico. Subtitulos editoriales con tiempos inventados (en un video real salen de la voz). */
+   -> 13-18 cierre: letrero SIGUE A @randonautico (el movil «Envialo» solo con {movil:true}). Subtitulos editoriales con tiempos inventados (en un video real salen de la voz). */
 const Q = new URLSearchParams(location.search), V = VE.vol, E = VE.ease, ED = VE.ed;
 const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') }), W = esc.W, H = esc.H;
-const TXT = 'De Madrid a Nueva York hay 5.770 kilómetros en línea recta. Un avión los cruza mientras tú duermes, y tu cuerpo sigue trabajando: respira, late y vigila. Envíaselo a alguien que todavía no lo sabía.';
+const TXT = 'De Madrid a Nueva York hay 5.770 kilómetros en línea recta. Un avión los cruza mientras tú duermes, y tu cuerpo sigue trabajando: respira, late y vigila.';
 const palabras = []; { let t = 0.3; for (const w of TXT.split(' ')) { const d = 0.14 + w.length * 0.045; palabras.push({ t: w, ini: t, fin: t + d }); t += d + (/[.,:]$/.test(w) ? 0.35 : 0.06); } }
 const grupos = VE.agruparSubtitulos(palabras, { palabras: 5 });
 const pw = (w, n = 0) => { const l = palabras.filter(p => p.t.replace(/[^\wáéíóúñ.]/gi, '').toLowerCase().startsWith(w)); return l[n] ? l[n].ini : 0; };
@@ -70,7 +70,7 @@ window.renderAt = (t) => {
   if (t >= 8.7) { x.save(); x.globalAlpha = VE.tramo(t, 8.9, 0.4); dormido(t); x.restore(); }
   ED.vineta(esc, { arriba: 0.3, bordes: 0.45 });
   if (t >= 13) ED.cierre(esc, t, 13, { captura: ED.captura(esc, 'cierre') });
-  ED.subtitulos(esc, grupos, t, { clave: ['5.770', 'duermes,', 'trabajando:', 'envíaselo'], marca: 'RANDONAUTICO' });
+  ED.subtitulos(esc, grupos, t, { clave: ['5.770', 'duermes,', 'trabajando:'], marca: 'RANDONAUTICO' });
   ED.grano(esc, t, 0.05);
 };
 window.ready = Promise.all([document.fonts.load('700 50px Fredoka'), document.fonts.load('500 50px Fredoka')]).catch(() => {});

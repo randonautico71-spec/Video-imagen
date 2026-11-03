@@ -33,7 +33,7 @@ Análisis de los cuatro cortos verticales que pasó el usuario (nov. 2026), tran
 5. **Giro final que cambia el punto de vista**: «Para ellas, el monstruo de la cama eres tú.» · «Lo que te pica no es el agujerito, es tu propio cuerpo.» · «No salen a por ti: llevan contigo toda tu vida.» · «Tu cuerpo se inclina solo.»
 6. **Cierre que vuelve al gancho** con «Así que…»: «Así que no te comes ocho arañas al año.», «Así que esta noche no salen a por ti». Cierra el círculo y deja ganas de volver a verlo.
 7. **Llamadas a la acción** (últimos 3–6 s, y una a mitad si hay reto):
-   - **Compartir con un destinatario concreto**: «Envíaselo a alguien que todavía no lo sabía.» / «…a ese amigo al que siempre se comen los mosquitos.»
+   - **Cierre**: termina con la vuelta al gancho; el letrero «SIGUE A @randonautico» lo pone el motor. Ya no se pide «Envíaselo a alguien que…» (decisión del usuario).
    - **Comentar algo que el espectador ha hecho**: «Comenta cuántas veces lo intentaste antes de rendirte.»
    - **Seguir aprovechando el momento de máxima atención**: R1 dice «Mientras lo intentas, sígueme. Mañana, el episodio 22.» justo cuando el espectador está probando el reto (serie numerada = motivo para seguir).
    - En nuestros SHORT, además, el letrero «SIGUE A @randonautico» (regla del usuario).
@@ -49,7 +49,7 @@ Análisis de los cuatro cortos verticales que pasó el usuario (nov. 2026), tran
 [PASO 3–5] …
 [GIRO FINAL] Cambia el punto de vista: el protagonista resulta ser el espectador o su propio cuerpo.
 [VUELTA AL GANCHO] «Así que…» + la frase inicial corregida.
-[CTA] «Envíaselo a alguien que…» (destinatario concreto) · «Comenta…» · letrero SIGUE A @randonautico.
+[CIERRE] letrero SIGUE A @randonautico (sin «Envíaselo a alguien que…»).
 ```
 
 ## 4. Lista de comprobación (la revisa `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`)
@@ -59,7 +59,7 @@ Análisis de los cuatro cortos verticales que pasó el usuario (nov. 2026), tran
 - [ ] 2.ª persona en al menos el 4 % de las palabras.
 - [ ] Un reenganche al menos cada ~15–20 s de voz (el revisor avisa a partir de 22 s; en las referencias el hueco mayor es de ~25 s) («pero», «y lo peor», «resulta», «hace algo más», pregunta directa).
 - [ ] El cierre vuelve al gancho («así que…» y repite palabras de la primera frase).
-- [ ] CTA de compartir con destinatario + el letrero de la marca.
+- [ ] Letrero de la marca al final (sin «Envíaselo a alguien que…»).
 - [ ] Duración **60–90 s** (decisión del usuario; las referencias duran 44–88 s). A ~180 pal/min son unas 180–270 palabras.
 - [ ] **Regla NO ALUCINES (aclarada por el usuario)**: lo que se cuenta como hecho está en `datos.md` con fuente (V / V*). Un mito, una suposición o una creencia generalizada **puede entrar si la narración dice que lo es** (nivel S): «se dice que…», «es un mito», «se cree», «nadie lo ha medido». Esto encaja con el gancho de mito (R2): se enuncia el mito y a los 3 s se aclara («Lo has oído mil veces, pero…»). Citar a un experto de viva voz solo si está verificado; nunca la fuente escrita en pantalla.
 
