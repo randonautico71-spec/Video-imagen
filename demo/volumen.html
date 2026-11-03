@@ -14,7 +14,7 @@
    ?modo=avion      avion de Madrid a Nueva York sobre el globo (vertical por defecto)
    ?modo=tierra     globo girando
    ?modo=maniqui    figura articulada que se levanta de una silla; &rayosx=1 cambia a plano tecnico a mitad
-   ?modo=vikingos   un barco vikingo llega a la costa, desembarcan y suben corriendo hacia el castillo (14 s)
+   ?modo=vikingos   un barco vikingo llega a la costa, desembarcan, suben bajo una lluvia de flechas y rompen la puerta del castillo (22,5 s)
    ?modo=piezas     catalogo de modelos (avion, silla, nube, arboles, maniqui en varias poses)
    &lienzo=yt|vertical &ss=1 */
 const Q = new URLSearchParams(location.search), modo = Q.get('modo') || 'avion', V = VE.vol, E = VE.ease;
@@ -33,7 +33,7 @@ function alto(x, z) {
   const d2 = (x / 32) ** 2 + ((z + 62) / 27) ** 2; h += 16 * Math.exp(-Math.pow(d2, 1.6));
   return h + (RN.fbm(x * 0.03 + 5, z * 0.03, 4) - 0.5) * 3 * Math.min(1, Math.max(0, (-zc - 6) / 20));
 }
-const VIK = { n: 8, barcoZ0: 85, barcoZ1: 9.2, llega: 6.0, puerta: [0, -45] };
+const VIK = { n: 8, barcoZ0: 85, barcoZ1: 9.2, llega: 6.0 };
 function barcoEn(t) { const p = VE.tramo(t, 0, VIK.llega, E.suaveSalida), z = VIK.barcoZ0 + (VIK.barcoZ1 - VIK.barcoZ0) * p, enc = VE.tramo(t, VIK.llega - 0.6, 0.8);
   return { z, y: 0.12 * Math.sin(t * 1.4) * (1 - enc) + 0.35 * enc, cab: 0.025 * Math.sin(t * 1.1) * (1 - enc) - 0.05 * enc, ala: 0.03 * Math.sin(t * 0.9) * (1 - enc) }; }
 function vikingoEn(i, t) {
@@ -45,8 +45,28 @@ function vikingoEn(i, t) {
   const [bx, bz] = mundo(0, 8.4);
   if (t < t2) { const k = (t - t1) / 0.75, x = bx + (aterriza[0] - bx) * k, z = bz + (aterriza[1] - bz) * k, y0 = cub + 0.9, y1 = alto(aterriza[0], aterriza[1]);
     return { x, z, y: y0 + (y1 - y0) * k + 2.2 * Math.sin(Math.PI * k) , pose: V.pose.mezclar('inclinado', V.pose.correr(0.25), Math.sin(Math.PI * k)), dir: Math.PI / 2, apoyo: false }; }
-  const dx = VIK.puerta[0] + (r() - 0.5) * 8 - aterriza[0], dz = VIK.puerta[1] - aterriza[1], L = Math.hypot(dx, dz), q = Math.min(L, (t - t2) * (4.2 + r() * 0.8)), x = aterriza[0] + dx * q / L, z = aterriza[1] + dz * q / L;
-  return { x, z, y: alto(x, z), pose: q < L ? V.pose.correr((t - t2) * 1.5 + r()) : V.pose.mezclar('de_pie', 'saludar', 0.6), dir: Math.atan2(-dz, dx) , apoyo: true };
+  // subida hacia el castillo. Papeles: 0, 3, 6 = hacheros contra la puerta; el resto se cubre con el escudo
+  const hachero = i % 3 === 0, slot = [-1.1, 0, 1.1][i / 3 | 0] || 0, vel = 4.2 + r() * 0.8;
+  const meta = hachero ? [slot, -46.85] : [(i % 2 ? 1 : -1) * (2.2 + r() * 2.5), -43.2 - r() * 2];
+  const dx = meta[0] - aterriza[0], dz = meta[1] - aterriza[1], L = Math.hypot(dx, dz), q = Math.min(L, (t - t2) * vel), x = aterriza[0] + dx * q / L, z = aterriza[1] + dz * q / L, llega = t2 + L / vel;
+  const rompe = t >= VIK.rompe;
+  if (q < L) return { x, z, y: alto(x, z), pose: V.pose.correr((t - t2) * 1.5 + r()), dir: Math.atan2(-dz, dx), apoyo: true, hachero, llega };
+  const pose = rompe ? V.pose.mezclar(hachero ? V.pose.hachazo(0.5) : 'cubrirse', 'saludar', VE.tramo(t, VIK.rompe + 0.3, 0.5)) : (hachero ? V.pose.hachazo((t - llega) * 1.3 + i * 0.3) : V.pose.mezclar(V.pose.correr(0.3), 'cubrirse', VE.tramo(t, llega, 0.35)));
+  return { x, z, y: alto(x, z), pose, dir: Math.PI / 2, apoyo: true, hachero, llega };
+}
+VIK.rompe = 20.3; VIK.dur = 22.5;
+/* Golpes en la puerta: instantes de impacto de los hacheros (fase 0,55 del hachazo) antes de que ceda. */
+function impactos(t) { const o = []; for (const i of [0, 3, 6]) { const e = vikingoEn(i, t); if (!e.llega || t < e.llega) continue;
+  for (let n = 0; ; n++) { const ti = e.llega + (n + 0.55 - ((i * 0.3) % 1)) / 1.3; if (ti > Math.min(t, VIK.rompe)) break; if (ti >= e.llega) o.push({ t: ti, x: [-1.1, 0, 1.1][i / 3 | 0], i, n }); } } return o; }
+/* Arqueros (coordenadas locales del castillo; el castillo esta en [0, yC, -62] y mira a +Z). */
+const ARQ = [[-10, 11, 12.4], [-7.4, 11, 12.4], [7.4, 11, 12.4], [10, 11, 12.4], [-3.6, 13.5, 13.4], [3.6, 13.5, 13.4], [-12.6, 16.5, 12.6], [12.6, 16.5, 12.6]];
+function flechas(t, yC) {
+  const out = []; ARQ.forEach((p, d) => { const r = VE.rng('arq' + d), fase = r() * 1.6;
+    for (let k = 0; ; k++) { const t0 = 9.6 + fase + k * 1.6; if (t0 > t || t0 > VIK.dur) break; const de = [p[0], yC + p[1] + 1.45, -62 + p[2] + 0.5];
+      const j = (d * 3 + k) % VIK.n, rr = VE.rng('fl' + d + '|' + k), dur0 = 1.4, e = vikingoEn(j, t0 + dur0);
+      const ax = e.x + (rr() - 0.5) * 4.5, az = e.z + (rr() - 0.5) * 4.5, dist = Math.hypot(ax - de[0], az - de[2]), dur = Math.max(0.55, dist / 26);
+      const f = V.efectos.flecha(de, [ax, alto(ax, az), az], t0, dur, t, { queda: 5 }); if (f) out.push(f); } });
+  return out;
 }
 const ESC = {
   vikingos(t) {
@@ -54,7 +74,16 @@ const ESC = {
     V.fondo.cielo(esc, { hora, horizonte: 0.5, nubes: 0.5 });
     const B = barcoEn(t), barco = V.modelos.barco_vikingo({ pos: [0, B.y, B.z], rot: [B.cab, Math.PI, B.ala], vela: t < VIK.llega - 1 ? true : 'recogida' });
     const hijos = [V.modelos.terreno({ alto, x0: -110, x1: 110, z0: -130, z1: 30, n: 180 }), V.modelos.mar({ t, color: '#1f6c9a', colorBorde: '#ffc2a0', alfa: 0.93 }), barco,
-      V.modelos.castillo({ pos: [0, alto(0, -62) - 0.6, -62], t })];
+      ];
+    // combate: puerta golpeada y rota, astillas, arqueros y flechas
+    const yC = alto(0, -48.5) - 0.25, imp = impactos(t), ult = imp.length ? imp[imp.length - 1].t : -9, golpe = Math.exp(-Math.max(0, t - ult) * 9) * (t < VIK.rompe ? 1 : 0);
+    hijos.push(V.modelos.castillo({ pos: [0, yC, -62], t, golpe, puerta: VE.tramo(t, VIK.rompe, 0.45, E.suaveSalida) }));
+    const sueloP = alto(0, -47);
+    for (const g of imp.slice(-6)) hijos.push(...V.efectos.astillas('ast' + g.i + '|' + g.n, [g.x * 0.7, sueloP + 1.4, -47.3], g.t, t, { n: 6, vel: 3.5, suelo: sueloP, vida: 1.2 }));
+    hijos.push(...V.efectos.astillas('rotura', [0, sueloP + 2.5, -47.3], VIK.rompe, t, { n: 46, vel: 7, suelo: sueloP, vida: 2.2, tam: 0.22 }));
+    ARQ.forEach((p, d) => { const r = VE.rng('arq' + d), f = (((t - 9.6 - r() * 1.6) / 1.6) % 1 + 1) % 1, tensa = t < 9.6 ? 0.3 : (f < 0.75 ? f / 0.75 : 1 - (f - 0.75) / 0.25);
+      hijos.push(V.modelos.defensor({ semilla: 'd' + d, pos: [p[0], yC + p[1], -62 + p[2]], rot: [0, -Math.PI / 2, 0], pose: Object.assign({}, V.poses.arquero, { codo_d: 95 + 55 * tensa, hombro_d: 85 + 7 * tensa }) })); });
+    hijos.push(...flechas(t, yC));
     const vk = []; for (let i = 0; i < VIK.n; i++) { const e = vikingoEn(i, t); vk.push(e);
       hijos.push(V.modelos.vikingo({ semilla: 'v' + i, pose: e.pose, pos: [e.x, e.apoyo ? 0 : e.y, e.z], rot: [0, e.dir, 0], apoyo: e.apoyo ? 'pies' : null, suelo: e.y })); }
     // camara: 1) persigue al barco  2) en la playa viendo el desembarco  3) detras del grupo subiendo hacia el castillo
@@ -62,11 +91,14 @@ const ESC = {
     const tomas = [
       { pos: [5.5, 3.6, B.z + 21], mira: [-1.5, 4.5, B.z - 25] },
       { pos: [13, 2.4, -12], mira: [0, 2.2, 1] },
-      { pos: [lider.x + 6, lider.y + 6.5, lider.z + 19], mira: [lider.x * 0.3, lider.y + 9, lider.z - 30] }];
-    const k1 = VE.tramo(t, 4.8, 1.4), k2 = VE.tramo(t, 10.4, 1.4);
+      { pos: [lider.x + 6, lider.y + 6.5, lider.z + 19], mira: [lider.x * 0.3, lider.y + 9, lider.z - 30] },
+      { pos: [9 - 1.2 * VE.tramo(t, 19, 3), alto(0, -42) + 2.4, -36 + 1.5 * VE.tramo(t, 19, 3)], mira: [-1, alto(0, -46) + 5.6, -48] }];
+    const k1 = VE.tramo(t, 4.8, 1.4), k2 = VE.tramo(t, 10.4, 1.4), k3 = VE.tramo(t, 15.6, 1.6);
     const mez = (a, b, k) => ({ pos: V.v3.mezcla(a.pos, b.pos, k), mira: V.v3.mezcla(a.mira, b.mira, k) });
-    const c = mez(mez(tomas[0], tomas[1], k1), tomas[2], k2), cam = V.camara({ pos: c.pos, mira: c.mira, fov: 52, cerca: 0.1, lejos: 1500 });
-    const centro = V.v3.mezcla(V.v3.mezcla([0, 1, B.z], [0, 1, -4], k1), [lider.x, lider.y, lider.z - 6], k2);
+    const c = mez(mez(mez(tomas[0], tomas[1], k1), tomas[2], k2), tomas[3], k3), tb = Math.exp(-Math.max(0, t - VIK.rompe) * 4) * (t > VIK.rompe ? 0.22 : 0) + golpe * 0.04;
+    c.pos = V.v3.sum(c.pos, [Math.sin(t * 61) * tb, Math.sin(t * 47 + 1) * tb, 0]);
+    const cam = V.camara({ pos: c.pos, mira: c.mira, fov: 52, cerca: 0.1, lejos: 1500 });
+    const centro = V.v3.mezcla(V.v3.mezcla(V.v3.mezcla([0, 1, B.z], [0, 1, -4], k1), [lider.x, lider.y, lider.z - 6], k2), [0, alto(0, -46) + 2, -45], k3);
     V.render(esc, V.nodo({ hijos }), cam, { ambiente: { base: 'atardecer', luz: { dir: [0.55, 0.42, -0.72], intensidad: 1.35 }, cielo: '#c9a8c0', suelo: '#7a6a50', ambiente: 0.62 },
       sombras: { centro, radio: 16 }, niebla: { color: HO.niebla, cerca: 70, lejos: 520 } });
   },

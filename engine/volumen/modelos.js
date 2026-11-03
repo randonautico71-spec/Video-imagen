@@ -154,6 +154,8 @@
     sentado:  { tronco: -4, cuello: 0, cadera_d: 90, cadera_i: 88, rodilla_d: 88, rodilla_i: 86, tobillo_d: 0, tobillo_i: 0, hombro_d: 8, hombro_i: 4, codo_d: 58, codo_i: 52, abrir: 8 },
     inclinado:{ tronco: 44, cuello: -14, cadera_d: 96, cadera_i: 94, rodilla_d: 112, rodilla_i: 110, tobillo_d: 18, tobillo_i: 18, hombro_d: 30, hombro_i: 26, codo_d: 50, codo_i: 46, abrir: 6 },
     saludar:  { tronco: 0, cuello: -4, cadera_d: 0, cadera_i: 0, rodilla_d: 0, rodilla_i: 0, tobillo_d: 0, tobillo_i: 0, hombro_d: 150, hombro_i: -4, codo_d: 40, codo_i: 10, abrir: 20 },
+    cubrirse: { tronco: 14, cuello: -6, cadera_d: 30, cadera_i: 10, rodilla_d: 40, rodilla_i: 30, tobillo_d: 0, tobillo_i: 0, hombro_d: 20, hombro_i: 165, codo_d: 60, codo_i: 20, abrir: 10 },
+    arquero:  { tronco: 4, cuello: 0, cadera_d: 8, cadera_i: -6, rodilla_d: 6, rodilla_i: 4, tobillo_d: 0, tobillo_i: 0, hombro_d: 92, hombro_i: 96, codo_d: 150, codo_i: 4, abrir: 0 },
     pensar:   { tronco: 6, cuello: 12, cadera_d: 0, cadera_i: 0, rodilla_d: 0, rodilla_i: 0, tobillo_d: 0, tobillo_i: 0, hombro_d: 30, hombro_i: 20, codo_d: 140, codo_i: 70, abrir: 4 }
   };
   V.pose = {
@@ -162,6 +164,9 @@
     andar(fase, amp = 1) { const s = Math.sin(fase * 2 * PI), c = Math.cos(fase * 2 * PI);
       return { tronco: 4 * amp, cuello: -2, cadera_d: 24 * s * amp, cadera_i: -24 * s * amp, rodilla_d: (12 + 28 * Math.max(0, -c)) * amp, rodilla_i: (12 + 28 * Math.max(0, c)) * amp,
         tobillo_d: 0, tobillo_i: 0, hombro_d: -22 * s * amp, hombro_i: 22 * s * amp, codo_d: 20, codo_i: 20, abrir: 6 }; },
+    /* Golpe de hacha (fase en vueltas): sube el brazo derecho y lo baja de golpe; el impacto es en fase 0,55. */
+    hachazo(fase) { const f = ((fase % 1) + 1) % 1, k = f < 0.45 ? f / 0.45 : (f < 0.55 ? 1 - (f - 0.45) / 0.1 : 0), s = k * k * (3 - 2 * k);
+      return { tronco: 18 - 22 * s, cuello: -8, cadera_d: 30, cadera_i: -5, rodilla_d: 25, rodilla_i: 10, tobillo_d: 0, tobillo_i: 0, hombro_d: 50 + 120 * s, hombro_i: 60, codo_d: 20 + 40 * s, codo_i: 70, abrir: 8 }; },
     correr(fase, amp = 1) { const s = Math.sin(fase * 2 * PI), c = Math.cos(fase * 2 * PI);
       return { tronco: 14 * amp, cuello: -8, cadera_d: 50 * s * amp, cadera_i: -50 * s * amp, rodilla_d: (30 + 70 * Math.max(0, -c)) * amp, rodilla_i: (30 + 70 * Math.max(0, c)) * amp,
         tobillo_d: 0, tobillo_i: 0, hombro_d: -50 * s * amp, hombro_i: 50 * s * amp, codo_d: 90, codo_i: 90, abrir: 8 }; }
