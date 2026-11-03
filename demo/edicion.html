@@ -12,7 +12,7 @@
 <script>
 /* Revision del lenguaje de edicion editorial (VE.ed) sobre escenas 3D (VE.vol). renderAt(t), 16 s:
    0-5 globo y ruta (dato, etiquetas, ondas) -> zoom a traves -> 5-9 avion (lupa sobre el motor) -> 9-13 maniqui dormido (medida, ondas, aliento)
-   -> 13-16 cierre con el movil. Subtitulos editoriales con tiempos inventados (en un video real salen de la voz). */
+   -> 13-18 cierre: movil «Envialo» y despues el letrero SIGUE A @randonautico. Subtitulos editoriales con tiempos inventados (en un video real salen de la voz). */
 const Q = new URLSearchParams(location.search), V = VE.vol, E = VE.ease, ED = VE.ed;
 const esc = VE.crearEscenario({ formato: Q.get('lienzo') || 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') }), W = esc.W, H = esc.H;
 const TXT = 'De Madrid a Nueva York hay 5.770 kilómetros en línea recta. Un avión los cruza mientras tú duermes, y tu cuerpo sigue trabajando: respira, late y vigila. Envíaselo a alguien que todavía no lo sabía.';
@@ -30,7 +30,7 @@ function globo(t) {
   ED.ondas(esc, pm.x, pm.y, t, { color: ED.COL.cian, radio: 90, achatado: 0.6, a: VE.tramo(t, pw('madrid'), 0.4) });
   ED.etiqueta(esc, { x: pm.x, y: pm.y, tx: pm.x + 120 * esc.k, ty: pm.y - 110 * esc.k, texto: 'Madrid', a: VE.tramo(t, pw('madrid'), 0.7) });
   ED.etiqueta(esc, { x: pn.x, y: pn.y, tx: pn.x - 90 * esc.k, ty: pn.y - 130 * esc.k, texto: 'Nueva York', a: VE.tramo(t, pw('nueva'), 0.7) });
-  ED.dato(esc, { num: '5.770', etiqueta: 'km en línea recta', fuente: 'gran círculo, radio 6.371 km', x: 90 * esc.k, y: 330 * esc.k, a: VE.tramo(t, pw('5.770'), 0.6), tam: 120 });
+  ED.dato(esc, { num: '5.770', etiqueta: 'km en línea recta', x: 90 * esc.k, y: 330 * esc.k, a: VE.tramo(t, pw('5.770'), 0.6), tam: 120 });
   return cam;
 }
 function avion(t) {
@@ -69,7 +69,7 @@ window.renderAt = (t) => {
   if (t >= 4.7 && t < 9.3) { x.save(); x.globalAlpha = t < 5.3 ? VE.tramo(t, 4.9, 0.4) : 1; ED.zoom(esc, { cx: W * 0.5, cy: H * 0.5, escala: 1 + 1.8 * tr2, centrar: tr2 }, () => avion(t)); x.restore(); }
   if (t >= 8.7) { x.save(); x.globalAlpha = VE.tramo(t, 8.9, 0.4); dormido(t); x.restore(); }
   ED.vineta(esc, { arriba: 0.3, bordes: 0.45 });
-  if (t >= 13) { const cap = ED.captura(esc, 'cierre'); x.fillStyle = `rgba(8,9,12,${0.85 * VE.tramo(t, 13, 0.5)})`; x.fillRect(0, 0, W, H); ED.movil(esc, t, 13.2, { captura: cap }); }
+  if (t >= 13) ED.cierre(esc, t, 13, { captura: ED.captura(esc, 'cierre') });
   ED.subtitulos(esc, grupos, t, { clave: ['5.770', 'duermes,', 'trabajando:', 'envíaselo'], marca: 'RANDONAUTICO' });
   ED.grano(esc, t, 0.05);
 };

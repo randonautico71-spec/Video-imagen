@@ -1,10 +1,10 @@
 /* EDICION «EDITORIAL»: el lenguaje de montaje de los cortos divulgativos de referencia (analizados en docs/GUIA_IMAGEN.md):
    subtitulos ARRIBA palabra a palabra con la palabra clave enmarcada como una seleccion de texto, etiquetas con linea guia,
-   ondas concentricas, tarjetas de datos con fuente (y tachado cuando se desmiente), regla de medida, lupa, chip de fecha,
+   ondas concentricas, tarjetas de datos (y tachado cuando se desmiente; SIN fuente en pantalla: regla del usuario), regla de medida, lupa, chip de fecha,
    particulas, grano y vineta, zoom continuo entre planos y cierre con el movil «Envialo». Todo es funcion de t y sin filtros por fotograma.
      VE.ed.subtitulos(esc, grupos, tg, {clave, y, tam, marca})   (el runner lo usa con subtitulos: {estilo: 'editorial'})
-     VE.ed.dato(esc, {num, etiqueta, fuente, x, y, a, tachado, color})
-     VE.ed.tarjeta(esc, {x, y, a, columnas: [{num, etiqueta, fuente, color}]})
+     VE.ed.dato(esc, {num, etiqueta, x, y, a, tachado, color})
+     VE.ed.tarjeta(esc, {x, y, a, columnas: [{num, etiqueta, color}]})
      VE.ed.etiqueta(esc, {x, y, tx, ty, texto, sub, a, color})           punto anclado (x, y) y texto en (tx, ty)
      VE.ed.ondas(esc, x, y, t, {color, n, radio, periodo, ancho, achatado, a})
      VE.ed.medida(esc, x, y0, y1, texto, {a, color, lado})
@@ -16,7 +16,8 @@
      VE.ed.chorro(esc, semilla, t, {x, y, dir, n, color, tam, vida, a})   burbujas o aliento que salen de un punto
      VE.ed.grano(esc, t, fuerza) · VE.ed.vineta(esc, {arriba, bordes})
      VE.ed.zoom(esc, {cx, cy, escala}, dibujar)                          camara 2D: ampliar hacia un punto (transiciones «a traves»)
-     VE.ed.movil(esc, t, t0, {captura, contactos, texto})                cierre: movil con hoja de compartir y dedo que pulsa
+     VE.ed.movil(esc, t, t0, {captura, contactos, texto})                movil con hoja de compartir y dedo que pulsa (dura ~2,4 s)
+     VE.ed.cierre(esc, t, t0, {captura, handle})                         CIERRE DE SHORT: movil «Envialo» y DESPUES el letrero «SIGUE A @randonautico» (no lo sustituye)
    Paleta por defecto: seleccion azul #5b8cff, rojo #ff4d5e, verde #5be08a, texto blanco y gris. */
 (function (VE) {
   const D = VE.ed = {}, PI = Math.PI, E = VE.ease, c01 = (v) => Math.max(0, Math.min(1, v));
@@ -67,8 +68,7 @@
     const tn = fuente(esc, o.tam || 110, 700); const wn = x.measureText(o.num).width;
     x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillText(o.num, 3 * k, 4 * k); x.fillStyle = o.color || '#fff'; x.fillText(o.num, 0, 0);
     if (o.tachado) { const p = c01(o.tachado); x.strokeStyle = COL.rojo; x.lineWidth = 9 * k; x.lineCap = 'round'; x.beginPath(); x.moveTo(-8 * k, tn * 0.12); x.lineTo(-8 * k + (wn + 16 * k) * p, tn * 0.12 - tn * 0.3 * p); x.stroke(); }
-    fuente(esc, (o.tam || 110) * 0.3, 600); x.fillStyle = '#fff'; x.fillText(o.etiqueta || '', wn + 18 * k, o.fuente ? -6 * k : 0);
-    if (o.fuente) { fuente(esc, (o.tam || 110) * 0.2, 500); x.fillStyle = 'rgba(255,255,255,0.55)'; x.fillText(o.fuente, wn + 18 * k, (o.tam || 110) * 0.26 * k); }
+    fuente(esc, (o.tam || 110) * 0.3, 600); x.fillStyle = '#fff'; x.fillText(o.etiqueta || '', wn + 18 * k, 0);   // la fuente va en datos.md, nunca en pantalla
     x.restore();
   };
   D.tarjeta = function (esc, o) {
@@ -78,8 +78,7 @@
     cols.forEach((c, i) => { const cx = -W / 2 + cw * (i + 0.5);
       if (i) { x.strokeStyle = 'rgba(255,255,255,0.12)'; x.beginPath(); x.moveTo(-W / 2 + cw * i, -h * 0.35); x.lineTo(-W / 2 + cw * i, h * 0.35); x.stroke(); }
       fuente(esc, 84, 700); x.fillStyle = c.color || '#fff'; x.fillText(c.num, cx, -h * 0.16);
-      fuente(esc, 26, 600); x.fillStyle = '#fff'; x.fillText(c.etiqueta || '', cx, h * 0.17);
-      if (c.fuente) { fuente(esc, 19, 500); x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillText(c.fuente, cx, h * 0.33); } });
+      fuente(esc, 26, 600); x.fillStyle = '#fff'; x.fillText(c.etiqueta || '', cx, h * 0.2); });
     x.restore();
   };
   D.etiqueta = function (esc, o) {
@@ -199,5 +198,12 @@
     x.fillStyle = g; redondo(x, -38 * k, 0, 76 * k, 360 * k, 38 * k); x.fill(); x.fillStyle = 'rgba(255,240,230,0.6)'; redondo(x, -22 * k, 12 * k, 44 * k, 54 * k, 20 * k); x.fill();
     x.restore();
     if (t > t0 + 1.75 && t < t0 + 2.3) { const f = (t - t0 - 1.75) / 0.55; x.save(); x.strokeStyle = COL.verde; x.globalAlpha = 1 - f; x.lineWidth = 4 * k; x.beginPath(); x.arc(cx, by, (40 + f * 120) * k, 0, 7); x.stroke(); x.restore(); }
+  };
+  /* Cierre de un SHORT: oscurece, movil «Envialo» (t0 .. t0+2,6) y a continuacion el letrero de VE.short (desde t0+2,6). */
+  D.cierre = function (esc, t, t0, o = {}) {
+    if (t < t0) return; const x = esc.ctx, tl = t0 + (o.duracionMovil || 2.6);
+    x.save(); x.fillStyle = `rgba(8,9,12,${0.85 * c01((t - t0) / 0.5)})`; x.fillRect(0, 0, esc.W, esc.H); x.restore();
+    if (t < tl + 0.4) { x.save(); x.globalAlpha *= 1 - c01((t - tl) / 0.4); D.movil(esc, t, t0 + 0.2, { captura: o.captura }); x.restore(); }
+    if (t >= tl) VE.short.letrero(esc, t, tl + 0.15, { handle: o.handle || '@randonautico', cy: o.cy || esc.H * 0.45 });
   };
 })(window.VE = window.VE || {});

@@ -21,7 +21,7 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
 - **Bloques de 8–15 s**, uno por idea (truco, dato, paso). Cada bloque = una escena con su propio gráfico.
 - Mezclar **datos curiosos** y una **pregunta abierta** a mitad. Cerrar con una pregunta para comentarios y «guarda este vídeo».
 - Lenguaje viral: frases cortas, segunda persona, números («cuatro trucos»), «ojo», «dato loco». **Nada de cifras o afirmaciones sin fuente.**
-- Últimos 3–4 s: **letrero** `VE.short.letrero(esc, t, tInicio)` (la palabra «sigue» marca cuándo entra).
+- Cierre (últimos ~5 s): `VE.ed.cierre(esc, t, t0, {captura})` = móvil «Envíaselo» (~2,6 s) y **después** el **letrero** «SIGUE A @randonautico». El móvil NO sustituye al letrero (decisión del usuario). Sin móvil: solo `VE.short.letrero(esc, t, tInicio)` (la palabra «sigue» marca cuándo entra).
 
 ## Diseño visual (herramientas del motor)
 - **Fondo**: un paisaje real por escena con `VE.real.paisaje(...)` (hora del día acorde al tema) y objetos con `VE.real.objeto(...)`.
