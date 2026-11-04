@@ -15,7 +15,7 @@
   MO.cama = (o = {}) => {
     const madera = { color: '#5d3f2b', esp: 0.2, dureza: 30, envolver: 0.4 };
     return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, hijos: [
-      nodo({ malla: MA.caja(1.28, 0.3, 2.34, 0.09, 5), pos: [0, -0.15, 0.0], mat: { color: '#cdd8e6', esp: 0.05, envolver: 0.5 } }),         // colchon (cara superior en y = 0)
+      nodo({ malla: MA.caja(1.28, 0.3, 2.34, 0.09, 5), pos: [0, -0.15, 0.0], mat: { color: '#6f86a8', esp: 0.05, envolver: 0.5 } }),         // colchon (cara superior en y = 0)
       nodo({ malla: MA.caja(1.42, 0.3, 2.5, 0.04, 4), pos: [0, -0.45, 0.0], mat: madera }),                                                   // somier
       nodo({ malla: MA.caja(1.42, 1.0, 0.1, 0.04, 4), pos: [0, 0.2, -1.27], mat: madera }),                                                  // cabecero
       nodo({ malla: MA.caja(0.66, 0.15, 0.44, 0.07, 5), pos: [0, 0.075, -0.8], mat: { color: '#f4f6fa', esp: 0.05, envolver: 0.5 } }) ] });  // almohada
@@ -41,9 +41,9 @@
       nodo({ malla: MA.capsula(0.055, 0.048, 0.3, 14), rot: [-PI / 2, 0, 0], mat: matCam }),
       nodo({ malla: MA.capsula(0.045, 0.036, 0.3, 14), pos: [0, 0, 0.3], rot: [-PI / 2, 0, 0], mat: matPiel }),
       nodo({ malla: MA.esfera(14), esc: [0.04, 0.03, 0.05], pos: [0, 0, 0.67], mat: matPiel }) ] });
-    const torso = nodo({ malla: MA.esfera(24), esc: [0.25, 0.1, 0.34], pos: [0, 0.095, -0.16], mat: matCam });                      // pecho bajo la sabana (solo asoma la camiseta)
+    const torso = nodo({ malla: MA.esfera(24), esc: [0.24, 0.062, 0.27], pos: [0, 0.05, -0.4], mat: matCam });                      // pecho bajo la sabana (solo asoma la camiseta)
     const sabana = nodo({ malla: MA.parametrica(56, 72, (u, v) => { const x = -0.74 + 1.48 * u, z = -0.4 + 1.54 * v; return [x, alturaSabana(x, z, bulto, resp), z]; }, { dinamica: 'sabana_' + (o.id || 0), abierta: true }),
-      mat: { color: o.sabana || '#e7edf6', esp: 0.06, dureza: 12, envolver: 0.55, dobleCara: true } });
+      mat: { color: o.sabana || '#f1f3f7', esp: 0.06, dureza: 12, envolver: 0.55, dobleCara: true } });
     return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, hijos: [cabeza, torso, brazo(1), brazo(-1), sabana] });
   };
 
@@ -51,7 +51,7 @@
   const cerebroSup = (lado) => MA.parametrica(48, 36, (u, v) => {
     const th = u * TAU, fi = v * PI, r = 1 + 0.055 * Math.sin(7 * th + 2 * lado) * Math.sin(fi * 6) + 0.035 * Math.sin(11 * th) * Math.sin(fi * 9 + 1);
     const x = Math.sin(fi) * Math.cos(th), y = Math.cos(fi), z = Math.sin(fi) * Math.sin(th);
-    return [lado * 0.42 + x * 0.52 * r * (lado * x > 0 ? 0.92 : 1), y * 0.52 * r * 0.88, z * 0.42 * r * 1.15]; }, { clave: 'sueno|cerebro|' + lado });
+    return [lado * 0.3 + x * 0.36 * r, y * 0.4 * r, z * 0.56 * r]; }, { clave: 'sueno|cerebro|' + lado });
   MO.cerebro = (o = {}) => {
     const t = o.t || 0, al = o.alerta == null ? 0.5 : o.alerta, de = o.descanso == null ? 0.5 : o.descanso, rosa = { color: '#e8a3ad', esp: 0.4, dureza: 30, envolver: 0.45 };
     const brillo = (c, a, pos, r) => nodo({ malla: MA.esfera(14), esc: r, pos, mat: { color: c, tipo: 'plano', alfa: a } });
