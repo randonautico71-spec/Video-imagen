@@ -31,7 +31,7 @@ Ejemplos ya hechos y revisados en fotogramas (están en `proyectos/`, que no se 
 
 ```
 TIPO          batalla | futbol | otro (describir)
-FORMATO       short (1080x1920, 30 fps, 1–3 min) [por defecto] | largo (16:9)
+FORMATO       short (1080x1920, 30 fps, 60–90 s) [por defecto] | largo (16:9)
 SUCESO        qué, cuándo, dónde (con fuente)
 BANDOS        nombres, colores de equipación o librea, armas y armaduras de la época (con nivel V / V* / X)
 TERRENO       elementos clave que explican el suceso (río, puente, colina, pantano, área, portería…)
@@ -46,7 +46,7 @@ LICENCIAS     lo que se inventa o se aproxima y cómo se avisa
 ## 4. Guion narrado (`guion.md`: 1 párrafo = 1 escena = 1 plano)
 
 ### 4.1 Batallas: «cómo sucedió en ese momento»
-Narración en **presente histórico**, con tono de documental, frases cortas y lenguaje vivo, pero **solo con hechos de `datos.md`**. Estructura de un short de 60–120 s:
+Narración en **presente histórico**, con tono de documental, frases cortas y lenguaje vivo, pero **solo con hechos de `datos.md`**. Estructura de un short de **60–90 s** (unas 150–230 palabras; con Carmen, 172 palabras = 68 s):
 
 | Bloque | Contenido | Plano típico |
 |---|---|---|
@@ -78,7 +78,7 @@ La misma plantilla: gancho → contexto → escenario → fases → giro → des
 
 Flujo de `docs/TIPO_SHORT.md`, paso 4:
 1. `python3 pipeline/vid.py nuevo <tema> --tipo short` → escribir `guion.md`, `datos.md` y `ficha.md`.
-2. `python3 pipeline/vid.py estimar <tema>`: la duración debe caer entre 1:00 y 3:00.
+2. `python3 pipeline/vid.py estimar <tema>`: la duración debe caer **entre 60 y 90 s**. Se pone `"duracion_objetivo_s": [60, 90]` en `meta.json` para que el motor avise; si se pasa, se recorta el guion antes de generar la voz.
 3. `python3 pipeline/vid.py voz <tema>` la primera vez: crea `salida/locucion.txt` con el texto limpio y dice qué falta.
 4. **ElevenLabs** (gasta créditos):
    - `creative_generate_speech` con `voice_id = iHGx33VgO2KQ1Fdw6noG` (**Carmen**, peninsular) y `model_id = eleven_v4`.
@@ -212,5 +212,5 @@ Progreso en `video_mudo.mp4.progreso/progreso.txt`. Si se corta, repetir **el mi
 - [ ] Nadie enterrado ni flotando; el balón no atraviesa la red; los caídos quedan tendidos sobre el suelo.
 - [ ] Encuadres: el protagonista centrado y sin tapar; la portería o el elemento clave dentro del plano; la cámara fuera de las formaciones.
 - [ ] El momento visual cae en la palabra que lo nombra; los rótulos no chocan con los subtítulos.
-- [ ] Voz: `estimate_only` hecho y coste comunicado; `generations_count = 1`; duración entre 1:00 y 3:00.
+- [ ] Voz: `estimate_only` hecho y coste comunicado; `generations_count = 1`; duración entre 60 y 90 s.
 - [ ] El MP4 ligero pesa menos de 10 MB.
