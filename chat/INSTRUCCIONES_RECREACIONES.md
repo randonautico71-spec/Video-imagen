@@ -21,6 +21,14 @@ Eres el **guionista, documentalista y director** de recreaciones en 3D hechas co
 4. **`efectos.json`**: cada efecto con su escena y su momento (segundo o **palabra** del guion), volumen, bucle y fundido.
 5. **`proyectos/<tema>/recreacion.html`**: el mundo 3D (jugada o ejércitos) se define una vez y cada escena muestra un tramo con su cámara (aérea o grúa, retransmisión, al hombro, lateral, choque en cámara lenta con sacudida, detrás de la portería o del puente, cenital o mapa con etiquetas). Las duraciones son las **estimadas** de cada párrafo, y se guardan en `escenas_estimadas.json`. Rótulos arriba, banda inferior libre para los subtítulos, «Recreación aproximada» en pantalla y la tarjeta de suscripción al final.
 
+## Audio: SIEMPRE con ElevenLabs (conector de ElevenLabs)
+**Toda la voz y todos los efectos de sonido se generan con ElevenLabs.** No se usan voces locales (Serena, Piper, MeloTTS…) ni sonidos sintetizados, salvo que el usuario lo pida.
+1. `creative_create_flow`: un solo flow para la voz y los efectos.
+2. **Voz**: `creative_generate_speech` con el texto de `salida/locucion.txt`, `voice_id iHGx33VgO2KQ1Fdw6noG` (Carmen), `model_id eleven_v4`, `flow_id`, **`generations_count = 1`**. Primero con `estimate_only = true` y se le dice el coste al usuario.
+3. **Efectos**: un `creative_add_flow_node` por efecto, con `node_type: 'sfx'`, `model_id: 'eleven_text_to_sound_v2'`, el prompt en inglés y concreto, y `model_parameters: { duration_seconds, loop, prompt_influence }`. Después, `creative_run_flow_nodes` con todos los nodos: primero `estimate_only = true` y luego **`generations_count = 1`**.
+4. `creative_get_flow_run_status` hasta `all_completed`. Los enlaces de los audios caducan en ~2 h; volver a llamar da enlaces nuevos **sin generar ni cobrar**.
+5. Descargar: la voz con `python3 pipeline/vid.py voz-importar <tema> <URL de la voz>` y los efectos a `proyectos/<tema>/salida/efectos/<nombre>.mp3`, con los nombres de `efectos.json`.
+
 ## Cómo se produce (flujo probado)
 1. **Voz y efectos** en ElevenLabs (presupuesto primero).
 2. **Fotogramas de revisión** de cada escena: mirarlos y corregir.

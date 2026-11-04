@@ -74,6 +74,8 @@ La misma plantilla: gancho → contexto → escenario → fases → giro → des
 
 ## 5. Voz con ElevenLabs (como en los demás shorts)
 
+**Todo el audio de una recreación (la voz y los efectos de sonido) se genera con ElevenLabs**, con su conector. No se usan voces locales ni sonidos sintetizados, salvo que el usuario lo pida.
+
 Flujo de `docs/TIPO_SHORT.md`, paso 4:
 1. `python3 pipeline/vid.py nuevo <tema> --tipo short` → escribir `guion.md`, `datos.md` y `ficha.md`.
 2. `python3 pipeline/vid.py estimar <tema>`: la duración debe caer entre 1:00 y 3:00.
