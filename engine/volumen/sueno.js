@@ -48,10 +48,10 @@
   };
 
   /* ---------------------------------------------------------------- cerebro estilizado */
-  const cerebroSup = (lado) => MA.parametrica(48, 36, (u, v) => {
-    const th = u * TAU, fi = v * PI, r = 1 + 0.055 * Math.sin(7 * th + 2 * lado) * Math.sin(fi * 6) + 0.035 * Math.sin(11 * th) * Math.sin(fi * 9 + 1);
+  const cerebroSup = (lado) => MA.parametrica(64, 48, (u, v) => {
+    const th = u * TAU, fi = v * PI, r = 1 + 0.02 * Math.sin(5 * th + 2 * lado) * Math.sin(fi * 4);
     const x = Math.sin(fi) * Math.cos(th), y = Math.cos(fi), z = Math.sin(fi) * Math.sin(th);
-    return [lado * 0.3 + x * 0.36 * r, y * 0.4 * r, z * 0.56 * r]; }, { clave: 'sueno|cerebro|' + lado });
+    return [lado * 0.3 + x * 0.36 * r, y * 0.4 * r, z * 0.56 * r]; }, { clave: 'sueno|cerebro2|' + lado });
   MO.cerebro = (o = {}) => {
     const t = o.t || 0, al = o.alerta == null ? 0.5 : o.alerta, de = o.descanso == null ? 0.5 : o.descanso, rosa = { color: '#e8a3ad', esp: 0.4, dureza: 30, envolver: 0.45 };
     const brillo = (c, a, pos, r) => nodo({ malla: MA.esfera(14), esc: r, pos, mat: { color: c, tipo: 'plano', alfa: a } });
