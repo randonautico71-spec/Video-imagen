@@ -196,7 +196,8 @@ function pintar(esc, ctx, plano, tm) {
 
 - Un short de 90 s con batalla son del orden de **3 horas de render** con 4 procesos. Se puede reducir con menos figuras en los planos generales, menos píxeles cubiertos, o reservando el 3D a las escenas que lo necesitan (las demás con `VE.real`).
 - El primer fotograma de cada proceso tarda más, porque hornea las texturas y las mallas.
-- Renders largos en Code: lanzarlos en segundo plano y vigilar `<salida>.progreso/`. Si el contenedor se reinicia, el render se pierde y hay que relanzarlo.
+- **Renders largos (más de ~20 min): siempre en modo reanudable y separados de la sesión.** Con `setsid nohup node render/demo.cjs ... --trozo 75 > log 2>&1 &`, cada trozo de 75 fotogramas se guarda al terminar; si el render se corta (límite de 2 h de una tarea en segundo plano, reinicio del contenedor), repetir **el mismo comando** salta los trozos hechos. El progreso está en `<salida>.progreso/progreso.txt`.
+- Errores vistos en esta prueba: el render sin trozos murió al llegar al límite de 2 h de la tarea que lo lanzó (se perdieron 3 de 4 tramos, porque un MP4 a medias no se puede leer). Además, un vigilante con `pgrep -f render/demo.cjs` se encontraba **a sí mismo** (su propia orden contiene ese texto) y creía que el render seguía vivo: hay que vigilar el PID (`kill -0 <pid>`).
 
 ## 10. Lista de revisión (fotogramas: un still por escena y en cada momento clave)
 
