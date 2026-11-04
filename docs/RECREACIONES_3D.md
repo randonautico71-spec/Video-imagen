@@ -89,6 +89,14 @@ Flujo de `docs/TIPO_SHORT.md`, paso 4:
 
 Música: el estilo del perfil (`curiosos` en los shorts) sin cambiarlo; `vid.py musica` y `vid.py mezcla`.
 
+### 5.1 Efectos de sonido (ElevenLabs) y montaje del audio sin repetir el render
+- **Efectos**: nodos `sfx` con el modelo `eleven_text_to_sound_v2` en el **mismo flow** que la voz (`creative_add_flow_node` con `model_parameters: {duration_seconds, loop, prompt_influence}`). Después, `creative_run_flow_nodes` con **`estimate_only`** primero y **`generations_count = 1`**. Medido: 6 efectos (4–20 s) = 206 créditos, y la voz de 68 s = 996. Prompts en inglés, concretos: «column of armoured knights crossing a wooden bridge: hooves on planks, chainmail…», «spears striking shields, horses neighing in panic…», «soldiers falling from a bridge into a river: heavy splashes…». Un ambiente en bucle (`loop: true`) va debajo de todo.
+- **Flujo para no repetir el render 3D** (~1 h):
+  1. Se renderiza el vídeo **mudo** con la duración **estimada** de cada escena: la duración de la voz repartida por los caracteres de cada párrafo, más la cola en la última. Se guarda en `escenas_estimadas.json`.
+  2. Cuando llega el audio: `vid.py voz-importar <tema> <audio>` (alinea la voz) y, opcionalmente, `vid.py musica <tema>`.
+  3. `python3 pipeline/recreacion_audio.py <tema>`: reajusta cada escena a la duración real de su párrafo (cambio de velocidad pequeño), quema los subtítulos (Fredoka 700, palabra resaltada, por encima de la zona segura inferior), coloca los efectos de `efectos.json` (por escena, segundo o **palabra** del guion; bucles; volumen; fundidos), mezcla voz + efectos + música (con ducking bajo la voz) a los LUFS del perfil y saca el pesado y el ligero.
+- **Red**: los audios de ElevenLabs se descargan ahora desde **`elevenlabsusercontent.com`** (antes, `storage.googleapis.com`). Si el entorno no lo tiene en *Allowed domains*, el conector genera bien pero la descarga falla con `000` o `403`: añadir el dominio, o bajar los audios desde el flow y adjuntarlos. Los enlaces caducan en ~2 h; `creative_get_flow_run_status` da enlaces nuevos sin generar ni cobrar nada.
+
 ## 6. Planos de cámara (todos dependen solo de `t`)
 
 | Plano | Para qué | Cómo (`V.camara` / `F.planos`) |
