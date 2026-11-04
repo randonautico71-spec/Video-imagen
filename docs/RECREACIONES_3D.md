@@ -57,7 +57,7 @@ Narración en **presente histórico**, con tono de documental, frases cortas y l
 | **El giro** | La decisión táctica o el error que cambia la batalla | Plano cenital o aéreo del momento |
 | **Desenlace** | Cómo termina y qué pasa con los protagonistas (solo lo verificado) | Plano del final (río, desbandada…) |
 | **Consecuencias y dato curioso** | Qué cambió después; un dato poco conocido y verificado | Mapa aéreo con etiquetas |
-| **Cierre** | Una pregunta para comentarios y, en los últimos 3–4 s, el letrero «SIGUE A @randonautico» (la palabra «sigue» marca cuándo entra) | Plano final |
+| **Cierre** | Una pregunta para comentarios y la frase final **«Para más contenido como este, no olvides suscribirte.»** En los últimos 3–4 s aparece la tarjeta **«NO OLVIDES / SUSCRIBIRTE»** (`VE.short.letrero(esc, t, tInicio, { texto: 'NO OLVIDES', handle: 'SUSCRIBIRTE' })`), que entra con la palabra «suscribirte». **No se usa el letrero «SIGUE A @randonautico».** | Plano final (mapa o vista general) |
 
 - **Números**: solo con fuente. Si el número de soldados es dudoso, en el vídeo es **simbólico** y la narración no da cifras o da el rango con «según…».
 - **Sin diálogos inventados** puestos en boca de personajes reales.
@@ -113,40 +113,42 @@ Música: el estilo del perfil (`curiosos` en los shorts) sin cambiarlo; `vid.py 
 - **Con teleobjetivo, el público y los ejércitos lejanos se ven de bloques**: subir la cámara para que el fondo sea césped o terreno.
 - Errores ya vistos (evitarlos): cámara metida dentro de un bloque de caballería; cámara de celebración apuntando a la grada con el jugador en el borde; portería fuera del encuadre; un defensa tapando al protagonista; etiquetas montadas en el plano cenital.
 
-## 7. Montaje en `escenas.js`
+## 7. Montaje y producción (flujo probado con la batalla de Stirling)
 
-La recreación es **un solo mundo continuo**: la jugada o los ejércitos se definen una vez, fuera de las escenas, y **cada escena (un párrafo) muestra un tramo de ese mundo con su cámara**. El tiempo de la escena (`ctx.t`, cronometrado por la voz) se convierte en tiempo del mundo:
+La recreación es **un solo mundo continuo**: la jugada o los ejércitos se definen una vez, como funciones de `t`, y **cada escena (un párrafo del guion) muestra un tramo de ese mundo con su cámara**. Como el render 3D tarda del orden de una hora, el vídeo se hace **en dos pasos**: primero la imagen sin audio y después el audio, sin repetir el render.
 
+**Paso A: página de la recreación** (`proyectos/<tema>/recreacion.html`, copiando la estructura de `proyectos/stirling_narrado/recreacion.html`):
 ```js
-/* Recreacion: el mundo (jugada o ejercitos) es comun; cada escena = un parrafo de la voz = un plano. */
-const V = VE.vol, F = V.futbol, B = V.batalla;
-const MUNDO = construirMundo();                    // F.jugada({...}) o lista de unidades {f(t)} como en Stirling (todo funcion de t)
-/* Cada escena dice desde que segundo del mundo arranca y a que velocidad lo recorre (0,3 = camara lenta). */
-const tramo = (desde, vel = 1) => (ctx) => desde + ctx.t * vel;
-VE.proyecto({
-  estilo: 'DARK',
-  subtitulos: { palabras: 4, tam: 64, resalte: '#ffd36b' },
-  escenas: [
-    (esc, t, ctx) => pintar(esc, ctx, 'aerea', tramo(0)(ctx)),              // gancho + contexto: el mundo aun quieto
-    (esc, t, ctx) => pintar(esc, ctx, 'puente', tramo(4)(ctx)),             // fase 1
-    (esc, t, ctx) => pintar(esc, ctx, 'choque', tramo(14.5, 0.35)(ctx)),    // el choque, en camara lenta
-    // ...
-    (esc, t, ctx) => { pintar(esc, ctx, 'mapa', tramo(22)(ctx)); VE.short.letrero(esc, ctx.tg, ctx.palabra('sigue').ini + ctx.ini); },
-  ],
-});
-function pintar(esc, ctx, plano, tm) {
-  V.fondo.cielo(esc, { hora: 'dia', horizonte: 0.45, nubes: 0.8 });
-  const cam = camara(plano, tm, ctx.t);
-  V.render(esc, escena(tm, cam), cam, { ambiente: AMB, sombras: { centro: [0, 0, 0], radio: 30 }, niebla: { color: '#c3cbd0', cerca: 300, lejos: 1600 } });
-  F.etalonar(esc, { fotograma: Math.round(ctx.tg * 30) });
-  // rotulos ARRIBA (los subtitulos van abajo): aparecen al decir su palabra
-  const p = ctx.palabra('puente'); if (p) VE.short.pastilla(esc, 'PUENTE DE MADERA', esc.W / 2, esc.H * 0.12, { a: VE.tramo(ctx.t, p.ini, 0.4) });
-}
+/* Mundo: terreno, ejercitos o jugada (todo funcion de t). Cada escena = un parrafo = un plano.
+   dur = duracion ESTIMADA del parrafo (duracion de la voz repartida por caracteres; la ultima con la cola de 2 s). */
+const ESCENAS = [
+  { dur: 7.1, plano: 'establecimiento', mundo: (tl) => tl * 0.6 },                    // gancho: grua sobre el escenario
+  { dur: 10.0, plano: 'escoceses', mundo: (tl) => 0.5 + tl * 0.4 },                   // contexto
+  { dur: 5.4, plano: 'carga', mundo: (tl) => 8.0 + tl * 1.25 },                       // la accion, ajustada para que llegue en su palabra
+  { dur: 11.3, plano: (tl) => (tl < 6 ? 'choque' : 'rio'), mundo: (tl) => (tl < 6 ? 14.45 + tl * 0.4 : 19 + (tl - 6) * 0.8) },   // camara lenta y corte
+  { dur: 8.3, plano: 'mapa', mundo: (tl) => 25 + tl * 0.4, cierre: 5.0 }              // cierre: tarjeta de suscripcion
+];
+window.renderAt = (t) => { /* busca la escena, tl = t - ini, tm = e.mundo(tl), camara(plano, tm, tl), V.render(...), F.etalonar(...), rotulos ARRIBA,
+                              y en la ultima: VE.short.letrero(esc, tl, e.cierre, { texto: 'NO OLVIDES', handle: 'SUSCRIBIRTE' }) */ };
 ```
+- Se guarda `escenas_estimadas.json` con `ini` y `dur` de cada escena; el script de audio lo necesita.
+- **Rótulos arriba y breves** (nombre del suceso, fecha, bandos, fase), más «Recreación aproximada» en lo alto. **La banda inferior queda libre** para los subtítulos, que se queman después.
+- Se revisa con fotogramas: un *still* por escena (`render/still.cjs` o un script con Playwright que llame a `renderAt(t)`). Se corrige y se vuelve a mirar.
 
-- **Lo visual sigue a la voz**: el momento clave (el remate, la carga, la caída al río) se cuadra con la palabra que lo nombra (`ctx.palabra('carga').ini`). Si hace falta, se ajusta `tramo(desde, vel)` para que el suceso caiga en esa palabra.
-- **Rótulos arriba y breves.** Los subtítulos ocupan la banda inferior (`ctx.zonas.sub`): nada importante debajo.
-- La página de revisión del proyecto (como `proyectos/batalla_stirling_1297/batalla.html`) se puede tener aparte para ver planos sin voz, pero el vídeo final sale de `escenas.js` con `vid.py render`.
+**Paso B: render del vídeo sin audio, reanudable y separado de la sesión:**
+```
+setsid nohup node render/demo.cjs --pagina "proyectos/<tema>/recreacion.html" --duracion <total> --lienzo vertical --ss 1 \
+  --workers 4 --fps 30 --trozo 75 --salida proyectos/<tema>/salida/video_mudo.mp4 > proyectos/<tema>/salida/render_mudo.log 2>&1 &
+```
+Progreso en `video_mudo.mp4.progreso/progreso.txt`. Si se corta, repetir **el mismo comando**. Se vigila el PID (`kill -0`), no `pgrep -f`.
+
+**Paso C: audio** (voz y efectos de ElevenLabs, §5 y §5.1):
+1. `python3 pipeline/vid.py voz-importar <tema> <audio de Carmen>`: alinea la voz y crea `timeline.json` y `palabras.json`.
+2. `python3 pipeline/vid.py musica <tema>`: la música del perfil, sin cambiar el estilo.
+3. Los efectos se guardan en `salida/efectos/` y se escribe `efectos.json` (qué efecto, en qué escena, en qué segundo o **en qué palabra**, volumen, bucle, fundido).
+4. `python3 pipeline/recreacion_audio.py <tema>`: reajusta cada escena a la duración real de su párrafo, quema los subtítulos (Fredoka 700, palabra resaltada), coloca los efectos, mezcla voz + efectos + música con ducking, normaliza y saca `<tema>.mp4` (pesado) y `<tema>_ligero.mp4` (menos de 10 MB).
+
+(Alternativa sin probar de punta a punta: montar el mundo directamente en `escenas.js` con `VE.proyecto` y renderizar con `vid.py render`, que ya pone subtítulos con la voz. Solo merece la pena si la voz está disponible antes del render.)
 
 ## 8. Herramientas del motor (resumen)
 
