@@ -3,6 +3,7 @@
    ondas concentricas, tarjetas de datos (y tachado cuando se desmiente; SIN fuente en pantalla: regla del usuario), regla de medida, lupa, chip de fecha,
    particulas, grano y vineta, zoom continuo entre planos y cierre con el letrero de la marca (y, si se pide, el movil «Envialo»). Todo es funcion de t y sin filtros por fotograma.
      VE.ed.subtitulos(esc, grupos, tg, {clave, y, tam, marca})   (el runner lo usa con subtitulos: {estilo: 'editorial'})
+     VE.ed.subtitulosComic(esc, grupos, tg, {clave, y, tam, marca})   (subtitulos: {estilo: 'comic'}: centrados, Oswald 700, rotulador amarillo en la palabra clave)
      VE.ed.dato(esc, {num, etiqueta, x, y, a, tachado, color})
      VE.ed.tarjeta(esc, {x, y, a, columnas: [{num, etiqueta, color}]})
      VE.ed.etiqueta(esc, {x, y, tx, ty, texto, sub, a, color})           punto anclado (x, y) y texto en (tx, ty)
@@ -53,6 +54,45 @@
     });
     x.restore();
   };
+
+  // ---------------------------------------------------------------- subtitulos «COMIC» (centrados, letra condensada, rotulador amarillo)
+  /* Estilo del corto «fragilidad»: MAYUSCULAS en Oswald 700 color oro con contorno oscuro; cada palabra entra con un rebote y un
+     guino de rotacion; las palabras clave llevan un rotulador amarillo detras (texto oscuro). Pastilla de marca abajo a la izquierda.
+       subtitulos: { estilo: 'comic', clave: [...], marca: 'RANDONAUTICO', tam: 78, y: 0.6 (fraccion del alto) } */
+  D.subtitulosComic = function (esc, grupos, tg, o = {}) {
+    const g = VE.grupoEn(grupos, tg, o.persistencia == null ? 0.3 : o.persistencia); if (!g) return;
+    const x = esc.ctx, k = esc.k, tam = (o.tam || 78) * k, w = (o.ancho || 0.84) * esc.W, cx = esc.W / 2, cy = (o.y || 0.6) * esc.H;
+    const clave = new Set((o.clave || []).map(norm)), lh = tam * 1.02, OSC = '#2b1409', ORO = '#f7c21c', CREMA = '#fff1c4';
+    const fnt = (px) => { x.font = `700 ${Math.round(px)}px Oswald, Fredoka, sans-serif`; };
+    const sal = c01((g.fin + (o.persistencia == null ? 0.3 : o.persistencia) - tg) / 0.18);                // fundido de salida del grupo
+    x.save(); x.textBaseline = 'middle'; x.textAlign = 'left'; x.lineJoin = 'round'; fnt(tam);
+    const esp = x.measureText(' ').width * 0.8, pal = g.palabras.map(p => ({ p, t: p.t.toUpperCase().replace(/[.,;]+$/, (m) => m), w: x.measureText(p.t.toUpperCase()).width }));
+    let lineas = [[]], ancho = 0; for (const q of pal) { if (ancho + q.w > w && lineas[lineas.length - 1].length) { lineas.push([]); ancho = 0; } lineas[lineas.length - 1].push(q); ancho += q.w + esp; }
+    if (lineas.length > 2) { const todo = lineas.flat(), m = Math.ceil(todo.length / 2); lineas = [todo.slice(0, m), todo.slice(m)]; }
+    const y0 = cy - (lineas.length - 1) * lh / 2; let idx = 0;
+    lineas.forEach((l, li) => {
+      const lw = l.reduce((s, q) => s + q.w, 0) + esp * (l.length - 1); let px = cx - lw / 2; const py = y0 + li * lh;
+      for (const q of l) {
+        const p = q.p, ap = c01((tg - p.ini + 0.04) / 0.14), id = idx++; if (ap <= 0) { px += q.w + esp; continue; }
+        const pop = ap < 1 ? 1 + 0.28 * Math.sin(ap * PI) * (1 - ap * 0.3) : 1, activa = tg >= p.ini - 0.02 && tg < p.fin + 0.04, esc2 = pop * (activa ? 1.05 : 1);
+        const rot = ((id * 37) % 7 - 3) * 0.0075, ccx = px + q.w / 2, ccy = py + (1 - ap) * 14 * k, esClave = clave.has(norm(p.t));
+        x.save(); x.globalAlpha = Math.min(ap * 1.6, 1) * sal; x.translate(ccx, ccy); x.rotate(rot * (2 - ap)); x.scale(esc2, esc2);
+        if (esClave) {                                    // rotulador: rectangulo amarillo ligeramente girado con sombra dura
+          const bw = q.w + 26 * k, bh = tam * 0.98; x.save(); x.rotate(-0.012); x.fillStyle = OSC; x.fillRect(-bw / 2 + 5 * k, -bh / 2 + 6 * k, bw, bh); x.fillStyle = ORO; x.fillRect(-bw / 2, -bh / 2, bw, bh); x.restore();
+        }
+        fnt(tam); x.textAlign = 'center';
+        if (!esClave) { x.lineWidth = tam * 0.16; x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); }      // contorno + sombra dura
+        x.fillStyle = esClave ? OSC : (activa ? '#ffd84a' : ORO); x.fillText(q.t, 0, 0);
+        x.restore(); px += q.w + esp;
+      }
+    });
+    if (o.marca) {                                        // pastilla de marca abajo a la izquierda
+      x.globalAlpha = 1; fnt(20 * k); if ('letterSpacing' in x) x.letterSpacing = (3 * k) + 'px'; const mw = x.measureText(o.marca).width + 28 * k, mh = 36 * k, mx = 28 * k, my = esc.H - 86 * k;
+      redondo(x, mx, my, mw, mh, 8 * k); x.fillStyle = 'rgba(22,12,6,0.92)'; x.fill(); x.fillStyle = '#fff'; x.textAlign = 'left'; x.fillText(o.marca, mx + 14 * k, my + mh / 2 + 1 * k); if ('letterSpacing' in x) x.letterSpacing = '0px';
+    }
+    x.restore();
+  };
+
   /* Rectangulo de seleccion con tiradores (como al seleccionar texto en un editor). */
   D.seleccion = function (esc, X, Y, w, h, a = 1, col = COL.sel) {
     const x = esc.ctx, k = esc.k; x.save(); x.globalAlpha *= a; x.strokeStyle = col; x.lineWidth = 2.5 * k; x.strokeRect(X, Y, w, h);

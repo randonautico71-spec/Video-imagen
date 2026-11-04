@@ -76,7 +76,8 @@
     const esc = VE.crearEscenario({ formato: lienzo, estilo: CFG.estilo || meta.estilo || 'LAB', ss: parseFloat(Q.get('ss') || '1.5') });
     VE.__esc = esc; VE.lintCfg = CFG.lint || {};
     const editorial = CFG.subtitulos && CFG.subtitulos.estilo === 'editorial';      // subtitulos arriba (VE.ed): el cuerpo empieza debajo
-    const zonas = VE.zonas(esc, CFG.subtitulos !== false && !editorial);
+    const comic = CFG.subtitulos && CFG.subtitulos.estilo === 'comic';              // subtitulos «comic» (VE.ed.subtitulosComic): centrados sobre la imagen
+    const zonas = VE.zonas(esc, CFG.subtitulos !== false && !editorial && !comic);
     if (editorial) { const d = Math.round((esc.vertical ? 190 : 130) * esc.k); zonas.cuerpo.y += d; zonas.cuerpo.h -= d; zonas.cuerpo.cy = zonas.cuerpo.y + zonas.cuerpo.h / 2; }
     const x = esc.ctx, W = esc.W, H = esc.H;
 
@@ -117,6 +118,7 @@
       x.setTransform(esc.ss, 0, 0, esc.ss, 0, 0);
       const g = VE.grupoEn(grupos, tg);
       if (editorial) VE.ed.subtitulos(esc, grupos, tg, subOpt);
+      else if (comic) VE.ed.subtitulosComic(esc, grupos, tg, subOpt);
       else if (g) VE.texto.subtitulo(esc, g, tg, Object.assign({ caja: zonas.sub, resalte: esc.estilo.aviso }, subOpt));
       if (CFG.progreso !== false) {
         const h = 6 * esc.k;
@@ -129,7 +131,7 @@
       ox.drawImage(esc.canvas, 0, 0, out.width, out.height);
       return out.toDataURL('image/jpeg', q).slice(23);
     };
-    await document.fonts.load('700 50px Fredoka'); await document.fonts.load('500 50px Fredoka');
+    await document.fonts.load('700 50px Oswald'); await document.fonts.load('700 50px Fredoka'); await document.fonts.load('500 50px Fredoka');
     await document.fonts.ready;
   };
   window.ready = VE.iniciarProyecto();
