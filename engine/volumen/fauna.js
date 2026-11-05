@@ -211,32 +211,57 @@
 
   // ======================================================================== CEREBRO humano
   MO.cerebro = function (o = {}) {
-    const act = o.actividad == null ? 0.4 : o.actividad, col = o.color || '#6ee7f9', t = o.t || 0;
-    const tex = V.textura('cerebro|piel', 512, 512, (x, W, H) => {
-      const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#dca7a1'); g.addColorStop(1, '#c78d88'); x.fillStyle = g; x.fillRect(0, 0, W, H);
-      const r = VE.rng('cerebrotex'); for (let i = 0; i < 1400; i++) { x.globalAlpha = 0.05 + r() * 0.08; x.fillStyle = ['#b57470', '#e7bdb7', '#a96563'][Math.floor(r() * 3)]; x.beginPath(); x.ellipse(r() * W, r() * H, 6 + r() * 22, 3 + r() * 14, r() * 3, 0, 7); x.fill(); }
-      x.strokeStyle = '#9d3f45'; x.lineCap = 'round'; for (let i = 0; i < 90; i++) { x.globalAlpha = 0.28; x.lineWidth = 0.8 + r() * 1.1; x.beginPath(); let px = r() * W, py = r() * H; x.moveTo(px, py); for (let k = 0; k < 7; k++) { px += (r() - 0.5) * 40; py += (r() - 0.5) * 40; x.lineTo(px, py); } x.stroke(); } x.globalAlpha = 1;
+    const act = c01(o.actividad == null ? 0.4 : o.actividad), t = o.t || 0, colA = o.color || '#7ff3ff';
+    // campo de surcos: 0 = cresta de la circunvolucion, 1 = fondo del surco (dominio deformado + 4 familias de ondas = laberinto cortical)
+    const surco = (dx, dy, dz) => {
+      const wx = dx + 0.17 * Math.sin(dy * 6 + dz * 4), wy = dy + 0.17 * Math.sin(dz * 6 + dx * 5), wz = dz + 0.17 * Math.sin(dx * 5 + dy * 6);
+      const g = (q) => Math.exp(-q * q / 0.10);
+      const f = Math.max(g(Math.sin(wx * 10 + wy * 5)), 0.95 * g(Math.sin(wy * 11 - wz * 7 + 1.3)), 0.9 * g(Math.sin(wz * 12 + wx * 6 + 2.1)), 0.8 * g(Math.sin((wx + wy + wz) * 9)));
+      const sil = Math.exp(-Math.pow((dy + 0.12 - 0.22 * dx) / 0.05, 2)) * (Math.abs(dz) > 0.35 ? 1 : 0) * (dx > -0.5 ? 1 : 0);     // cisura lateral (Silvio)
+      const rol = Math.exp(-Math.pow((dx - 0.12 + 0.35 * dy) / 0.035, 2)) * (dy > -0.1 ? 1 : 0) * (Math.abs(dz) > 0.2 ? 1 : 0);        // surco central
+      return Math.min(1, Math.max(f * 0.92, sil, rol * 0.9));
+    };
+    const campo = (u, v, sg) => {                                                                    // u, v -> {f, pos}; el hemisferio izquierdo invierte u para no invertir las caras
+      const ph = (sg > 0 ? u : 1 - u) * TAU, th = v * PI, dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph);
+      const f = surco(dx, dy, dz * sg), rr = 1 - 0.05 * f, q = sg * dz, qz = q > 0 ? q : q * 0.08;
+      const bajo = dy < 0 ? 1 + 0.38 * dy : 1, afil = 1 - 0.16 * Math.max(0, -dx), fr = 1 + 0.04 * Math.max(0, dx);
+      return { f, pos: [dx * 0.57 * rr * fr, dy * 0.34 * rr * bajo + 0.01, sg * (0.015 + qz * 0.43 * rr * afil)] };
+    };
+    const texH = (sg) => V.textura('cerebro|piel2|' + sg, 1024, 512, (x, W, H) => {                    // textura calculada con el MISMO campo: surcos oscuros, crestas claras
+      const im = x.createImageData(W, H), d = im.data, r = VE.rng('cerebro2');
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const f = campo((i + 0.5) / W, (j + 0.5) / H, sg).f, k = Math.pow(f, 0.7), n = (Math.sin(i * 0.31 + j * 0.17) + Math.sin(i * 0.07 - j * 0.23)) * 0.012, cr = 0.5 + 0.5 * (1 - f);
+        const R = 255 - 100 * k + n * 255 * 0.5 + 6 * cr, G = 190 - 112 * k + n * 255 * 0.4, B = 184 - 100 * k + n * 255 * 0.4, o4 = (j * W + i) * 4;
+        d[o4] = R; d[o4 + 1] = G; d[o4 + 2] = B; d[o4 + 3] = 255;
+      }
+      x.putImageData(im, 0, 0);
+      x.globalAlpha = 0.5; x.strokeStyle = '#b8434f'; x.lineWidth = 1.2; x.lineCap = 'round';                // vasos finos
+      for (let i = 0; i < 60; i++) { x.beginPath(); let px = r() * W, py = r() * H; x.moveTo(px, py); for (let k = 0; k < 10; k++) { px += (r() - 0.5) * 46; py += (r() - 0.35) * 30; x.lineTo(px, py); } x.stroke(); }
+      x.globalAlpha = 1;
     });
-    const mat = { color: '#ffffff', mapa: tex, esp: 0.34, dureza: 34, envolver: 0.4, borde: 0.35, emision: 0.06 + 0.3 * act, alfa: 1 - 0.62 * c01(o.transp || 0) };
-    const surco = (d) => {                                                                          // surcos estrechos entre circunvoluciones anchas
-      const a = Math.sin(d[0] * 11 + 2.2 * Math.sin(d[1] * 7 + d[2] * 5) + d[1] * 3), b = Math.sin(d[1] * 10 - d[2] * 8 + 1.9 * Math.sin(d[0] * 6 + d[2] * 4.5)), c = Math.sin(d[2] * 12 + d[0] * 5 + 2 * Math.sin(d[1] * 8 + d[0] * 3));
-      const g = (q) => Math.pow(1 - Math.abs(q), 6); return Math.max(g(a), g(b) * 0.9, g(c) * 0.8); };
-    const hemi = (s) => MA.parametrica(180, 110, (u, v) => {
-      const ph = (s > 0 ? u : 1 - u) * TAU, th = v * PI; let dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph);
-      const f = surco([dx, dy, dz * s]), rr = 1 - 0.05 * f + 0.012 * Math.sin(dx * 5 + dz * 4), q = s * dz, qz = (q > 0 ? q : q * 0.1);
-      const bajo = dy < 0 ? 1 + 0.18 * dy : 1;                                                       // base algo mas plana
-      return [dx * 0.56 * rr, dy * 0.4 * rr * bajo, s * (0.18 + qz * 0.27 * rr)];
-    }, { clave: 'cerebro|hemi' + s });
-    const cereb = MA.parametrica(80, 56, (u, v) => { const ph = u * TAU, th = v * PI, dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph), r = 1 - 0.045 * (0.5 + 0.5 * Math.sin(dy * 62)); return [-0.44 + dx * 0.19 * r, -0.27 + dy * 0.125 * r, dz * 0.27 * r]; }, { clave: 'cerebro|cereb' });
+    const emis = 0.13 + 0.2 * act, alfa = 1 - 0.62 * c01(o.transp || 0);
+    const hemi = (sg) => MA.parametrica(240, 140, (u, v) => campo(u, v, sg).pos, { clave: 'cerebro|hemi2|' + sg });
     const hijos = [];
-    for (const s of [-1, 1]) { hijos.push(V.nodo({ malla: hemi(s), mat, nombre: 'hemisferio' + (s > 0 ? '_d' : '_i') }));  }
-    hijos.push(V.nodo({ malla: cereb, mat: Object.assign({}, mat, { color: '#e3b5ae' }), nombre: 'cerebelo' }));
-    hijos.push(V.nodo({ malla: MA.capsula(0.062, 0.045, 0.3, 20), mat: Object.assign({}, mat, { color: '#e8c3bb' }), pos: [-0.17, -0.2, 0], rot: [0, 0, 0.42], nombre: 'tronco' }));
-    for (const s of [-1, 1]) {                                                                       // temporal: bulto bajo y delante
-      hijos.push(V.nodo({ malla: MA.esfera(28), esc: [0.22, 0.12, 0.13], pos: [0.12, -0.22, s * 0.3], rot: [0, 0, 0.1], mat }));
-      hijos.push(V.nodo({ nombre: s > 0 ? 'hipocampo' : 'hipocampo_i', malla: MA.tubo([[0.15, -0.15, s * 0.2], [0.07, -0.12, s * 0.24], [-0.04, -0.1, s * 0.25], [-0.17, -0.12, s * 0.21], [-0.26, -0.15, s * 0.17]], (u) => 0.036 - 0.014 * u, 12, { clave: 'cerebro|hipo' + s }),
-        mat: { color: '#ffc43a', esp: 0.5, dureza: 40, envolver: 0.4, emision: 0.55 } }));
-      hijos.push(V.nodo({ nombre: s > 0 ? 'amigdala' : 'amigdala_i', malla: MA.esfera(20), esc: [0.055, 0.045, 0.045], pos: [0.18, -0.15, s * 0.2], mat: { color: '#ff5a78', esp: 0.5, dureza: 40, envolver: 0.4, emision: 0.55 } }));
+    for (const sg of [-1, 1]) hijos.push(V.nodo({ malla: hemi(sg), mat: { color: '#ffffff', mapa: texH(sg), esp: 0.6, dureza: 55, envolver: 0.45, borde: 0.55, emision: emis, alfa }, nombre: 'hemisferio' + (sg > 0 ? '_d' : '_i') }));
+    const cereb = MA.parametrica(90, 60, (u, v) => { const ph = u * TAU, th = v * PI, dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph), r = 1 - 0.05 * (0.5 + 0.5 * Math.sin(dy * 58)); return [-0.37 + dx * 0.15 * r, -0.17 + dy * 0.08 * r, dz * 0.23 * r]; }, { clave: 'cerebro|cereb2' });
+    hijos.push(V.nodo({ malla: cereb, mat: { color: '#e8a8a4', esp: 0.4, dureza: 40, envolver: 0.4, borde: 0.4, emision: emis, alfa }, nombre: 'cerebelo' }));
+    hijos.push(V.nodo({ malla: MA.capsula(0.04, 0.03, 0.22, 20), mat: { color: '#eec2b4', esp: 0.4, dureza: 40, envolver: 0.4, alfa }, pos: [-0.1, -0.28, 0], rot: [0, 0, 0.35], nombre: 'tronco' }));
+    for (const sg of [-1, 1]) {
+      hijos.push(V.nodo({ nombre: sg > 0 ? 'hipocampo' : 'hipocampo_i', malla: MA.tubo([[0.15, -0.15, sg * 0.2], [0.07, -0.12, sg * 0.24], [-0.04, -0.1, sg * 0.25], [-0.17, -0.12, sg * 0.21], [-0.26, -0.15, sg * 0.17]], (u) => 0.036 - 0.014 * u, 12, { clave: 'cerebro|hipo' + sg }),
+        mat: { color: '#ffc43a', esp: 0.5, dureza: 40, envolver: 0.4, emision: 0.6 } }));
+      hijos.push(V.nodo({ nombre: sg > 0 ? 'amigdala' : 'amigdala_i', malla: MA.esfera(20), esc: [0.055, 0.045, 0.045], pos: [0.18, -0.15, sg * 0.2], mat: { color: '#ff5a78', esp: 0.5, dureza: 40, envolver: 0.4, emision: 0.6 } }));
+    }
+    // actividad neuronal: arcos de luz que recorren la corteza (4 tramos por arco, encendidos en cadena)
+    const N = 12, activos = Math.min(N, Math.ceil(N * (0.15 + act * 0.95)));
+    for (let i = 0; i < activos; i++) {
+      const r = VE.rng('arco' + i), sg = i % 2 ? 1 : -1;
+      let u = r(), v = 0.16 + r() * 0.34, du = (r() - 0.5) * 0.05, dv = (r() - 0.3) * 0.03; const pts = [];
+      for (let k = 0; k <= 20; k++) { const c = campo(((u % 1) + 1) % 1, Math.max(0.05, Math.min(0.7, v)), sg).pos; pts.push([c[0] * 1.045, c[1] * 1.045 + 0.004, c[2] * 1.045]); u += du; v += dv; du += (r() - 0.5) * 0.012; dv += (r() - 0.5) * 0.008; }
+      for (let j = 0; j < 4; j++) {
+        const seg = pts.slice(j * 5, j * 5 + 6), ph = (t * 0.85 - j * 0.22 + i * 0.37) % 1, b = Math.pow(Math.max(0, Math.sin(ph * PI)), 3);
+        if (b < 0.04) continue;
+        hijos.push(V.nodo({ malla: MA.tubo(seg, 0.0075, 6, { clave: 'cerebro|arco|' + i + '|' + j }), mat: { color: colA, esp: 0.2, emision: 0.35 + 1.1 * b, alfa: 0.35 + 0.65 * b } }));
+      }
     }
     hijos.push(V.nodo({ nombre: 'corteza', pos: [0.5, 0.12, 0.2] }));
     return V.nodo({ nombre: 'cerebro', pos: o.pos, rot: o.rot, esc: o.esc, hijos });
