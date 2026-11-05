@@ -59,6 +59,8 @@
     VE.ruta.redondeado(x, -400, -200, 800, 400, 60); const g = x.createLinearGradient(-400, -200, 400, 200); g.addColorStop(0, '#1B2A5E'); g.addColorStop(1, '#0A1030'); x.fillStyle = g; x.fill(); x.lineWidth = 12; x.strokeStyle = S.COL.dorado; x.stroke();
     esc.tipo(86, 700); VE.texto.trazar(esc, o.texto || 'SIGUE A', 0, -78, { color: '#fff', contornoAncho: 10, registrar: false });
     const h = o.handle || '@randonautico', f = VE.texto.ajustar(esc, h, { w: 700, h: 120 }, { max: 100, min: 50, maxLineas: 1 }); esc.tipo(f.tam, 700);
-    VE.texto.trazar(esc, h, 0, 62, { color: S.COL.dorado, contornoAncho: 11, registrar: false }); x.restore(); return Math.min(1, k);
+    VE.texto.trazar(esc, h, 0, 62, { color: S.COL.dorado, contornoAncho: 11, registrar: false });
+    const lg = o.logo; if (lg && lg.complete && lg.naturalWidth) { const lw = 330, lh = lw * lg.naturalHeight / lg.naturalWidth, bote = 1 + 0.04 * Math.sin(t * 5); x.save(); x.translate(0, -200 - lh * 0.12); x.scale(bote, bote); x.drawImage(lg, -lw / 2, -lh / 2 - lh * 0.35, lw, lh); x.restore(); }     // logotipo de YouTube sobre el letrero
+    x.restore(); return Math.min(1, k);
   };
 })(window.VE = window.VE || {});
