@@ -66,7 +66,7 @@
     const fnt = (px) => { x.font = `700 ${Math.round(px)}px Oswald, Fredoka, sans-serif`; };
     const sal = c01((g.fin + (o.persistencia == null ? 0.3 : o.persistencia) - tg) / 0.18);                // fundido de salida del grupo
     x.save(); x.textBaseline = 'middle'; x.textAlign = 'left'; x.lineJoin = 'round'; fnt(tam);
-    const esp = x.measureText(' ').width * 0.8, pal = g.palabras.map(p => ({ p, t: p.t.toUpperCase().replace(/[.,;]+$/, (m) => m), w: x.measureText(p.t.toUpperCase()).width * (o.sinCaja ? (clave.has(norm(p.t)) ? 1.24 : 0.92) : 1) }));
+    const esp = x.measureText(' ').width * 0.8, pal = g.palabras.map(p => ({ p, t: p.t.toUpperCase().replace(/[.,;]+$/, (m) => m), w: x.measureText(p.t.toUpperCase()).width * (o.sinCaja ? (clave.has(norm(p.t)) ? 1.42 : 0.95) : 1) }));
     let lineas = [[]], ancho = 0; for (const q of pal) { if (ancho + q.w > w && lineas[lineas.length - 1].length) { lineas.push([]); ancho = 0; } lineas[lineas.length - 1].push(q); ancho += q.w + esp; }
     if (lineas.length > 2) { const todo = lineas.flat(), m = Math.ceil(todo.length / 2); lineas = [todo.slice(0, m), todo.slice(m)]; }
     const y0 = cy - (lineas.length - 1) * lh / 2; let idx = 0;
@@ -78,7 +78,7 @@
         const esClave = clave.has(norm(p.t)), tremor = dn && esClave && activa ? Math.sin(tg * 70) : 0, rot = ((id * 37) % 7 - 3) * 0.0075 + tremor * 0.025, ccx = px + q.w / 2 + tremor * 3 * k, ccy = py + (1 - ap) * (dn ? 46 : 14) * k;
         x.save(); x.globalAlpha = Math.min(ap * 1.6, 1) * sal; x.translate(ccx, ccy); x.rotate(rot * (2 - ap)); x.scale(esc2, esc2);
         const sc = !!o.sinCaja;                           // sinCaja: sin rotulador; la palabra clave va mas grande y mas negrita (relleno + trazo), el resto mas fino
-        if (sc) { const f = esClave ? 1.22 : 0.9; x.scale(f, f); }
+        if (sc) { const f = esClave ? 1.1 : 0.92; x.scale(f, f); }
         if (esClave && !sc) {                                    // rotulador: rectangulo amarillo ligeramente girado con sombra dura
           const bw = q.w + 26 * k, bh = tam * 0.98; x.save(); x.rotate(-0.012); x.fillStyle = OSC; x.fillRect(-bw / 2 + 5 * k, -bh / 2 + 6 * k, bw, bh); x.fillStyle = ORO; x.fillRect(-bw / 2, -bh / 2, bw, bh); x.restore();
         }
