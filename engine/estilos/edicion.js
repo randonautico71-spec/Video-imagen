@@ -62,7 +62,7 @@
   D.subtitulosComic = function (esc, grupos, tg, o = {}) {
     const g = VE.grupoEn(grupos, tg, o.persistencia == null ? 0.3 : o.persistencia); if (!g) return;
     const x = esc.ctx, k = esc.k, tam = (o.tam || 78) * k, w = (o.ancho || 0.84) * esc.W, cx = esc.W / 2, cy = (o.y || 0.6) * esc.H;
-    const clave = new Set((o.clave || []).map(norm)), lh = tam * 1.02, OSC = '#2b1409', ORO = '#f7c21c', CREMA = '#fff1c4';
+    const clave = new Set((o.clave || []).map(norm)), lh = tam * (o.sinCaja ? 1.16 : 1.02), OSC = '#2b1409', ORO = '#f7c21c', CREMA = '#fff1c4';
     const fnt = (px) => { x.font = `700 ${Math.round(px)}px Oswald, Fredoka, sans-serif`; };
     const sal = c01((g.fin + (o.persistencia == null ? 0.3 : o.persistencia) - tg) / 0.18);                // fundido de salida del grupo
     x.save(); x.textBaseline = 'middle'; x.textAlign = 'left'; x.lineJoin = 'round'; fnt(tam);
