@@ -45,7 +45,7 @@
     const mC = mateP(tCuerpo), mP = mateP(tPata), mH = mateP(tCab), mO = mateP(tOreja);
     const negro = liso('#161111', { esp: 0.9, dureza: 90 }), h = [];
     // cuerpo tumbado (respira)
-    h.push(eje(0.205 * (1 + 0.025 * resp), 0.42, 0.2, [0, 0.2, 0], mC, 'torso_perro'));
+    h.push(eje(0.18 * (1 + 0.025 * resp), 0.42, 0.17, [0, 0.2, 0], mC, 'torso_perro'));
     h.push(eje(0.215 * (1 + 0.03 * resp), 0.2, 0.2, [0.24, 0.2, 0], mC));
     for (const s of [-1, 1]) {
       h.push(elip(mC, [0.2, 0.17, 0.13], [-0.25, 0.17, s * 0.17]));                                                    // anca
@@ -59,16 +59,16 @@
     // cabeza apoyada sobre las patas
     const cab = [];
     cab.push(elip(mH, [0.145, 0.12, 0.115], [0, 0, 0]));                                                               // craneo
-    cab.push(elip(mH, [0.15, 0.062, 0.075], [0.15, -0.035, 0]));                                                       // hocico
+    cab.push(elip(mH, [0.19, 0.058, 0.07], [0.17, -0.04, 0]));                                                       // hocico
     cab.push(elip(mateP(pelaje('perro|boca', 256, 128, Object.assign({}, d, { lado: '#e1c38a', dorso: '#d8b676', vientre: '#efe0bb', n: 3000, largo: 6 }))), [0.14, 0.03, 0.082], [0.15, -0.085, 0]));   // labio inferior claro
-    cab.push(elip(negro, [0.04, 0.032, 0.05], [0.285, -0.012, 0]));                                                    // nariz
-    cab.push(elip(liso('#ffffff', { esp: 1, dureza: 120, emision: 0.0, alfa: 0.35 }), [0.012, 0.008, 0.016], [0.3, 0.005, 0.015]));
-    cab.push(elip(liso('#3b1c1c', { esp: 0.2 }), [0.12, 0.006, 0.07], [0.15, -0.055, 0]));                              // linea de la boca
+    cab.push(elip(negro, [0.04, 0.032, 0.05], [0.355, -0.018, 0]));                                                    // nariz
+    cab.push(elip(liso('#ffffff', { esp: 1, dureza: 120, emision: 0.0, alfa: 0.35 }), [0.012, 0.008, 0.016], [0.37, -0.001, 0.015]));
+    cab.push(elip(liso('#3b1c1c', { esp: 0.2 }), [0.15, 0.006, 0.065], [0.18, -0.062, 0]));                              // linea de la boca
     for (const s of [-1, 1]) {
       cab.push(elip(liso('#4a3118', { esp: 0.2 }), [0.034, 0.007, 0.018], [0.075, 0.032, s * 0.098], [0, s * -0.25, s * -0.1]));      // parpado cerrado
       cab.push(elip(liso('#2a1b0e', { esp: 0.2 }), [0.028, 0.005, 0.012], [0.075, 0.028, s * 0.1], [0, s * -0.25, s * -0.1]));
       cab.push(elip(mH, [0.04, 0.012, 0.028], [0.085, 0.062, s * 0.092], [0, s * -0.2, s * 0.12]));                         // ceja
-      cab.push(V.nodo({ pos: [-0.015, 0.0, s * 0.125], rot: [s * 0.55 + sn(t * 2.3 + 1) * 0.015, s * 0.1, -0.5], hijos: [elip(mO, [0.055, 0.115, 0.022], [0, -0.08, 0])] }));   // oreja caida
+      cab.push(V.nodo({ pos: [-0.015, 0.0, s * 0.125], rot: [s * 0.55 + sn(t * 2.3 + 1) * 0.015, s * 0.1, -0.5], hijos: [elip(mO, [0.07, 0.16, 0.024], [0, -0.1, 0])] }));   // oreja caida
       for (let i = 0; i < 4; i++) cab.push(V.nodo({ malla: MA.cilindro(0.0016, 0.0007, 0.09, 5), pos: [0.22, -0.03 - i * 0.008, s * (0.06 + i * 0.005)], rot: [s * (1.2 + i * 0.1), 0, PI / 2 - 0.1 - i * 0.1], mat: liso('#f1e6cf', { esp: 0.5 }) }));   // bigotes
     }
     h.push(V.nodo({ nombre: 'cabeza_perro', pos: [0.6, 0.15 + 0.004 * resp, 0], rot: [0, 0, -0.06], hijos: cab }));
@@ -136,17 +136,17 @@
     const naranja = liso('#e0561a', { esp: 0.7, dureza: 60, envolver: 0.3 }), cheek = liso('#d9731f', { esp: 0.05, envolver: 0.5 }), h = [];
     // rama
     const rama = V.textura('rama', 256, 256, (x, W, H, c) => { c.repetirV = true; x.fillStyle = '#5d4630'; x.fillRect(0, 0, W, H); const r = VE.rng('rama'); for (let i = 0; i < 1600; i++) { x.globalAlpha = 0.25; x.fillStyle = r() < 0.5 ? '#3a2a1a' : '#7d6244'; x.fillRect(r() * W, r() * H, 1 + r() * 2, 8 + r() * 30); } x.globalAlpha = 1; });
-    h.push(V.nodo({ malla: MA.cilindro(0.0095, 0.0105, 0.5, 14, true), mat: { color: '#ffffff', mapa: rama, repetir: [1, 3], esp: 0.05, dureza: 10, envolver: 0.3 }, pos: [0, 0.0, 0], rot: [PI / 2, 0, 0], nombre: 'rama' }));
+    if (o.rama !== false) h.push(V.nodo({ malla: MA.cilindro(0.0095, 0.0105, 0.5, 14, true), mat: { color: '#ffffff', mapa: rama, repetir: [1, 3], esp: 0.05, dureza: 10, envolver: 0.3 }, pos: [0, 0.0, 0], rot: [PI / 2, 0, 0], nombre: 'rama' }));
     const cuerpo = [], rb = 1 + 0.045 * resp;
-    cuerpo.push(eje(0.034 * rb, 0.052, 0.032 * rb, [0, 0, 0], mCu, 'torso_pinzon'));
-    cuerpo.push(V.nodo({ malla: MA.esfera(20), esc: [0.04, 0.012, 0.027], pos: [-0.002, 0.003, 0.03], rot: [-0.18, 0, 0.12], mat: mateP(V.textura('pinzon|ala', 128, 128, (x, W, H) => { x.fillStyle = '#6f6a63'; x.fillRect(0, 0, W, H); const r = VE.rng('ala'); for (let i = 0; i < 2000; i++) { x.globalAlpha = 0.2; x.strokeStyle = ['#4a4640', '#9a948a'][i % 2]; x.beginPath(); const x0 = r() * W, y0 = r() * H; x.moveTo(x0, y0); x.lineTo(x0 + 8, y0 + 1); x.stroke(); } x.globalAlpha = 1; for (let i = 0; i < 40; i++) { x.fillStyle = '#e9e3d5'; x.fillRect(r() * W, r() * H, 3, 3); } })) }));
-    cuerpo.push(V.nodo({ malla: MA.esfera(20), esc: [0.04, 0.012, 0.027], pos: [-0.002, 0.003, -0.03], rot: [0.18, 0, 0.12], mat: mateP(tCa) }));
+    cuerpo.push(eje(0.04 * rb, 0.062, 0.037 * rb, [0, 0, 0], mCu, 'torso_pinzon'));
+    cuerpo.push(V.nodo({ malla: MA.esfera(20), esc: [0.036, 0.011, 0.024], pos: [-0.002, 0.004, 0.034], rot: [-0.18, 0, 0.12], mat: mateP(V.textura('pinzon|ala', 128, 128, (x, W, H) => { x.fillStyle = '#6f6a63'; x.fillRect(0, 0, W, H); const r = VE.rng('ala'); for (let i = 0; i < 2000; i++) { x.globalAlpha = 0.2; x.strokeStyle = ['#4a4640', '#9a948a'][i % 2]; x.beginPath(); const x0 = r() * W, y0 = r() * H; x.moveTo(x0, y0); x.lineTo(x0 + 8, y0 + 1); x.stroke(); } x.globalAlpha = 1; for (let i = 0; i < 40; i++) { x.fillStyle = '#e9e3d5'; x.fillRect(r() * W, r() * H, 3, 3); } })) }));
+    cuerpo.push(V.nodo({ malla: MA.esfera(20), esc: [0.036, 0.011, 0.024], pos: [-0.002, 0.004, -0.034], rot: [0.18, 0, 0.12], mat: mateP(tCa) }));
     // cola con barras blancas y negras
     const tCol = V.textura('pinzon|cola', 128, 128, (x, W, H) => { x.fillStyle = '#25221f'; x.fillRect(0, 0, W, H); for (let i = 0; i < 6; i++) { x.fillStyle = '#f2eee4'; x.fillRect(0, i * 22 + 8, W, 8); } });
-    cuerpo.push(V.nodo({ malla: MA.caja(0.085, 0.004, 0.034, 0.002, 2), pos: [-0.092, -0.01, 0], rot: [0, 0, 0.12], mat: mateP(tCol, { esp: 0.05 }) }));
+    cuerpo.push(V.nodo({ malla: MA.caja(0.085, 0.008, 0.04, 0.003, 2), pos: [-0.1, -0.016, 0], rot: [0, 0, 0.12], mat: mateP(tCol, { esp: 0.05 }) }));
     // cabeza (se gira hacia atras al dormir: el pico queda entre las plumas del hombro)
     const cab = [];
-    cab.push(elip(mCa, [0.027, 0.026, 0.026], [0, 0, 0]));
+    cab.push(elip(mCa, [0.021, 0.02, 0.02], [0, 0, 0]));
     for (const s of [-1, 1]) {
       cab.push(elip(cheek, [0.011, 0.011, 0.004], [0.004, -0.007, s * 0.0235]));                                       // mancha naranja de la mejilla
       cab.push(elip(liso('#141010'), [0.006, 0.013, 0.0035], [0.01, -0.017, s * 0.022]));                              // lagrima negra
@@ -156,12 +156,12 @@
     const pico = c01(can) * 0.5;
     cab.push(V.nodo({ pos: [0.024, -0.004, 0], rot: [0, 0, PI / 2 - pico * 0.5], hijos: [V.nodo({ malla: MA.cilindro(0.0085, 0.0016, 0.021, 12, true), mat: naranja, pos: [0, -0.0105, 0] })] }));
     cab.push(V.nodo({ pos: [0.024, -0.007, 0], rot: [0, 0, PI / 2 + pico * 0.7], hijos: [V.nodo({ malla: MA.cilindro(0.0062, 0.0014, 0.017, 12, true), mat: naranja, pos: [0, -0.0085, 0] })] }));
-    const gx = mix(0.036, 0.012, sl), gy = mix(0.034, 0.047, sl), gz = sl * 0.012;
+    const gx = mix(0.05, 0.02, sl), gy = mix(0.04, 0.05, sl), gz = sl * 0.016;
     cuerpo.push(V.nodo({ nombre: 'cabeza_pinzon', pos: [gx, gy, gz], rot: [0, PI * sl, -0.1 * sl], hijos: cab }));
     // patas naranjas con dedos agarrados a la rama
     for (const s of [-1, 1]) {
       h.push(V.nodo({ malla: MA.cilindro(0.0022, 0.0022, 0.035, 6), mat: naranja, pos: [0.004, 0.02, s * 0.011] }));
-      for (const dx of [-0.011, 0.0, 0.011]) h.push(V.nodo({ malla: MA.capsula(0.0022, 0.0018, 0.018, 6), mat: naranja, pos: [0.004 + dx, 0.011, s * 0.011], rot: [0, 0, 0.0] }));
+      for (const dx of [-0.011, 0.0, 0.011]) h.push(V.nodo({ malla: MA.capsula(0.0022, 0.0018, 0.018, 6), mat: naranja, pos: [0.004 - 0.009, 0.011 + dx * 0.0, s * 0.011 + dx * 0.55], rot: [0, 0, PI / 2] }));
     }
     h.push(V.nodo({ pos: [0, 0.058, 0], rot: [0, 0, 0.35 - 0.1 * sl], hijos: cuerpo }));
     return V.nodo({ nombre: 'pinzon', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
@@ -197,14 +197,14 @@
     }
     h.push(V.nodo({ malla: MA.capsula(0.012, 0.009, 0.045, 12), mat: mPiel, pos: [0.05, 0.05, 0.034], rot: [0, 0, 1.2] }));              // sifon
     // 8 brazos: curvas que se mueven despacio (tubos dinamicos)
-    const brazos = 8, L = 0.28;
+    const brazos = 8, L = 0.22;
     for (let i = 0; i < brazos; i++) {
       const a0 = (i + 0.5) / brazos * TAU + 0.2, pts = [], n = 28, ph = i * 1.7, curl = (i % 2 ? 1 : -1) * (1.3 + 0.2 * sn(i * 2.3));
       for (let k = 0; k <= n; k++) {
         const u = k / n, rad = 0.035 + L * u, ang = a0 + curl * u * u * 0.9 + 0.35 * sn(t * 0.9 + ph + u * 3.2) * u, lev = 0.012 + 0.02 * sn(t * 0.7 + ph) * u * (1 - u) + (u > 0.8 ? (u - 0.8) * 0.12 : 0) + 0.02 * (1 - u);
         pts.push([0.0 + rad * cs(ang) * 1.0 + 0.02, lev + 0.012, rad * sn(ang)]);
       }
-      h.push(V.nodo({ malla: MA.tubo(pts, (u) => 0.021 * Math.pow(1 - u, 0.8) + 0.0018, 14, { dinamica: 'pulpo|brazo' + i }), mat: Object.assign({}, mBrazoPiel, { mapa: V.textura('pulpo|brazo|' + (moteado > 0.5 ? 1 : 0), 256, 512, (x, W, H, c) => { c.repetirV = true; x.drawImage(pieles[moteado > 0.5 ? 1 : 0], 0, 0, W, H); x.globalCompositeOperation = 'multiply'; x.drawImage(ven, 0, 0, W, H); x.globalCompositeOperation = 'source-over'; }), repetir: [1, 2] }) }));
+      h.push(V.nodo({ malla: MA.tubo(pts, (u) => 0.034 * Math.pow(1 - u, 0.9) + 0.003, 14, { dinamica: 'pulpo|brazo' + i }), mat: Object.assign({}, mBrazoPiel, { mapa: V.textura('pulpo|brazo|' + (moteado > 0.5 ? 1 : 0), 256, 512, (x, W, H, c) => { c.repetirV = true; x.drawImage(pieles[moteado > 0.5 ? 1 : 0], 0, 0, W, H); x.globalCompositeOperation = 'multiply'; x.drawImage(ven, 0, 0, W, H); x.globalCompositeOperation = 'source-over'; }), repetir: [1, 2] }) }));
     }
     return V.nodo({ nombre: 'pulpo', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
   };
@@ -217,26 +217,26 @@
       const r = VE.rng('cerebrotex'); for (let i = 0; i < 1400; i++) { x.globalAlpha = 0.05 + r() * 0.08; x.fillStyle = ['#b57470', '#e7bdb7', '#a96563'][Math.floor(r() * 3)]; x.beginPath(); x.ellipse(r() * W, r() * H, 6 + r() * 22, 3 + r() * 14, r() * 3, 0, 7); x.fill(); }
       x.strokeStyle = '#9d3f45'; x.lineCap = 'round'; for (let i = 0; i < 90; i++) { x.globalAlpha = 0.28; x.lineWidth = 0.8 + r() * 1.1; x.beginPath(); let px = r() * W, py = r() * H; x.moveTo(px, py); for (let k = 0; k < 7; k++) { px += (r() - 0.5) * 40; py += (r() - 0.5) * 40; x.lineTo(px, py); } x.stroke(); } x.globalAlpha = 1;
     });
-    const mat = { color: '#ffffff', mapa: tex, esp: 0.34, dureza: 34, envolver: 0.4, borde: 0.35 };
+    const mat = { color: '#ffffff', mapa: tex, esp: 0.34, dureza: 34, envolver: 0.4, borde: 0.35, emision: 0.06 + 0.3 * act, alfa: 1 - 0.62 * c01(o.transp || 0) };
     const surco = (d) => {                                                                          // surcos estrechos entre circunvoluciones anchas
       const a = Math.sin(d[0] * 11 + 2.2 * Math.sin(d[1] * 7 + d[2] * 5) + d[1] * 3), b = Math.sin(d[1] * 10 - d[2] * 8 + 1.9 * Math.sin(d[0] * 6 + d[2] * 4.5)), c = Math.sin(d[2] * 12 + d[0] * 5 + 2 * Math.sin(d[1] * 8 + d[0] * 3));
       const g = (q) => Math.pow(1 - Math.abs(q), 6); return Math.max(g(a), g(b) * 0.9, g(c) * 0.8); };
-    const hemi = (s) => MA.parametrica(110, 72, (u, v) => {
-      const ph = u * TAU, th = v * PI; let dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph);
-      const f = surco([dx, dy, dz * s]), rr = 1 - 0.075 * f + 0.012 * Math.sin(dx * 5 + dz * 4), q = s * dz, qz = (q > 0 ? q : q * 0.1);
+    const hemi = (s) => MA.parametrica(180, 110, (u, v) => {
+      const ph = (s > 0 ? u : 1 - u) * TAU, th = v * PI; let dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph);
+      const f = surco([dx, dy, dz * s]), rr = 1 - 0.05 * f + 0.012 * Math.sin(dx * 5 + dz * 4), q = s * dz, qz = (q > 0 ? q : q * 0.1);
       const bajo = dy < 0 ? 1 + 0.18 * dy : 1;                                                       // base algo mas plana
       return [dx * 0.56 * rr, dy * 0.4 * rr * bajo, s * (0.18 + qz * 0.27 * rr)];
     }, { clave: 'cerebro|hemi' + s });
     const cereb = MA.parametrica(80, 56, (u, v) => { const ph = u * TAU, th = v * PI, dx = Math.sin(th) * Math.sin(ph), dy = Math.cos(th), dz = Math.sin(th) * Math.cos(ph), r = 1 - 0.045 * (0.5 + 0.5 * Math.sin(dy * 62)); return [-0.44 + dx * 0.19 * r, -0.27 + dy * 0.125 * r, dz * 0.27 * r]; }, { clave: 'cerebro|cereb' });
-    const hijos = [], brillo = { tipo: 'rayosx', color: col, alfa: act, fresnel: 2.2, borde: 1.3, emision: 0.1 };
-    for (const s of [-1, 1]) { hijos.push(V.nodo({ malla: hemi(s), mat, nombre: 'hemisferio' + (s > 0 ? '_d' : '_i') })); hijos.push(V.nodo({ malla: hemi(s), mat: brillo, esc: 1.012, sinSombra: true })); }
+    const hijos = [];
+    for (const s of [-1, 1]) { hijos.push(V.nodo({ malla: hemi(s), mat, nombre: 'hemisferio' + (s > 0 ? '_d' : '_i') }));  }
     hijos.push(V.nodo({ malla: cereb, mat: Object.assign({}, mat, { color: '#e3b5ae' }), nombre: 'cerebelo' }));
     hijos.push(V.nodo({ malla: MA.capsula(0.062, 0.045, 0.3, 20), mat: Object.assign({}, mat, { color: '#e8c3bb' }), pos: [-0.17, -0.2, 0], rot: [0, 0, 0.42], nombre: 'tronco' }));
     for (const s of [-1, 1]) {                                                                       // temporal: bulto bajo y delante
       hijos.push(V.nodo({ malla: MA.esfera(28), esc: [0.22, 0.12, 0.13], pos: [0.12, -0.22, s * 0.3], rot: [0, 0, 0.1], mat }));
-      hijos.push(V.nodo({ nombre: s > 0 ? 'hipocampo' : 'hipocampo_i', malla: MA.tubo([[0.17, -0.2, s * 0.22], [0.08, -0.17, s * 0.27], [-0.05, -0.15, s * 0.28], [-0.2, -0.17, s * 0.24], [-0.3, -0.2, s * 0.2]], (u) => 0.036 - 0.014 * u, 12, { clave: 'cerebro|hipo' + s }),
-        mat: { tipo: 'rayosx', color: '#ffd36b', alfa: 1, fresnel: 1.6, borde: 1.6, emision: 0.5 } }));
-      hijos.push(V.nodo({ nombre: s > 0 ? 'amigdala' : 'amigdala_i', malla: MA.esfera(20), esc: [0.055, 0.045, 0.045], pos: [0.2, -0.2, s * 0.22], mat: { tipo: 'rayosx', color: '#ff7a8f', alfa: 1, fresnel: 1.4, borde: 1.6, emision: 0.55 } }));
+      hijos.push(V.nodo({ nombre: s > 0 ? 'hipocampo' : 'hipocampo_i', malla: MA.tubo([[0.15, -0.15, s * 0.2], [0.07, -0.12, s * 0.24], [-0.04, -0.1, s * 0.25], [-0.17, -0.12, s * 0.21], [-0.26, -0.15, s * 0.17]], (u) => 0.036 - 0.014 * u, 12, { clave: 'cerebro|hipo' + s }),
+        mat: { color: '#ffc43a', esp: 0.5, dureza: 40, envolver: 0.4, emision: 0.55 } }));
+      hijos.push(V.nodo({ nombre: s > 0 ? 'amigdala' : 'amigdala_i', malla: MA.esfera(20), esc: [0.055, 0.045, 0.045], pos: [0.18, -0.15, s * 0.2], mat: { color: '#ff5a78', esp: 0.5, dureza: 40, envolver: 0.4, emision: 0.55 } }));
     }
     hijos.push(V.nodo({ nombre: 'corteza', pos: [0.5, 0.12, 0.2] }));
     return V.nodo({ nombre: 'cerebro', pos: o.pos, rot: o.rot, esc: o.esc, hijos });
@@ -244,6 +244,7 @@
 
   // ======================================================================== CAMA
   MO.cama = function (o = {}) {
+    const conManta = o.manta !== false;
     const mad = liso('#6b4a2f', { esp: 0.3, dureza: 30 }), colch = liso('#cfd7e6', { esp: 0.05, envolver: 0.5 }), manta = V.textura('cama|manta', 512, 512, (x, W, H) => { x.fillStyle = '#34507f'; x.fillRect(0, 0, W, H); const r = VE.rng('manta'); for (let i = 0; i < 28; i++) { x.globalAlpha = 0.12; x.fillStyle = i % 2 ? '#4a6a9c' : '#26406a'; x.fillRect(0, i * H / 28, W, H / 56); } for (let i = 0; i < 3000; i++) { x.globalAlpha = 0.07; x.fillStyle = '#9fb6d8'; x.fillRect(r() * W, r() * H, 2, 6); } x.globalAlpha = 1; });
     const h = [];
     h.push(V.nodo({ malla: MA.caja(2.2, 0.26, 1.15, 0.06), mat: liso('#3a2a1c'), pos: [0.2, 0.19, 0] }));                              // somier
@@ -251,8 +252,8 @@
     for (const [x, z] of [[-0.82, -0.52], [-0.82, 0.52], [1.22, -0.52], [1.22, 0.52]]) h.push(V.nodo({ malla: MA.caja(0.09, 0.2, 0.09, 0.02), mat: mad, pos: [x, 0.1, z] }));
     h.push(V.nodo({ malla: MA.caja(0.08, 0.8, 1.2, 0.025), mat: mad, pos: [-0.88, 0.5, 0] }));                                            // cabecero
     h.push(V.nodo({ malla: MA.esfera(28), esc: [0.3, 0.075, 0.42], mat: liso('#eef0f6', { esp: 0.05, envolver: 0.6 }), pos: [-0.66, 0.53, 0] }));   // almohada
-    h.push(V.nodo({ malla: MA.caja(1.25, 0.12, 1.14, 0.05), mat: { color: '#ffffff', mapa: manta, esp: 0.04, envolver: 0.5 }, pos: [0.5, 0.6, 0] }));  // manta
-    h.push(V.nodo({ malla: MA.caja(0.16, 0.13, 1.16, 0.06), mat: liso('#e9edf6', { esp: 0.05, envolver: 0.5 }), pos: [-0.14, 0.62, 0] }));    // doblez de la sabana
+    if (conManta) h.push(V.nodo({ malla: MA.caja(1.0, 0.24, 1.14, 0.08), mat: { color: '#ffffff', mapa: manta, esp: 0.04, envolver: 0.5 }, pos: [0.72, 0.66, 0] }));  // manta
+    if (conManta) h.push(V.nodo({ malla: MA.caja(0.16, 0.25, 1.16, 0.07), mat: liso('#e9edf6', { esp: 0.05, envolver: 0.5 }), pos: [0.22, 0.665, 0] }));    // doblez de la sabana
     return V.nodo({ nombre: 'cama', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
   };
 
