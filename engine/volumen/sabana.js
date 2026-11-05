@@ -6,6 +6,7 @@
      V.modelos.mano({ dorso, dedos 0..1 (cerrar), pos, rot, esc })                                  mano humana (largo ~0,19 m): uñas planas, piel fina
      V.modelos.tiburon({ t, boca, pos, rot, esc })                                                  tiburon blanco (4 m): dorso gris, vientre blanco, aletas, branquias
      V.modelos.pulpo({ t, pos, rot, esc })                                                          pulpo comun: manto, ojos de pupila horizontal, 8 brazos que ondulan
+     V.modelos.cocodrilo({ boca, t }) · V.modelos.sonrisa({ abre }) · V.modelos.calavera() · V.modelos.hoguera({ t }) · V.modelos.espina()
      V.modelos.acacia({ semilla, esc, pos })  ·  V.modelos.lanza({ pos, rot, esc })  ·  V.modelos.suelo_sabana({ r, clave })
      V.fondo.sabana(esc, cam, { hora: 'atardecer'|'dia'|'alba' })   cielo, sol y colinas lejanas con la linea del horizonte de la camara */
 (function (VE) {
@@ -230,4 +231,58 @@
     const bruma = x.createLinearGradient(0, yh - H * 0.05, 0, yh + H * 0.01); bruma.addColorStop(0, 'rgba(250,215,160,0)'); bruma.addColorStop(1, 'rgba(250,215,160,0.55)'); x.fillStyle = bruma; x.fillRect(0, yh - H * 0.05, W, H * 0.06);
     return { yh };
   };
+
+  // ================================================================= COCODRILO (mandibulas)
+  MO.cocodrilo = function (o = {}) {
+    const boca = c01(o.boca || 0), t = o.t || 0;
+    const tex = V.textura('sab|croc|piel', 512, 256, (x, W, H) => { x.fillStyle = '#5d6040'; x.fillRect(0, 0, W, H); const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(20,24,12,0.55)'); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(230,220,170,0.5)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      const r = VE.rng('croc'); for (let j = 0; j < 22; j++) for (let i = 0; i < 40; i++) { x.globalAlpha = 0.18 + r() * 0.25; x.strokeStyle = '#1f2312'; x.lineWidth = 2; x.strokeRect(i * 13 + (j % 2) * 6, j * 12, 11, 10); }
+      for (let i = 0; i < 6; i++) { x.globalAlpha = 0.4; x.fillStyle = '#2b2e1a'; x.fillRect(i * 90 + 20, 0, 26, H * 0.55); } x.globalAlpha = 1; });
+    const mS = mt(tex, { esp: 0.2, dureza: 25, envolver: 0.4, borde: 0.2 }), diente = liso('#f2ecd6', { esp: 0.6, dureza: 60 }), interior = liso('#c7676a', { esp: 0.4 });
+    const dientes = (sup) => { const h = []; for (const sd of [-1, 1]) for (let i = 0; i < 9; i++) h.push(V.nodo({ malla: MA.cilindro(sup ? 0.018 : 0.016, 0, 0.1 + (i % 3 === 0 ? 0.05 : 0), 8), pos: [0.12 + i * 0.07, sup ? -0.05 : 0.045, sd * (0.11 - i * 0.004)], rot: [0, 0, sup ? PI : 0], mat: diente })); return h; };
+    const ojo = (sd) => V.nodo({ pos: [1.2, 0.17, sd * 0.13], hijos: [elip(mS, [0.07, 0.06, 0.07]), elip(liso('#d6b53a', { esp: 0.8, dureza: 80, emision: 0.15 }), [0.04, 0.04, 0.025], [0.025, 0.02, sd * 0.045]), elip(liso('#050403'), [0.008, 0.035, 0.012], [0.032, 0.02, sd * 0.062])] });
+    const esc_ = []; for (let i = 0; i < 12; i++) esc_.push(V.nodo({ malla: MA.cilindro(0.04, 0, 0.1, 6), pos: [0.7 - i * 0.2, 0.36 - i * 0.012, 0.0], mat: mS }));
+    const cola = []; for (let i = 0; i < 5; i++) cola.push(eje(0.2 - i * 0.03, 0.34, 0.26 - i * 0.04, [-1.15 - i * 0.55, 0.22 - i * 0.02, 0.18 * Math.sin(t * 2 - i * 0.9) * (i / 4)], mS));
+    const pata = (x, sd) => V.nodo({ pos: [x, 0.16, sd * 0.36], rot: [sd * 0.9, 0, 0.3], hijos: [V.nodo({ malla: MA.capsula(0.07, 0.05, 0.26, 12), mat: mS })] });
+    return V.nodo({ nombre: 'cocodrilo', pos: o.pos, rot: o.rot, esc: o.esc, hijos: [eje(0.27, 0.95, 0.4, [0, 0.3, 0], mS), eje(0.2, 0.55, 0.3, [0.85, 0.28, 0], mS), ...cola, ...esc_, pata(0.5, 1), pata(0.5, -1), pata(-0.6, 1), pata(-0.6, -1),
+      eje(0.075, 0.72, 0.17, [1.65, 0.26, 0], mS), elip(mS, [0.075, 0.05, 0.14], [1.4, 0.23, 0]), ...dientes(true).map(n => (n.pos[0] += 1.15, n.pos[1] += 0.26, n)), ojo(1), ojo(-1),
+      elip(liso('#1a1c10'), [0.02, 0.012, 0.03], [2.35, 0.3, 0.04]), elip(liso('#1a1c10'), [0.02, 0.012, 0.03], [2.35, 0.3, -0.04]),
+      V.nodo({ pos: [1.0, 0.2, 0], rot: [0, 0, -boca * 0.55], hijos: [eje(0.05, 0.68, 0.15, [0.7, -0.05, 0], mS), elip(interior, [0.55, 0.012, 0.11], [0.75, 0.0, 0]), ...dientes(false).map(n => (n.pos[0] += 0.0, n.pos[1] += 0.0, n))] })] });
+  };
+
+  // ================================================================= SONRISA (dientes pequeños) — mira a +Z
+  MO.sonrisa = function (o = {}) {
+    const abre = c01(o.abre == null ? 0.5 : o.abre), piel = V.textura('sab|sonrisa|piel', 128, 128, (x, W, H) => { x.fillStyle = '#e0ab87'; x.fillRect(0, 0, W, H); fibras(x, W, H, 600, ['#c98f6c', '#f0c6a6'], 4, 'sonrisa', 0.05, 0.12, 1); });
+    const mS = mt(piel, { esp: 0.2, envolver: 0.55 }), labio = liso('#b94a50', { esp: 0.45, dureza: 30, envolver: 0.4 }), dient = liso('#f7f3e8', { esp: 0.5, dureza: 50, envolver: 0.35 }), enc = liso('#d9737a', { esp: 0.3 });
+    const h = [elip(mS, [0.17, 0.13, 0.06], [0, 0, -0.045]), elip(liso('#2a0d10'), [0.062, 0.02 + abre * 0.03, 0.03], [0, -0.012, -0.01])];
+    const arco = (sup) => { const hs = []; const n = 6, anc = [0.0075, 0.0085, 0.0095, 0.0105, 0.0095, 0.0085];
+      for (let i = -n; i <= n; i++) { const k = i / n, x = i * 0.0098, z = 0.012 - 0.018 * k * k, ancho = 0.0105 - Math.abs(i) * 0.0004, alto = Math.abs(i) < 2 ? 0.02 : 0.016;
+        hs.push(V.nodo({ malla: MA.caja(ancho, alto, 0.008, 0.003), pos: [x * 1.0, sup ? 0.006 + abre * 0.012 + alto / 2 - 0.004 : -0.006 - abre * 0.012 - alto / 2 + 0.004, z], rot: [0, -k * 0.35, 0], mat: dient })); } return hs; };
+    h.push(...arco(true), ...arco(false), elip(enc, [0.075, 0.008, 0.014], [0, 0.03 + abre * 0.012, 0.0]), elip(labio, [0.07, 0.007, 0.014], [0, 0.03 + abre * 0.012, 0.004]), elip(labio, [0.065, 0.009, 0.015], [0, -0.03 - abre * 0.012, 0.004]));
+    return V.nodo({ nombre: 'sonrisa', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
+  };
+
+  // ================================================================= CALAVERA (antropologos) — mira a +X
+  MO.calavera = function (o = {}) {
+    const tex = V.textura('sab|calavera|hueso', 256, 256, (x, W, H) => { x.fillStyle = '#e3d7b9'; x.fillRect(0, 0, W, H); const r = VE.rng('hueso'); for (let i = 0; i < 700; i++) { x.globalAlpha = 0.06 + r() * 0.14; x.fillStyle = ['#8c7a55', '#f5ecd2', '#b49e72'][Math.floor(r() * 3)]; x.beginPath(); x.arc(r() * W, r() * H, 1 + r() * 6, 0, 7); x.fill(); } x.globalAlpha = 1; });
+    const mH = mt(tex, { esp: 0.12, dureza: 15, envolver: 0.4 }), hueco = liso('#0b0705', { esp: 0, dureza: 1, envolver: 0 }), dient = liso('#efe6cb', { esp: 0.3 }), h = [];
+    h.push(elip(mH, [0.1, 0.09, 0.08], [0, 0.11, 0]), elip(mH, [0.07, 0.06, 0.07], [0.055, 0.045, 0]));
+    for (const sd of [-1, 1]) { h.push(elip(hueco, [0.016, 0.02, 0.014], [0.09, 0.088, sd * 0.034], [0, sd * 0.4, 0]), elip(mH, [0.03, 0.012, 0.015], [0.06, 0.035, sd * 0.06], [0, sd * 0.3, 0])); }
+    h.push(V.nodo({ malla: MA.cilindro(0.016, 0, 0.04, 8), pos: [0.118, 0.055, 0], rot: [0, 0, PI / 2], mat: hueco }));
+    for (let i = -3; i <= 3; i++) h.push(V.nodo({ malla: MA.caja(0.009, 0.014, 0.008, 0.002), pos: [0.098 - Math.abs(i) * 0.004, 0.012, i * 0.0105], mat: dient }), V.nodo({ malla: MA.caja(0.009, 0.014, 0.008, 0.002), pos: [0.09 - Math.abs(i) * 0.004, -0.028, i * 0.0105], mat: dient }));
+    h.push(elip(mH, [0.045, 0.016, 0.058], [0.055, -0.045, 0]), V.nodo({ malla: MA.caja(0.1, 0.002, 0.004, 0.001), pos: [0.0, 0.197, 0.0], rot: [0, 0.4, 0], mat: hueco }));   // grieta
+    return V.nodo({ nombre: 'calavera', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
+  };
+
+  // ================================================================= HOGUERA
+  MO.hoguera = function (o = {}) {
+    const t = o.t || 0, tr = liso('#3d2716', { esp: 0.1 }), h = [];
+    for (let i = 0; i < 6; i++) { const a = i / 6 * 2 * PI; h.push(V.nodo({ malla: MA.cilindro(0.04, 0.035, 0.5, 8), pos: [Math.cos(a) * 0.16, 0.06, Math.sin(a) * 0.16], rot: [Math.sin(a) * 0.5, 0, -Math.cos(a) * 0.5 + 0.0], mat: tr })); }
+    const cols = ['#ff7a1a', '#ffa21f', '#ffd24a', '#ff5a14', '#ffb02e', '#ffe58a'];
+    for (let i = 0; i < 8; i++) { const a = i / 8 * 2 * PI + 0.5, f = 0.75 + 0.25 * Math.sin(t * (7 + i) + i * 2), alto = (0.34 + 0.12 * (i % 3)) * f, rr = 0.07 + 0.02 * (i % 2);
+      h.push(V.nodo({ malla: MA.esfera(16), esc: [rr * (0.9 + 0.2 * f), alto, rr * (0.9 + 0.2 * f)], pos: [Math.cos(a) * 0.1 * (i % 2 + 0.4) + 0.03 * Math.sin(t * 5 + i), 0.14 + alto * 0.8, Math.sin(a) * 0.1 * (i % 2 + 0.4)], rot: [0.12 * Math.sin(t * 4 + i), 0, 0.12 * Math.cos(t * 3 + i)], mat: liso(cols[i % 6], { emision: 1, esp: 0, envolver: 0, alfa: 0.92 }), sinSombra: true })); }
+    h.push(V.nodo({ malla: MA.cilindro(0.34, 0.34, 0.02, 20), pos: [0, 0.01, 0], mat: liso('#1c1612', { esp: 0.05 }) }));
+    return V.nodo({ nombre: 'hoguera', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
+  };
+  MO.espina = function (o = {}) { return V.nodo({ nombre: 'espina', pos: o.pos, rot: o.rot, esc: o.esc, hijos: [V.nodo({ malla: MA.cilindro(0.006, 0, 0.09, 10), mat: liso('#d9d2b8', { esp: 0.5, dureza: 50 }) }), V.nodo({ malla: MA.cilindro(0.007, 0.007, 0.01, 8), pos: [0, 0.05, 0], mat: liso('#6f7a3a') })] }); };
 })(window.VE);
