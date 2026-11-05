@@ -30,8 +30,8 @@
   MO.embrion = function (o = {}) {
     const t = o.t || 0, cola = o.cola == null ? 1 : o.cola, mS = mt(piel('emb', '#e8a58f', '#c97d6a', '#f4c2ae'), { esp: 0.35, dureza: 30, envolver: 0.6, emision: 0.08 });
     const cuerpo = []; const pts = []; for (let i = 0; i < 12; i++) { const s = i / 11, a = mez(2.3, -0.5, s); pts.push([0.32 * cs(a) - 0.15, 0.32 * sn(a), 0]); }
-    cuerpo.push(V.nodo({ malla: MA.tubo(pts, (u) => 0.12 * (1 - 0.55 * u) + 0.04, 14, { clave: 'embrion|c' }), mat: mS }));
-    cuerpo.push(elip(mS, [0.25, 0.23, 0.22], [-0.37, 0.28, 0]), elip(liso('#2b1713', { esp: 0.8, dureza: 80 }), [0.025, 0.025, 0.02], [-0.5, 0.33, 0.17]), elip(liso('#2b1713', { esp: 0.8, dureza: 80 }), [0.025, 0.025, 0.02], [-0.5, 0.33, -0.17]));
+    cuerpo.push(V.nodo({ malla: MA.tubo(pts, (u) => 0.1 * (1 - 0.5 * u) + 0.05, 14, { clave: 'embrion|c2' }), mat: mS }));
+    cuerpo.push(elip(mS, [0.16, 0.15, 0.14], [-0.36, 0.3, 0]), elip(liso('#2b1713', { esp: 0.8, dureza: 80 }), [0.02, 0.02, 0.016], [-0.46, 0.34, 0.1]), elip(liso('#2b1713', { esp: 0.8, dureza: 80 }), [0.02, 0.02, 0.016], [-0.46, 0.34, -0.1]));
     cuerpo.push(V.nodo({ pos: [-0.2, 0.1, 0.13], rot: [0, 0, 0.6], hijos: [V.nodo({ malla: MA.capsula(0.025, 0.02, 0.16, 12), mat: mS })] }), V.nodo({ pos: [-0.2, 0.1, -0.13], rot: [0, 0, 0.6], hijos: [V.nodo({ malla: MA.capsula(0.025, 0.02, 0.16, 12), mat: mS })] }));
     const raiz = pts[pts.length - 1], tp = [raiz]; const L = 0.45 * cola; if (L > 0.03) { let a = -0.5, x = raiz[0], y = raiz[1]; for (let i = 1; i < 8; i++) { a -= 0.28; x += cs(a) * L / 7; y += sn(a) * L / 7; tp.push([x, y, 0.03 * sn(t * 3 + i)]); }
       cuerpo.push(V.nodo({ malla: MA.tubo(tp, (u) => 0.045 * (1 - u * 0.8) + 0.006, 10, { dinamica: 'emb_cola' }), mat: mS })); }
@@ -63,16 +63,18 @@
   /* Columna vertebral humana: cervicales, toracicas, lumbares, sacro y coxis (4 piezas pequenas). Eje en +Y (cabeza arriba). o.coxis resalta (0-1). */
   MO.columna = function (o = {}) {
     const hueso = V.textura('cola|hueso', 128, 128, (x, W, H) => { x.fillStyle = '#e7dcc0'; x.fillRect(0, 0, W, H); const r = VE.rng('col|hueso'); for (let i = 0; i < 300; i++) { x.globalAlpha = 0.08 + r() * 0.12; x.fillStyle = ['#a8926a', '#f7efd8'][i % 2]; x.beginPath(); x.arc(r() * W, r() * H, 1 + r() * 4, 0, 7); x.fill(); } x.globalAlpha = 1; });
-    const mH = mt(hueso, { esp: 0.2, dureza: 25, envolver: 0.45 }), res = c01(o.coxis || 0), mR = liso('#ff6a2b', { esp: 0.3, emision: 0.5 + 0.5 * res, envolver: 0.3 }), disco = liso('#7fa7b8', { esp: 0.3 });
+    const mH = mt(hueso, { esp: 0.2, dureza: 25, envolver: 0.45 }), res = c01(o.coxis || 0), mR = liso('#ff6a2b', { esp: 0.3, emision: 0.5 + 0.5 * res, envolver: 0.3 }), disco = liso('#6f9bb0', { esp: 0.3 });
     const h = [], N = 24; let y = 0;
-    for (let i = 0; i < N; i++) { const s = i / (N - 1), curv = 0.07 * sn(s * PI * 2.2 + 0.4), r = mez(0.034, 0.062, Math.pow(s, 0.7)), z = curv;
-      h.push(V.nodo({ pos: [0.0, -y, z], hijos: [V.nodo({ malla: MA.cilindro(r, r, 0.03, 18), mat: mH }), V.nodo({ malla: MA.caja(0.012, 0.018, 0.075 + r * 0.6, 0.004), pos: [-r - 0.012, 0.0, 0], mat: mH }), V.nodo({ malla: MA.cilindro(r * 0.95, r * 0.95, 0.012, 18), pos: [0, -0.02, 0], mat: disco })] })); y += 0.04 + 0.002 * i; }
-    h.push(V.nodo({ pos: [0, -y - 0.07, 0.05], rot: [0.35, 0, 0], malla: MA.caja(0.15, 0.17, 0.05, 0.02), mat: mH }), V.nodo({ pos: [0.0, -y - 0.12, 0.02], hijos: [elip(mH, [0.1, 0.045, 0.11], [0.0, 0.07, -0.0]), elip(mH, [0.1, 0.03, 0.04], [0, 0.0, 0.02])] }));
-    let yc = y + 0.2, zc = 0.075; const coxN = 4;
-    for (let i = 0; i < coxN; i++) { const r = 0.026 * (1 - i * 0.18); h.push(V.nodo({ malla: MA.esfera(16), esc: [r, r * 0.8, r], pos: [0, -yc, zc], mat: res > 0 ? mR : mH })); yc += 0.034 * (1 - i * 0.1); zc += 0.012 + 0.016 * i; }
-    return V.nodo({ nombre: 'columna', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
+    for (let i = 0; i < N; i++) { const s = i / (N - 1), z = 0.07 * sn(s * PI * 2.2 + 0.4), r = mez(0.032, 0.06, Math.pow(s, 0.7)), al = 0.034 + 0.0006 * i;
+      h.push(V.nodo({ pos: [0.0, -y, z], hijos: [V.nodo({ malla: MA.cilindro(r, r * 1.04, al, 20), mat: mH }), V.nodo({ malla: MA.caja(0.014, 0.03, 0.03 + r * 0.5, 0.005), pos: [-r - 0.014, -0.004, 0], rot: [0, 0, 0.25], mat: mH }), V.nodo({ malla: MA.caja(0.03, 0.01, 2.2 * r + 0.02, 0.004), pos: [-r * 0.2, 0.0, 0], mat: mH }),
+        V.nodo({ malla: MA.cilindro(r * 0.97, r * 0.97, 0.01, 20), pos: [0, -al / 2 - 0.004, 0], mat: disco })] })); y += al + 0.012; }
+    const zS = 0.05; h.push(V.nodo({ pos: [0, -y - 0.08, zS], rot: [0.3, 0, 0], hijos: [V.nodo({ malla: MA.caja(0.12, 0.2, 0.05, 0.02), mat: mH }), elip(mH, [0.04, 0.09, 0.15], [-0.02, 0.05, 0.12], [0, 0, 0.1]), elip(mH, [0.04, 0.09, 0.15], [-0.02, 0.05, -0.12], [0, 0, 0.1])] }));
+    let yc = y + 0.24, zc = 0.08; const cx = [];
+    for (let i = 0; i < 4; i++) { const r = 0.03 * (1 - i * 0.16); h.push(V.nodo({ malla: MA.esfera(16), esc: [r, r * 0.85, r], pos: [0, -yc, zc], mat: res > 0 ? mR : mH })); cx.push([-yc, zc]); yc += 0.036 * (1 - i * 0.1); zc += 0.012 + 0.014 * i; }
+    const my = cx.reduce((a, b) => a + b[0], 0) / 4, mz = cx.reduce((a, b) => a + b[1], 0) / 4;
+    return V.nodo({ nombre: 'columna', pos: o.pos, rot: o.rot, esc: o.esc, hijos: [V.nodo({ pos: [0, -my, -mz], hijos: h })] });     // origen = coxis
   };
-  MO.columna.coxis = (o = {}) => { const e = o.esc || 1, p = o.pos || [0, 0, 0]; return [p[0], p[1] - 1.16 * e, p[2] + 0.12 * e]; };
+  MO.columna.coxis = (o = {}) => o.pos || [0, 0, 0];
 
   /* Helice de ADN. n pares, avanza en Y. o.t gira. o.salto 0..1: un fragmento naranja (AluY) se acerca y se inserta en el tramo central. */
   MO.helice = function (o = {}) {
@@ -102,13 +104,14 @@
     return V.nodo({ nombre: 'raton', pos: o.pos, rot: o.rot, esc: o.esc, hijos });
   };
 
-  /* Sacro fosil (hueso en la arena): cuerpo en cuña + alas iliacas; o.cola muestra el fantasma de la cola ausente (0-1) */
+  /* Sacro fosil (hueso en la arena): 5 vertebras fusionadas que se estrechan + alas; o.cola muestra el fantasma de la cola ausente (0-1). Origen: base, eje largo en +Y (punta hacia -Y). */
   MO.sacro = function (o = {}) {
-    const tex = V.textura('cola|fosil', 256, 256, (x, W, H) => { x.fillStyle = '#b79c70'; x.fillRect(0, 0, W, H); const r = VE.rng('fosil'); for (let i = 0; i < 900; i++) { x.globalAlpha = 0.07 + r() * 0.16; x.fillStyle = ['#7a6240', '#d6bd8f', '#5b4630'][i % 3]; x.beginPath(); x.arc(r() * W, r() * H, 1 + r() * 7, 0, 7); x.fill(); } x.globalAlpha = 1; });
+    const tex = V.textura('cola|fosil', 256, 256, (x, W, H) => { x.fillStyle = '#a88b5e'; x.fillRect(0, 0, W, H); const r = VE.rng('fosil'); for (let i = 0; i < 900; i++) { x.globalAlpha = 0.07 + r() * 0.16; x.fillStyle = ['#6b5636', '#cfb583', '#4c3a26'][i % 3]; x.beginPath(); x.arc(r() * W, r() * H, 1 + r() * 7, 0, 7); x.fill(); } x.globalAlpha = 1; });
     const m = mt(tex, { esp: 0.1, dureza: 12, envolver: 0.45 }), h = [];
-    h.push(V.nodo({ malla: MA.caja(0.16, 0.26, 0.18, 0.05), pos: [0, 0.12, 0], mat: m, rot: [0, 0, 0] }), V.nodo({ malla: MA.cilindro(0.075, 0.02, 0.22, 16), pos: [0.0, -0.1, 0], mat: m }));
-    for (const s of [-1, 1]) h.push(elip(m, [0.05, 0.16, 0.2], [0.0, 0.2, s * 0.2], [s * 0.25, 0, 0]), elip(m, [0.03, 0.06, 0.05], [0.0, 0.0, s * 0.07]));
-    const g = c01(o.cola || 0); if (g > 0) for (let i = 0; i < 5; i++) h.push(elip(liso('#8fd8ff', { esp: 0.5, emision: 0.9, alfa: 0.35 * g }), [0.04, 0.03, 0.04], [0, -0.26 - i * 0.07, 0]));
+    for (let i = 0; i < 5; i++) { const w = mez(0.2, 0.07, i / 4), yy = -i * 0.085; h.push(V.nodo({ malla: MA.caja(w, 0.09, w * 0.8, 0.03), pos: [0, yy, 0], mat: m }));
+      for (const s of [-1, 1]) h.push(elip(liso('#3a2b1c', { esp: 0.1 }), [0.012, 0.012, 0.012], [w * 0.25, yy, s * w * 0.45])); }
+    for (const s of [-1, 1]) h.push(elip(m, [0.035, 0.17, 0.12], [0, 0.0, s * 0.22], [0, 0, 0.15 * s]));
+    const g = c01(o.cola || 0); if (g > 0) for (let i = 0; i < 6; i++) h.push(elip(liso('#8fd8ff', { esp: 0.5, emision: 0.9, alfa: 0.4 * g }), [0.035 - i * 0.003, 0.03, 0.035 - i * 0.003], [0, -0.5 - i * 0.07, 0]));
     return V.nodo({ nombre: 'sacro', pos: o.pos, rot: o.rot, esc: o.esc, hijos: h });
   };
 })(window.VE = window.VE || {});
