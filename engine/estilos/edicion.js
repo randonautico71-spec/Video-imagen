@@ -66,7 +66,7 @@
     const fnt = (px) => { x.font = `700 ${Math.round(px)}px Oswald, Fredoka, sans-serif`; };
     const sal = c01((g.fin + (o.persistencia == null ? 0.3 : o.persistencia) - tg) / 0.18);                // fundido de salida del grupo
     x.save(); x.textBaseline = 'middle'; x.textAlign = 'left'; x.lineJoin = 'round'; fnt(tam);
-    const esp = x.measureText(' ').width * 0.8, pal = g.palabras.map(p => ({ p, t: p.t.toUpperCase().replace(/[.,;]+$/, (m) => m), w: x.measureText(p.t.toUpperCase()).width }));
+    const esp = x.measureText(' ').width * 0.8, pal = g.palabras.map(p => ({ p, t: p.t.toUpperCase().replace(/[.,;]+$/, (m) => m), w: x.measureText(p.t.toUpperCase()).width * (o.sinCaja ? (clave.has(norm(p.t)) ? 1.24 : 0.92) : 1) }));
     let lineas = [[]], ancho = 0; for (const q of pal) { if (ancho + q.w > w && lineas[lineas.length - 1].length) { lineas.push([]); ancho = 0; } lineas[lineas.length - 1].push(q); ancho += q.w + esp; }
     if (lineas.length > 2) { const todo = lineas.flat(), m = Math.ceil(todo.length / 2); lineas = [todo.slice(0, m), todo.slice(m)]; }
     const y0 = cy - (lineas.length - 1) * lh / 2; let idx = 0;
