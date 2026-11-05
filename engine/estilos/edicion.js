@@ -74,8 +74,8 @@
       const lw = l.reduce((s, q) => s + q.w, 0) + esp * (l.length - 1); let px = cx - lw / 2; const py = y0 + li * lh;
       for (const q of l) {
         const p = q.p, ap = c01((tg - p.ini + 0.04) / 0.14), id = idx++; if (ap <= 0) { px += q.w + esp; continue; }
-        const pop = ap < 1 ? 1 + 0.28 * Math.sin(ap * PI) * (1 - ap * 0.3) : 1, activa = tg >= p.ini - 0.02 && tg < p.fin + 0.04, esc2 = pop * (activa ? 1.05 : 1);
-        const rot = ((id * 37) % 7 - 3) * 0.0075, ccx = px + q.w / 2, ccy = py + (1 - ap) * 14 * k, esClave = clave.has(norm(p.t));
+        const dn = !!o.dinamico, activa = tg >= p.ini - 0.02 && tg < p.fin + 0.04, pop = ap < 1 ? 1 + (dn ? 0.6 : 0.28) * Math.sin(ap * PI) * (1 - ap * 0.3) : 1, esc2 = pop * (activa ? (dn && clave.has(norm(p.t)) ? 1.16 : 1.05) : 1);
+        const esClave = clave.has(norm(p.t)), tremor = dn && esClave && activa ? Math.sin(tg * 70) : 0, rot = ((id * 37) % 7 - 3) * 0.0075 + tremor * 0.025, ccx = px + q.w / 2 + tremor * 3 * k, ccy = py + (1 - ap) * (dn ? 46 : 14) * k;
         x.save(); x.globalAlpha = Math.min(ap * 1.6, 1) * sal; x.translate(ccx, ccy); x.rotate(rot * (2 - ap)); x.scale(esc2, esc2);
         if (esClave) {                                    // rotulador: rectangulo amarillo ligeramente girado con sombra dura
           const bw = q.w + 26 * k, bh = tam * 0.98; x.save(); x.rotate(-0.012); x.fillStyle = OSC; x.fillRect(-bw / 2 + 5 * k, -bh / 2 + 6 * k, bw, bh); x.fillStyle = ORO; x.fillRect(-bw / 2, -bh / 2, bw, bh); x.restore();
