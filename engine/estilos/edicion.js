@@ -204,6 +204,6 @@
     if (t < t0) return; const x = esc.ctx, tl = o.movil === true ? t0 + (o.duracionMovil || 2.6) : t0 + 0.2;
     x.save(); x.fillStyle = `rgba(8,9,12,${0.85 * c01((t - t0) / 0.5)})`; x.fillRect(0, 0, esc.W, esc.H); x.restore();
     if (o.movil === true && t < tl + 0.4) { x.save(); x.globalAlpha *= 1 - c01((t - tl) / 0.4); D.movil(esc, t, t0 + 0.2, { captura: o.captura }); x.restore(); }
-    if (t >= tl) VE.short.letrero(esc, t, tl + 0.15, { handle: o.handle || '@randonautico', cy: o.cy || esc.H * 0.45 });
+    if (t >= tl) VE.short.letrero(esc, t, tl + 0.15, { logo: o.logo !== false, handle: o.handle || '@randonautico', cy: o.cy || esc.H * 0.45 });
   };
 })(window.VE = window.VE || {});
