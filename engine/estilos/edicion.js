@@ -77,12 +77,15 @@
         const dn = !!o.dinamico, activa = tg >= p.ini - 0.02 && tg < p.fin + 0.04, pop = ap < 1 ? 1 + (dn ? 0.6 : 0.28) * Math.sin(ap * PI) * (1 - ap * 0.3) : 1, esc2 = pop * (activa ? (dn && clave.has(norm(p.t)) ? 1.16 : 1.05) : 1);
         const esClave = clave.has(norm(p.t)), tremor = dn && esClave && activa ? Math.sin(tg * 70) : 0, rot = ((id * 37) % 7 - 3) * 0.0075 + tremor * 0.025, ccx = px + q.w / 2 + tremor * 3 * k, ccy = py + (1 - ap) * (dn ? 46 : 14) * k;
         x.save(); x.globalAlpha = Math.min(ap * 1.6, 1) * sal; x.translate(ccx, ccy); x.rotate(rot * (2 - ap)); x.scale(esc2, esc2);
-        if (esClave) {                                    // rotulador: rectangulo amarillo ligeramente girado con sombra dura
+        const sc = !!o.sinCaja;                           // sinCaja: sin rotulador; la palabra clave va mas grande y mas negrita (relleno + trazo), el resto mas fino
+        if (sc) { const f = esClave ? 1.22 : 0.9; x.scale(f, f); }
+        if (esClave && !sc) {                                    // rotulador: rectangulo amarillo ligeramente girado con sombra dura
           const bw = q.w + 26 * k, bh = tam * 0.98; x.save(); x.rotate(-0.012); x.fillStyle = OSC; x.fillRect(-bw / 2 + 5 * k, -bh / 2 + 6 * k, bw, bh); x.fillStyle = ORO; x.fillRect(-bw / 2, -bh / 2, bw, bh); x.restore();
         }
         fnt(tam); x.textAlign = 'center';
-        if (!esClave) { x.lineWidth = tam * 0.16; x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); }      // contorno + sombra dura
-        x.fillStyle = esClave ? OSC : (activa ? '#ffd84a' : ORO); x.fillText(q.t, 0, 0);
+        if (sc) { x.lineWidth = tam * (esClave ? 0.2 : 0.12); x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); x.fillStyle = esClave ? '#ffd84a' : ORO; x.fillText(q.t, 0, 0); if (esClave) { x.lineWidth = tam * 0.045; x.strokeStyle = '#ffd84a'; x.strokeText(q.t, 0, 0); } }
+        else if (!esClave) { x.lineWidth = tam * 0.16; x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); }      // contorno + sombra dura
+        if (!sc) { x.fillStyle = esClave ? OSC : (activa ? '#ffd84a' : ORO); x.fillText(q.t, 0, 0); }
         x.restore(); px += q.w + esp;
       }
     });
