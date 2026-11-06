@@ -56,9 +56,11 @@
     const k = VE.tramo(t, tInicio - 0.15, 0.8, E.elastico); if (k <= 0) return 0; const x = esc.ctx, cx = o.cx == null ? esc.seguro.cx : o.cx, cy = o.cy == null ? 700 : o.cy;
     x.save(); x.translate(cx, cy); const s = 0.6 + 0.4 * Math.min(1.1, k) + 0.025 * Math.sin(t * 4); x.scale(s, s); x.globalAlpha *= Math.min(1, k * 1.8);
     esc.pegar(esc.cache.halo(520, S.COL.dorado, 0.25), 0, 0, 0.9 + 0.1 * Math.sin(t * 3));
-    VE.ruta.redondeado(x, -400, -200, 800, 400, 60); const g = x.createLinearGradient(-400, -200, 400, 200); g.addColorStop(0, '#1B2A5E'); g.addColorStop(1, '#0A1030'); x.fillStyle = g; x.fill(); x.lineWidth = 12; x.strokeStyle = S.COL.dorado; x.stroke();
-    esc.tipo(86, 700); VE.texto.trazar(esc, o.texto || 'SIGUE A', 0, -78, { color: '#fff', contornoAncho: 10, registrar: false });
+    const L = o.logo === true && S.logoYT && S.logoYT.complete && S.logoYT.naturalWidth > 0, dy = L ? 40 : 0; VE.ruta.redondeado(x, -400, -200 - dy, 800, 400 + 2 * dy, 60); const g = x.createLinearGradient(-400, -200, 400, 200); g.addColorStop(0, '#1B2A5E'); g.addColorStop(1, '#0A1030'); x.fillStyle = g; x.fill(); x.lineWidth = 12; x.strokeStyle = S.COL.dorado; x.stroke();
+    esc.tipo(86, 700); VE.texto.trazar(esc, o.texto || 'SIGUE A', 0, -78 - (L ? 52 : 0), { color: '#fff', contornoAncho: 10, registrar: false });
     const h = o.handle || '@randonautico', f = VE.texto.ajustar(esc, h, { w: 700, h: 120 }, { max: 100, min: 50, maxLineas: 1 }); esc.tipo(f.tam, 700);
-    VE.texto.trazar(esc, h, 0, 62, { color: S.COL.dorado, contornoAncho: 11, registrar: false }); x.restore(); return Math.min(1, k);
+    VE.texto.trazar(esc, h, 0, 62 - (L ? 40 : 0), { color: S.COL.dorado, contornoAncho: 11, registrar: false });
+    if (L) { const lw = 210, lh = lw / S.logoYTAspecto; x.drawImage(S.logoYT, -lw / 2, 150 - lh / 2, lw, lh); }
+    x.restore(); return Math.min(1, k);
   };
 })(window.VE = window.VE || {});
