@@ -1,0 +1,31 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Volumen 3D</title>
+<style>
+  @font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}
+  html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/shorts.js"></script>
+<script src="../engine/volumen/motor.js"></script><script src="../engine/volumen/mallas.js"></script><script src="../engine/volumen/tierra_datos.js"></script>
+<script src="../engine/volumen/modelos.js"></script><script src="../engine/volumen/fondos.js"></script>
+<script src="../engine/volumen/escenarios.js"></script><script src="../engine/volumen/historia.js"></script><script src="../engine/volumen/animales.js"></script><script src="../engine/volumen/felinos.js"></script><script src="../engine/volumen/gorila.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), V = VE.vol;
+const esc = VE.crearEscenario({ formato: 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+const sn = Math.sin, cs = Math.cos;
+const suelo = V.nodo({ malla: V.malla.cilindro(3, 3, 0.05, 48), pos: [0, -0.03, 0], mat: { color: '#3b4a2a', esp: 0.1, envolver: 0.3 } });
+const VISTAS = {
+  lado:  (t) => ({ g: { }, cam: V.camara({ pos: [0.3, 1.0, 6.2], mira: [0.25, 0.75, 0], arriba: [0, 1, 0], fov: 34 }) }),
+  tres:  (t) => ({ g: { }, cam: V.camara({ pos: [4.4, 1.7, 4.4], mira: [0.25, 0.75, 0], arriba: [0, 1, 0], fov: 34 }) }),
+  cara:  (t) => ({ g: { }, cam: V.camara({ pos: [3.6, 1.5, 2.6], mira: [0.8, 1.1, 0], arriba: [0, 1, 0], fov: 24 }) }),
+  espalda:(t) => ({ g: { }, cam: V.camara({ pos: [-1.5, 3.2, 5.5], mira: [0, 0.8, 0], arriba: [0, 1, 0], fov: 38 }) }),
+  cl:    (t) => ({ g: { }, cam: V.camara({ pos: [0.85, 1.2, 2.6], mira: [0.85, 1.2, 0], arriba: [0, 1, 0], fov: 16 }) }),
+  cf:    (t) => ({ g: { }, cam: V.camara({ pos: [3.4, 1.25, 0.25], mira: [0.85, 1.2, 0], arriba: [0, 1, 0], fov: 16 }) }),
+  pecho: (t) => ({ g: { erguido: 1, golpe: 1, golpeFase: t * 2 }, cam: V.camara({ pos: [3.4, 1.4, 3.0], mira: [0, 1.1, 0], arriba: [0, 1, 0], fov: 42 }) }),
+  rugido:(t) => ({ g: { erguido: 0.2, boca: 0.9 }, cam: V.camara({ pos: [2.2, 1.0, 1.4], mira: [0.8, 0.8, 0], arriba: [0, 1, 0], fov: 30 }) })
+};
+const vista = (Q.get('v') || 'lado').split('?')[0];
+window.renderAt = (t) => { esc.abrir(); const x = esc.ctx; const g = x.createLinearGradient(0, 0, 0, esc.H); g.addColorStop(0, '#1d3a2a'); g.addColorStop(1, '#0a1a10'); x.fillStyle = g; x.fillRect(0, 0, esc.W, esc.H);
+  const v = VISTAS[vista](t); V.render(esc, V.nodo({ hijos: [suelo, V.modelos.gorila(Object.assign({ rot: [0, 0, 0] }, v.g))] }), v.cam, { ambiente: 'dia', sombras: { centro: [0, 0.5, 0], radio: 3 } }); };
+window.ready = Promise.resolve();
+</script>
