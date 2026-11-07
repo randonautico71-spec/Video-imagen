@@ -75,11 +75,7 @@
       P('pelo_casco', [1.07, 1.02, 1.08], [-0.17, 0.21, 0]),
       P('pelo_nuca', [0.72, 0.78, 0.96], [-0.52, -0.12, 0]),
       P('pelo_vol', [0.9, 0.5, 0.95], [-0.18, 0.62, 0]),
-      P('pelo_pat_d', [0.28, 0.42, 0.16], [0.18, -0.05, 0.9]),
-      P('pelo_pat_i', [0.28, 0.42, 0.16], [0.18, -0.05, -0.9]),
-      P('flequillo1', [0.34, 0.16, 0.52], [0.8, 0.6, 0.2], [0.5, 0, -0.55]),
-      P('flequillo2', [0.28, 0.13, 0.36], [0.7, 0.5, 0.58], [0.9, 0, -0.35]),
-      P('mechon', [0.2, 0.3, 0.1], [0.82, 0.38, 0.55], [0, 0, 0.1])] });
+      P('flequillo1', [0.34, 0.16, 0.52], [0.8, 0.6, 0.2], [0.5, 0, -0.55])] });
     const cinto = V.nodo({ nombre: 'cinturon', malla: M.cilindro(0.115, 0.115, 0.06, 28), esc: [1.05, 1, 1.45], pos: [0, 0.05, 0], mat: { color: '#0d0d0f', esp: 0.4, dureza: 30 } });
     const mus = { color: piel, esp: 0.14, dureza: 28, envolver: 0.3 }, E = (e, pos, rot) => V.nodo({ malla: M.esfera(20), esc: e, pos, rot: rot || [0, 0, 0], mat: mus });
     const torso = [cinto];
