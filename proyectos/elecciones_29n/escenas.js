@@ -85,23 +85,23 @@ function escena1(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, k = esc.k; fondo(esc, ctx, 'llanura', 'alba'); velo(esc, 0, esc.H * 0.9, 0.5, 0.45);
   calendario(esc, cx - 430 * k, z.cy - 10 * k, 470 * k, 450 * k, 'NOVIEMBRE', '29', 'ELECCIONES GENERALES', tr(t, 0.05, 0.7, E.elastico));
   rotulo(esc, ctx, 'ESPAÑA VOTA', cx + 330 * k, z.y + 110 * k, { a: tr(t, 0.1, 0.5, E.elastico), color: '#fff', max: 130 * k, lineas: 1 });
-  [['8 PARTIDOS', 'ocho', COL.cian], ['CIENTOS DE PROMESAS', 'cientos', COL.dorado], ['NINGÚN PROGRAMA COMPLETO LEÍDO', 'completo', COL.rojo]].forEach(([tx, kw, c], i) => {
+  [['8 PARTIDOS', 'ocho', COL.cian], ['CIENTOS DE PROMESAS', 'cientos', COL.dorado], ['TODO POR TEMAS AL FINAL', 'temas', COL.verde]].forEach(([tx, kw, c], i) => {
     const y = z.y + 270 * k + i * 150 * k, a = tr(t, at(ctx, kw, 3 + i * 2.5) - 0.2, 0.5, E.elastico); tarjeta(esc, cx + 330 * k, y, 880 * k, 120 * k, a, { borde: c });
     texto(esc, tx, cx + 330 * k, y + 2, tx.length > 22 ? 36 : 48, '#fff', a, 5); });
-  pastilla(esc, 'TE CUENTO DE DÓNDE SALE CADA DATO', cx + 330 * k, z.y + 740 * k, { a: tr(t, at(ctx, 'quédate', 9.5), 0.5, E.atrasSalida), color: COL.verde, tam: 30 });
+  pastilla(esc, 'QUÉDATE HASTA EL FINAL', cx + 330 * k, z.y + 740 * k, { a: tr(t, at(ctx, 'quédate', 9.5), 0.5, E.atrasSalida), color: COL.verde, tam: 30 });
 }
 // ============ 2. CALENDARIO ============
 function escena2(esc, t, ctx) {
   const z = ctx.zonas.cuerpo, cx = z.cx, k = esc.k, x = esc.ctx; fondo(esc, ctx, 'lago', 'dia'); velo(esc, 0, esc.H * 0.9, 0.55, 0.4);
   tit(esc, ctx, 'EL CALENDARIO', COL.dorado);
-  const y = z.cy + 20 * k, x0 = z.x + 200 * k, x1 = z.x2 - 200 * k, prog = c01((t - 0.3) / 8);
+  const y = z.cy + 75 * k, x0 = z.x + 200 * k, x1 = z.x2 - 200 * k, prog = c01((t - 0.3) / 8);
   x.save(); x.strokeStyle = 'rgba(255,255,255,0.25)'; x.lineWidth = 12; x.lineCap = 'round'; x.beginPath(); x.moveTo(x0, y); x.lineTo(x1, y); x.stroke();
   x.strokeStyle = COL.dorado; x.beginPath(); x.moveTo(x0, y); x.lineTo(lerp(x0, x1, prog), y); x.stroke(); x.restore();
   [['5 OCT', 'CONVOCATORIA', 'cinco', COL.dorado, 0], ['13 – 27 NOV', 'CAMPAÑA', 'trece', COL.cian, 0.5], ['29 NOV', 'VOTACIÓN', 'veintinueve', COL.verde, 1]].forEach(([f, d, kw, c, p], i) => {
     const px = lerp(x0, x1, p), a = tr(t, at(ctx, kw, 2 + i * 3) - 0.2, 0.5, E.elastico), up = i % 2 === 0 ? -1 : 1;
     x.save(); x.globalAlpha *= Math.min(1, a); x.fillStyle = c; x.strokeStyle = '#fff'; x.lineWidth = 6; x.beginPath(); x.arc(px, y, 26 * Math.min(1, a), 0, 7); x.fill(); x.stroke(); x.restore();
     tarjeta(esc, px, y + up * 170 * k, 520 * k, 190 * k, a, { borde: c }); texto(esc, f, px, y + up * 170 * k - 30 * k, 56, c, a, 6); texto(esc, d, px, y + up * 170 * k + 45 * k, 40, '#fff', a, 5); });
-  pastilla(esc, 'CONVOCÓ: PEDRO SÁNCHEZ', z.cx, z.y2 - 40 * k, { a: tr(t, at(ctx, 'sánchez', 3.2), 0.5, E.atrasSalida), color: COL.cian, tam: 32 });
+  pastilla(esc, 'CONVOCÓ: PEDRO SÁNCHEZ', z.cx, z.y + 255 * k, { a: tr(t, at(ctx, 'sánchez', 3.2), 0.5, E.atrasSalida), color: COL.cian, tam: 32 });
 }
 // ============ 3. LOS OCHO ============
 function escena3(esc, t, ctx) {
@@ -110,15 +110,15 @@ function escena3(esc, t, ctx) {
   [['PSOE', 'psoe'], ['PP', 'pp'], ['VOX', 'vox'], ['FRENTE AMPLIO', 'frente'], ['PODEMOS', 'podemos'], ['ERC', 'esquerra'], ['JUNTS', 'junts'], ['SE ACABÓ LA FIESTA', 'fiesta']].forEach(([n, kw], i) => {
     const c = i % 4, r = Math.floor(i / 4), w = 430 * k, px = cx + (c - 1.5) * (w + 24 * k), py = z.y + 330 * k + r * 230 * k, a = tr(t, at(ctx, kw, 2 + i * 1.1) - 0.2, 0.5, E.elastico);
     tarjeta(esc, px, py, w, 170 * k, a, { borde: COL.dorado }); texto(esc, n, px, py, n.length > 12 ? 36 : 58, '#fff', a, 6); });
-  pastilla(esc, 'QUÉ HAN PRESENTADO · QUÉ PROMETEN · QUÉ NO CONCRETAN', cx, z.y2 - 60 * k, { a: tr(t, at(ctx, 'concretado', 16), 0.5, E.atrasSalida), color: COL.cian, tam: 32 });
+  pastilla(esc, 'QUÉ HAN PRESENTADO · QUÉ PROMETEN', cx, z.y2 - 60 * k, { a: tr(t, at(ctx, 'cifras', 16), 0.5, E.atrasSalida), color: COL.cian, tam: 32 });
 }
 const ESC = [escena1, escena2, escena3];
 // ============ 4. LA REGLA ============
 ESC.push(lista({ f: ['montanas', 'atardecer'], t: 'LA REGLA', l: [
-  ['DOCUMENTO OFICIAL', 'documento', 1], ['LO RECOGEN VARIOS MEDIOS', 'medios', 1], ['EL RESTO SE QUEDA FUERA, Y TE AVISO', 'fuera', -1], ['SIN OPINIONES Y SIN ENCUESTAS', 'opiniones', -1]] }));
+  ['SOLO LO QUE HAN DICHO Y PROMETIDO', 'prometido', 1], ['SIN OPINIONES', 'opiniones', 1], ['SIN ENCUESTAS', 'encuestas', 1], ['AL FINAL: TODO POR TEMAS', 'temas', 0]] }));
 // ============ PSOE ============
 ESC.push(lista({ f: ['llanura', 'atardecer'], t: 'PSOE', s: 'CANDIDATO: PEDRO SÁNCHEZ', l: [
-  ['CAMPAÑA ARRANCA CON LA VIVIENDA COMO TEMA CENTRAL', 'vivienda', 0], ['NO HE PODIDO LEER UN PROGRAMA COMPLETO', 'programa', -1], ['SON DECRETOS APROBADOS Y PROMESAS EN MÍTINES', 'decretos', 0]] }));
+  ['CAMPAÑA ARRANCA CON LA VIVIENDA COMO TEMA CENTRAL', 'vivienda', 0], ['DECRETOS APROBADOS', 'decretos', 0], ['PROMESAS EN MÍTINES', 'promesas', 0]] }));
 ESC.push(lista({ f: ['llanura', 'atardecer'], t: 'PSOE · VIVIENDA', l: [
   ['6 OCT: EL GOBIERNO APRUEBA DOS DECRETOS DE VIVIENDA', 'seis', 0], ['SUSPENDE HASTA 2030 LOS DESAHUCIOS DE FAMILIAS VULNERABLES', 'suspende', 0], ['LIMITA QUE FONDOS Y GRANDES TENEDORES COMPREN POR MENOS DEL 70 % DEL VALOR', 'setenta', 0]] }));
 ESC.push(lista({ f: ['llanura', 'atardecer'], t: 'PSOE · VIVIENDA', l: [
@@ -126,19 +126,19 @@ ESC.push(lista({ f: ['llanura', 'atardecer'], t: 'PSOE · VIVIENDA', l: [
 ESC.push(lista({ f: ['llanura', 'atardecer'], t: 'PSOE · PENSIONES', l: [
   ['4 AÑOS MÁS DE REVALORIZACIÓN CON EL IPC', 'cuatro', 0], ['OBJETIVO: 20.000 MILLONES EN LA HUCHA AL ACABAR LA LEGISLATURA', 'veinte', 0], ['26 OCT, GIJÓN: REFORMAR LA CONSTITUCIÓN PARA BLINDARLAS', 'gijón', 0]] }));
 ESC.push(lista({ f: ['llanura', 'atardecer'], t: 'PSOE · SALARIOS', l: [
-  ['SUBIR EL SALARIO MÍNIMO TODOS LOS AÑOS QUE GOBIERNE', 'salario', 0], ['SIN DAR UNA CIFRA', 'cifra', -1]] }));
+  ['SUBIR EL SALARIO MÍNIMO TODOS LOS AÑOS QUE GOBIERNE', 'salario', 0]] }));
 // ============ PP ============
 ESC.push(lista({ f: ['montanas', 'dia'], t: 'PP · CONTRATO CON ESPAÑA', s: 'PRESENTADO EL 19 DE OCTUBRE', l: [
-  ['FEIJÓO: EL PROGRAMA TAMBIÉN SE PRESENTARÁ', 'programa', 0], ['FEIJÓO: EN ESTAS ELECCIONES NO BASTA CON UN PROGRAMA', 'basta', 0], ['DE MOMENTO, ESTAS SON SUS PROMESAS PÚBLICAS', 'momento', 0]] }));
+  ['FEIJÓO: EL PROGRAMA TAMBIÉN SE PRESENTARÁ', 'programa', 0], ['FEIJÓO: EN ESTAS ELECCIONES NO BASTA CON UN PROGRAMA', 'basta', 0], ['ESTAS SON SUS PROMESAS', 'promesas', 0]] }));
 ESC.push(lista({ f: ['montanas', 'dia'], t: 'PP · LAS PROMESAS', l: [
-  ['PENSIONES: SUBIRLAS CADA AÑO CONFORME AL IPC', 'pensiones', 0], ['IMPUESTOS: BAJARLOS, SIN DECIR CUÁLES NI CUÁNTO', 'impuestos', -1], ['PRESUPUESTOS: UNO CADA AÑO', 'presupuestos', 0], ['SI ENCADENA DOS PRÓRROGAS, DEVOLVER LA PALABRA A LOS ESPAÑOLES', 'palabra', 0]] }));
+  ['PENSIONES: SUBIRLAS CADA AÑO CONFORME AL IPC', 'pensiones', 0], ['IMPUESTOS: «ME COMPROMETO A BAJARLOS»', 'impuestos', 0], ['PRESUPUESTOS: UNO CADA AÑO', 'presupuestos', 0], ['SI ENCADENA DOS PRÓRROGAS, DEVOLVER LA PALABRA A LOS ESPAÑOLES', 'palabra', 0]] }));
 ESC.push(lista({ f: ['montanas', 'dia'], t: 'PP · VIVIENDA', l: [
   ['AL MENOS 1.000.000 DE VIVIENDAS NUEVAS', 'millón', 0], ['100 PRIMEROS DÍAS: LEY PARA DESALOJAR OKUPAS EN 48 HORAS', 'okupas', 0], ['LEY DEL SUELO Y REFORMA DE LA PROPIEDAD HORIZONTAL', 'suelo', 0]] }));
 ESC.push(lista({ f: ['montanas', 'dia'], t: 'PP · VIVIENDA', l: [
   ['MENORES DE 40: AVALES DE HASTA EL 100 %', 'avales', 0], ['REBAJAS DEL 60 % EN IVA Y EN TRANSMISIONES', 'sesenta', 0], ['ALQUILER: DEDUCCIONES EN CONTRATOS DE HASTA 3 AÑOS', 'deducciones', 0], ['CON SUBIDAS POR DEBAJO DEL IPC', 'subidas', 0]] }));
 // ============ VOX ============
 ESC.push(lista({ f: ['desierto', 'atardecer'], t: 'VOX · «ES SENTIDO COMÚN»', s: 'ARRANCA CAMPAÑA EL 13 DE NOVIEMBRE', l: [
-  ['LO DICHO EN ACTOS Y PROPUESTAS EN EL CONGRESO', 'actos', 0], ['NO ES UN PROGRAMA COMPLETO', 'completo', -1], ['3 EJES: PRIORIDAD NACIONAL, DESREGULACIÓN, REMIGRACIÓN', 'ejes', 0]] }));
+  ['LEMA: «ES SENTIDO COMÚN»', 'lema', 0], ['3 EJES, SEGÚN ABASCAL', 'ejes', 0], ['PRIORIDAD NACIONAL · DESREGULACIÓN · REMIGRACIÓN', 'prioridad', 0]] }));
 ESC.push(lista({ f: ['desierto', 'atardecer'], t: 'VOX · EJES', l: [
   ['PRIORIDAD NACIONAL: LOS ESPAÑOLES, LOS PRIMEROS (ABASCAL)', 'primeros', 0], ['JUNIO: MOCIÓN EN EL CONGRESO PARA VIVIENDA PROTEGIDA, ALQUILER SOCIAL Y AYUDAS', 'moción', 0], ['REMIGRACIÓN: REPATRIAR A QUIENES LLEGARON ILEGALMENTE Y DEPORTAR A DELINCUENTES EXTRANJEROS', 'remigración', 0]] }));
 ESC.push(lista({ f: ['desierto', 'atardecer'], t: 'VOX · IMPUESTOS', l: [
@@ -153,33 +153,33 @@ ESC.push(lista({ f: ['costa', 'dia'], t: 'FRENTE AMPLIO · VIVIENDA', l: [
 ESC.push(lista({ f: ['costa', 'dia'], t: 'FRENTE AMPLIO · SALARIOS E IMPUESTOS', l: [
   ['URTASUN: SEGUIR SUBIENDO EL SALARIO MÍNIMO', 'mínimo', 0], ['DELGADO: BAJAR LA JORNADA', 'jornada', 0], ['URTASUN: «HACHAZO FISCAL» A LAS ELÉCTRICAS', 'hachazo', 0], ['DELGADO: IMPUESTOS A LA INTELIGENCIA ARTIFICIAL', 'inteligencia', 0]] }));
 ESC.push(lista({ f: ['costa', 'dia'], t: 'FRENTE AMPLIO · PENSIONES', l: [
-  ['URTASUN: NO PERMITIRÁN QUE SE CAMBIE EL SISTEMA PÚBLICO', 'permitirán', 0], ['SERVICIOS PÚBLICOS: DEFENDERLOS, SIN MEDIDAS CONCRETAS', 'concretas', -1]] }));
+  ['URTASUN: NO PERMITIRÁN QUE SE CAMBIE EL SISTEMA PÚBLICO', 'permitirán', 0], ['LA COALICIÓN SE COMPROMETE A DEFENDER LOS SERVICIOS PÚBLICOS', 'servicios', 0]] }));
 // ============ PODEMOS ============
 ESC.push(lista({ f: ['bosque', 'dia'], t: 'PODEMOS', s: 'IRENE MONTERO · PAZ, CASA Y TRABAJO', l: [
-  ['PRESENTÓ SUS PROPUESTAS EL 19 DE OCTUBRE', 'diecinueve', 0], ['NO HE PODIDO LEER UN PROGRAMA COMPLETO', 'programa', -1], ['SON EJES Y MEDIDAS, SIN COSTES NI PLAZOS', 'ejes', -1]] }));
+  ['PRESENTÓ SUS PROPUESTAS EL 19 DE OCTUBRE', 'diecinueve', 0], ['CANDIDATA: IRENE MONTERO', 'montero', 0], ['LEMA: PAZ, CASA Y TRABAJO', 'trabajo', 0]] }));
 ESC.push(lista({ f: ['bosque', 'dia'], t: 'PODEMOS · CASA Y TRABAJO', l: [
   ['«LA VIVIENDA NO PUEDE SER UN NEGOCIO»', 'negocio', 0], ['NADIE QUE QUIERA ESPECULAR DEBERÍA PODER COMPRAR CASA', 'especular', 0], ['SALARIO MÍNIMO DE 1.800 € POR LEY', 'mil', 0], ['JORNADA DE 30 HORAS SEMANALES', 'treinta', 0]] }));
 ESC.push(lista({ f: ['bosque', 'dia'], t: 'PODEMOS · PAZ', l: [
-  ['NI UN EURO MÁS A ARMAS', 'euro', 0], ['PARAR LAS GUERRAS Y REDUCIR LA DEPENDENCIA DE LA OTAN', 'otan', 0], ['BAJAR LOS PRECIOS Y RECUPERAR EL PODER ADQUISITIVO, SIN CIFRAS', 'precios', -1]] }));
+  ['NI UN EURO MÁS A ARMAS', 'euro', 0], ['PARAR LAS GUERRAS Y REDUCIR LA DEPENDENCIA DE LA OTAN', 'otan', 0], ['BAJAR LOS PRECIOS Y RECUPERAR EL PODER ADQUISITIVO', 'precios', 0]] }));
 ESC.push(lista({ f: ['bosque', 'dia'], t: 'PODEMOS · SERVICIOS PÚBLICOS', l: [
   ['REFORZAR LA SANIDAD Y LA EDUCACIÓN PÚBLICAS', 'sanidad', 0], ['MÁS PROFESIONALES Y MEJOR PAGADOS', 'profesionales', 0], ['ACTUAR CONTRA EL CAMBIO CLIMÁTICO Y LAS VIOLENCIAS MACHISTAS', 'climático', 0]] }));
 // ============ ERC ============
 ESC.push(lista({ f: ['costa', 'atardecer'], t: 'ESQUERRA REPUBLICANA', s: 'GABRIEL RUFIÁN · «DEFENSA\'T»', l: [
-  ['SEGÚN LA PRENSA, PRESENTÓ SU PROGRAMA EL 5 DE NOVIEMBRE', 'prensa', 0], ['TRES EJES: EL PAÍS, LA GENTE Y LOS SERVICIOS PÚBLICOS', 'ejes', 0], ['NO HE PODIDO LEER EL DOCUMENTO: CUENTO LO QUE RECOGEN LOS MEDIOS', 'documento', -1]] }));
+  ['PRESENTÓ SU PROGRAMA EL 5 DE NOVIEMBRE', 'presentó', 0], ['TRES EJES: EL PAÍS, LA GENTE Y LOS SERVICIOS PÚBLICOS', 'ejes', 0]] }));
 ESC.push(lista({ f: ['costa', 'atardecer'], t: 'ERC · DEFENDER EL PAÍS', l: [
   ['AUTODETERMINACIÓN PARA RESOLVER EL CONFLICTO CON EL ESTADO', 'autodeterminación', 0], ['EL CATALÁN Y EL MODELO DE INMERSIÓN LINGÜÍSTICA', 'catalán', 0], ['FINANCIACIÓN SINGULAR PARA CATALUÑA', 'financiación', 0]] }));
 ESC.push(lista({ f: ['costa', 'atardecer'], t: 'ERC · LA GENTE Y LOS SERVICIOS', l: [
   ['UN SALARIO MÍNIMO CATALÁN', 'salario', 0], ['UN PLAN DE VIVIENDA', 'vivienda', 0], ['TRASPASO DE RODALIES', 'rodalies', 0], ['UNA NUEVA EMPRESA CATALANA PARA GESTIONAR EL SERVICIO', 'empresa', 0]] }));
 // ============ JUNTS ============
 ESC.push(lista({ f: ['lago', 'atardecer'], t: 'JUNTS', s: 'CANDIDATA: MÍRIAM NOGUERAS', l: [
-  ['NO HE ENCONTRADO UN PROGRAMA PUBLICADO', 'programa', -1], ['HAY CONDICIONES PARA NEGOCIAR DESPUÉS DEL 29', 'condiciones', 0]] }));
+  ['CONDICIONES PARA NEGOCIAR DESPUÉS DEL 29', 'condiciones', 0]] }));
 ESC.push(lista({ f: ['lago', 'atardecer'], t: 'JUNTS · CONDICIONES', l: [
   ['QUE CATALUÑA RECAUDE TODOS LOS IMPUESTOS Y DECIDA CÓMO GASTARLOS', 'recaude', 0], ['COMPETENCIAS DE INMIGRACIÓN', 'inmigración', 0], ['CATALÁN OFICIAL EN LA UNIÓN EUROPEA', 'oficialidad', 0]] }));
 ESC.push(lista({ f: ['lago', 'atardecer'], t: 'JUNTS · LA IDEA DE FONDO', l: [
   ['MIENTRAS CATALUÑA NO SEA INDEPENDIENTE, EN MADRID NO SE PUEDE DECIDIR NADA IMPORTANTE SIN CATALUÑA', 'fondo', 0]] }));
 // ============ SALF ============
 ESC.push(lista({ f: ['desierto', 'noche'], t: 'SE ACABÓ LA FIESTA', s: 'ALVISE PÉREZ', l: [
-  ['CANDIDATURA ANUNCIADA EL 12 DE OCTUBRE DEL AÑO PASADO, EN VISTALEGRE', 'vistalegre', 0], ['5 OCT: CONFIRMA QUE CONCURRE, DE CABEZA DE LISTA POR MADRID', 'confirmó', 0], ['SEGÚN LA PRENSA, NO HAY UN PROGRAMA COMPLETO', 'completo', -1]] }));
+  ['CANDIDATURA ANUNCIADA EL 12 DE OCTUBRE DEL AÑO PASADO, EN VISTALEGRE', 'vistalegre', 0], ['5 OCT: CONFIRMA QUE CONCURRE, DE CABEZA DE LISTA POR MADRID', 'confirmó', 0], ['PROPUESTAS PRESENTADAS EN AQUEL ACTO', 'propuestas', 0]] }));
 ESC.push(lista({ f: ['desierto', 'noche'], t: 'SALF · PROPUESTAS', l: [
   ['PLAN DE DEPORTACIÓN MASIVA DE IRREGULARES, CON CARGO A FONDOS DE COOPERACIÓN', 'deportación', 0], ['UNA MACROCÁRCEL', 'macrocárcel', 0], ['CÓDIGO PENAL: QUE LA CORRUPCIÓN NO PRESCRIBA', 'prescriba', 0], ['ACABAR CON LA FINANCIACIÓN PÚBLICA DE LOS PARTIDOS', 'financiación', 0]] }));
 ESC.push(lista({ f: ['desierto', 'noche'], t: 'SALF · IMPUESTOS Y VIVIENDA', l: [
@@ -188,22 +188,22 @@ ESC.push(lista({ f: ['desierto', 'noche'], t: 'SALF · IMPUESTOS Y VIVIENDA', l:
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · VIVIENDA', l: [
   ['PSOE', 'DECRETOS APROBADOS Y PROMESA DE MANTENERLOS', 'psoe'], ['PP', '1 MILLÓN DE VIVIENDAS · OKUPAS EN 48 H', 'pp'], ['VOX', 'PRIORIDAD NACIONAL EN AYUDAS · MENOS TRABAS', 'vox'], ['FRENTE AMPLIO', 'EXPROPIAR A GRANDES PROPIETARIOS · CONTROLAR ALQUILERES', 'frente']] }));
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · VIVIENDA', l: [
-  ['PODEMOS', 'LA VIVIENDA NO PUEDE SER UN NEGOCIO', 'podemos'], ['ERC', 'UN PLAN DE VIVIENDA', 'esquerra'], ['SE ACABÓ LA FIESTA', 'TODO EL SUELO URBANIZABLE', 'fiesta'], ['JUNTS', 'SIN MEDIDAS DETALLADAS EN ESTA CAMPAÑA', 'junts', -1]] }));
+  ['PODEMOS', 'LA VIVIENDA NO PUEDE SER UN NEGOCIO', 'podemos'], ['ERC', 'UN PLAN DE VIVIENDA', 'esquerra'], ['SE ACABÓ LA FIESTA', 'TODO EL SUELO URBANIZABLE', 'fiesta']] }));
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · PENSIONES', l: [
-  ['PSOE', 'IPC Y BLINDAJE EN LA CONSTITUCIÓN', 'psoe'], ['PP', 'SUBIRLAS CADA AÑO CONFORME AL IPC', 'pp'], ['VOX', '«SE VAN A PAGAR COMO SEA»', 'vox'], ['FRENTE AMPLIO', 'NO PERMITIRÁN CAMBIAR EL SISTEMA PÚBLICO', 'frente'], ['LOS OTROS CUATRO', 'SIN MEDIDA CONCRETA CONFIRMADA', 'cuatro', -1]] }));
+  ['PSOE', 'IPC Y BLINDAJE EN LA CONSTITUCIÓN', 'psoe'], ['PP', 'SUBIRLAS CADA AÑO CONFORME AL IPC', 'pp'], ['VOX', '«SE VAN A PAGAR COMO SEA»', 'vox'], ['FRENTE AMPLIO', 'NO PERMITIRÁN CAMBIAR EL SISTEMA PÚBLICO', 'frente']] }));
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · SALARIOS', l: [
-  ['PSOE', 'SUBIR EL SALARIO MÍNIMO CADA AÑO', 'psoe'], ['PP', 'QUE SUBA EL SALARIO MEDIO, SIN CIFRAS', 'pp'], ['FRENTE AMPLIO', 'SEGUIR SUBIENDO EL MÍNIMO Y BAJAR LA JORNADA', 'frente'], ['PODEMOS', '1.800 € POR LEY Y 30 HORAS SEMANALES', 'podemos'], ['ERC', 'UN SALARIO MÍNIMO CATALÁN', 'esquerra']] }));
+  ['PSOE', 'SUBIR EL SALARIO MÍNIMO CADA AÑO', 'psoe'], ['PP', 'QUE SUBA EL SALARIO MEDIO', 'pp'], ['FRENTE AMPLIO', 'SEGUIR SUBIENDO EL MÍNIMO Y BAJAR LA JORNADA', 'frente'], ['PODEMOS', '1.800 € POR LEY Y 30 HORAS SEMANALES', 'podemos'], ['ERC', 'UN SALARIO MÍNIMO CATALÁN', 'esquerra']] }));
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · IMPUESTOS', l: [
-  ['PP', 'BAJARLOS, SIN CONCRETAR CUÁLES', 'pp', -1], ['VOX', 'IRPF DE 15 % Y 25 %', 'vox'], ['SE ACABÓ LA FIESTA', 'IRPF 0 % PARA RENTAS BAJAS', 'fiesta'], ['FRENTE AMPLIO', 'MÁS IMPUESTOS A ELÉCTRICAS E IA', 'frente'], ['JUNTS', 'CATALUÑA RECAUDA TODOS LOS SUYOS', 'junts']] }));
+  ['PP', 'BAJARLOS', 'pp'], ['VOX', 'IRPF DE 15 % Y 25 %', 'vox'], ['SE ACABÓ LA FIESTA', 'IRPF 0 % PARA RENTAS BAJAS', 'fiesta'], ['FRENTE AMPLIO', 'MÁS IMPUESTOS A ELÉCTRICAS E IA', 'frente'], ['JUNTS', 'CATALUÑA RECAUDA TODOS LOS SUYOS', 'junts']] }));
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · INMIGRACIÓN Y SEGURIDAD', l: [
-  ['VOX', 'REMIGRACIÓN: REPATRIAR Y DEPORTAR A DELINCUENTES', 'vox'], ['SE ACABÓ LA FIESTA', 'DEPORTACIÓN MASIVA Y MACROCÁRCEL', 'fiesta'], ['JUNTS', 'COMPETENCIAS DE INMIGRACIÓN PARA CATALUÑA', 'junts'], ['PP Y PSOE', 'SIN MEDIDA CONCRETA CONFIRMADA EN ESTOS ANUNCIOS', 'confirmar', -1]] }));
+  ['VOX', 'REMIGRACIÓN: REPATRIAR Y DEPORTAR A DELINCUENTES', 'vox'], ['SE ACABÓ LA FIESTA', 'DEPORTACIÓN MASIVA Y MACROCÁRCEL', 'fiesta'], ['JUNTS', 'COMPETENCIAS DE INMIGRACIÓN PARA CATALUÑA', 'junts']] }));
 ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'POR TEMAS · SERVICIOS PÚBLICOS Y EUROPA', l: [
-  ['PODEMOS', 'REFORZAR SANIDAD Y EDUCACIÓN PÚBLICAS', 'podemos'], ['ERC', 'TRASPASO DE RODALIES', 'esquerra'], ['FRENTE AMPLIO', 'DEFENDERLOS, SIN CONCRETAR', 'frente', -1], ['SE ACABÓ LA FIESTA', 'REFERÉNDUM SOBRE LA UE', 'referéndum'], ['JUNTS', 'CATALÁN OFICIAL EN LA UE', 'oficial'], ['PODEMOS', 'MENOS DEPENDENCIA DE LA OTAN', 'otan']] }));
-ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'LO QUE FALTA', c: COL.rojo, l: [
-  ['PP', '¿QUÉ IMPUESTOS BAJARÍA?', 'pp', -1], ['PODEMOS', 'MEDIDAS SIN COSTES NI PLAZOS', 'podemos', -1], ['FRENTE AMPLIO', 'SERVICIOS PÚBLICOS SIN MEDIDAS CONCRETAS', 'frente', -1], ['JUNTS Y SE ACABÓ LA FIESTA', 'SIN PROGRAMA A LA VISTA', 'junts', -1]] }));
+  ['PODEMOS', 'REFORZAR SANIDAD Y EDUCACIÓN PÚBLICAS', 'podemos'], ['ERC', 'TRASPASO DE RODALIES', 'esquerra'], ['FRENTE AMPLIO', 'DEFENDER LOS SERVICIOS PÚBLICOS', 'frente'], ['SE ACABÓ LA FIESTA', 'REFERÉNDUM SOBRE LA UE', 'referéndum'], ['JUNTS', 'CATALÁN OFICIAL EN LA UE', 'oficial'], ['PODEMOS', 'MENOS DEPENDENCIA DE LA OTAN', 'otan']] }));
+ESC.push(rejilla({ f: ['montanas', 'noche'], t: 'LOS NÚMEROS DE LA CAMPAÑA', l: [
+  ['PP', '1.000.000 DE VIVIENDAS NUEVAS', 'millón'], ['PODEMOS', 'SALARIO MÍNIMO DE 1.800 €', 'mil'], ['PSOE', 'PRÉSTAMOS DE HASTA 50.000 € A INTERÉS 0', 'cincuenta'], ['VOX', 'IRPF DEL 15 % Y DEL 25 %', 'quince'], ['PODEMOS', 'JORNADA DE 30 HORAS SEMANALES', 'treinta'], ['PSOE', 'OBJETIVO: 20.000 M EN LA HUCHA', 'veinte']] }));
 // ============ CIERRE ============
-ESC.push(lista({ f: ['llanura', 'alba'], t: 'RESUMEN RÁPIDO', l: [
-  ['DE LOS OCHO, NINGÚN PROGRAMA COMPLETO LEÍDO', 'ninguno', -1], ['ESQUERRA, SEGÚN LA PRENSA, YA LO HA PRESENTADO', 'esquerra', 0], ['LOS DEMÁS: EJES, DECRETOS Y PROMESAS EN ACTOS', 'ejes', 0], ['CUANDO SE PUBLIQUEN: LEER EL DOCUMENTO, NO SOLO EL TITULAR', 'titular', 1]] }));
+ESC.push(rejilla({ f: ['llanura', 'alba'], t: 'RESUMEN RÁPIDO', l: [
+  ['PSOE', 'VIVIENDA Y PENSIONES', 'psoe'], ['PP', 'CONTRATO CON ESPAÑA', 'pp'], ['VOX', 'PRIORIDAD NACIONAL Y REMIGRACIÓN', 'vox'], ['FRENTE AMPLIO Y PODEMOS', 'VIVIENDA Y SALARIOS', 'frente'], ['ESQUERRA Y JUNTS', 'CATALUÑA', 'esquerra'], ['SE ACABÓ LA FIESTA', 'INMIGRACIÓN Y CORRUPCIÓN', 'fiesta']] }));
 ESC.push((esc, t, ctx) => {
   const z = ctx.zonas.cuerpo, cx = z.cx, k = esc.k; fondo(esc, ctx, 'llanura', 'alba'); velo(esc, 0, esc.H * 0.9, 0.55, 0.4);
   tit(esc, ctx, 'TU TURNO', COL.dorado);
