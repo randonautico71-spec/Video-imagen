@@ -1,6 +1,6 @@
 # Verificacion de datos del guion (elecciones_29n, largo) — consultado el 08/11/2026
 Niveles: V = fuente primaria leida (BOE, web oficial del partido); V* = confirmado por prensa/agencia que recoge las palabras del acto (la fuente primaria NO se pudo abrir); X = no entra.
-LIMITACION GENERAL: a 8/11/2026 no he podido leer el programa electoral completo de NINGUNO de los ocho partidos. El video lo dice en el gancho, en cada capitulo y en el resumen. Lo que cuenta son decretos aprobados, discursos, comunicados y anuncios en actos, atribuidos por nombre. Sin opiniones, sin encuestas.
+LIMITACION GENERAL: a 8/11/2026 no he podido leer el programa electoral completo de NINGUNO de los ocho partidos. En la version rehecha el video ya no lo menciona (decision del autor): solo cuenta lo que cada partido ha dicho o prometido, atribuido por nombre, y el programa completo se tratara cuando salga. Lo que cuenta son decretos aprobados, discursos, comunicados y anuncios en actos, atribuidos por nombre. Sin opiniones, sin encuestas.
 LIMITACION DE ACCESO en esta sesion: webs de partidos y BOE devolvieron "URL_NOT_ON_ALLOWLIST" o error; por eso los datos de PSOE, PP, Vox, Frente Amplio, Podemos y SALF se reutilizan de las verificaciones de sus videos cortos (datos.md de cada rama, 22-23/10/2026), y solo lo nuevo (ERC, Junts, Malaga 6/11, Podemos/ERC de noviembre) viene de prensa leida el 7-8/11.
 
 ## Calendario (comun)
