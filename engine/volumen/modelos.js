@@ -192,7 +192,7 @@
             V.nodo({ nombre: nm('pie'), malla: MA.capsula(0.038, 0.03, k.pie, 20), rot: [0, 0, PI / 2 + 0.12], pos: [-0.03, -0.035, 0], esc: [1, 1, 1.15], mat: mat(nm('pie')) })] })] })] });
     };
     const brazo = (lado, z) => {
-      const nm = (s) => s + '_' + lado, ab = -r(P.abrir) * (z > 0 ? 1 : -1);
+      const nm = (s) => s + '_' + lado, ab = -r(P['abrir_' + lado] != null ? P['abrir_' + lado] : P.abrir) * (z > 0 ? 1 : -1);
       return V.nodo({ nombre: nm('hombro'), pos: [0, k.tronco - 0.07, z], rot: [ab, 0, r(P[nm('hombro')])], hijos: [
         bola(0.048, nm('brazo')),
         V.nodo({ nombre: nm('brazo'), malla: MA.capsula(0.045, 0.036, k.brazo, 24), mat: mat(nm('brazo')) }),
