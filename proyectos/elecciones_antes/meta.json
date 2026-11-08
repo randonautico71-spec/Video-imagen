@@ -1,0 +1,34 @@
+{
+ "titulo": "Antes del 29N: así se reparten los 350 escaños",
+ "tipo": "largo",
+ "formato": "youtube",
+ "lienzo": "yt",
+ "voz": "juanjo",
+ "musica": "curiosos",
+ "semilla": 30,
+ "estilo": "LAB",
+ "dings_en_palabras": [],
+ "cola_s": 3.5,
+ "fps": 24,
+ "ss": 1.0,
+ "crf": 20,
+ "calidad_jpeg": 0.95,
+ "lufs": -16,
+ "duracion_objetivo_s": [
+  240,
+  360
+ ],
+ "ligero_MB": 30,
+ "ligero_lado": 480,
+ "subtitulos": {
+  "palabras": 4,
+  "tam": 64
+ },
+ "capitulos": [
+  4,
+  4,
+  4,
+  4,
+  4
+ ]
+}
