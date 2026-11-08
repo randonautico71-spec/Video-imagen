@@ -30,7 +30,7 @@
     x.fillStyle = g; x.fillRect(0, 0, W, H); const rn = VE.rng('tib|e'); for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(120,50,30,${0.04 + rn() * 0.1})`; x.fillRect(rn() * W, rn() * H, 2, 2); } });
 
   const pielSp = (esp) => V.textura('tib|' + esp, 1024, 256, (x, W, H) => {
-    const c = esp === 'nodriza' ? ['#a07f52', '#7a5c38', '#b4945f', '#d6c49a', '#ddcfa8'] : ['#8d8579', '#6a635a', '#9a9285', '#dcd7cb', '#e6e2d6'];
+    const c = esp === 'megalodon' ? ['#7d8083', '#5a5d60', '#8d9092', '#cfd2d2', '#e4e6e5'] : esp === 'blanco' ? ['#7f8a94', '#5b6670', '#8f99a1', '#dfe3e5', '#f0f2f2'] : esp === 'nodriza' ? ['#a07f52', '#7a5c38', '#b4945f', '#d6c49a', '#ddcfa8'] : ['#8d8579', '#6a635a', '#9a9285', '#dcd7cb', '#e6e2d6'];
     const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, c[0]); g.addColorStop(0.25, c[1]); g.addColorStop(0.42, c[2]); g.addColorStop(0.6, c[3]); g.addColorStop(0.8, c[4]); g.addColorStop(1, c[0]);
     x.fillStyle = g; x.fillRect(0, 0, W, H); const rn = VE.rng('tib|' + esp);
     if (esp === 'nodriza') for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(60,40,20,${0.15 + rn() * 0.25})`; x.beginPath(); x.arc(rn() * W, (0.08 + rn() * 0.4) * H, 1.5 + rn() * 2.5, 0, TAU); x.fill(); }
@@ -83,7 +83,7 @@
     }
     const xn = base(1)[0], nariz = marco(1), rB = prof(0.9), xb = base(0.9), yb = -rB * 0.62;
     const ang = c01(o.boca || 0) * 0.55, xc = base(0.86)[0] + 0.01 * L;
-    const dk = esp0 ? 0.3 : 1, diente = MA.cilindro(0.0028 * L * (emb ? 1.8 : 1) * (esp0 ? 0.6 : 1), 0, 1, 6, false), matD = { color: '#f4efe0', esp: 0.65, dureza: 60, envolver: 0.5, borde: 0.4 };
+    const grande = esp0 === 'megalodon' || esp0 === 'blanco', dk = grande ? 0.8 : (esp0 ? 0.3 : 1), diente = MA.cilindro(0.0028 * L * (emb ? 1.8 : 1) * (grande ? 1.9 : (esp0 ? 0.6 : 1)), 0, 1, 6, false), matD = { color: '#f4efe0', esp: 0.65, dureza: 60, envolver: 0.5, borde: 0.4 };
     const dientes = (inf) => { const parts = [], rn = VE.rng('tib|d' + inf), n = inf ? 11 : 13;
       for (let i = 0; i < n; i++) { const s = (i / (n - 1)) * 2 - 1, x = lerp(xn - 0.02 * L, xc, Math.pow(Math.abs(s), 1.6)) , z = s * rB * 0.74, ln = (0.02 + 0.014 * (1 - Math.abs(s))) * L * (emb ? 1.5 : 1) * (0.85 + 0.3 * rn()) * dk;
         parts.push({ malla: diente, m: V.m4.mul(V.m4.tras(x - (inf ? xc : 0), (inf ? 0 : yb) + (inf ? ln * 0.5 : -ln * 0.5), z), V.m4.mul(inf ? V.m4.rotX(PI) : V.m4.id(), V.m4.mul(V.m4.rotZ(0.12), V.m4.esc(1, ln, 1)))) }); }
