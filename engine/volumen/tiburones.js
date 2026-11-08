@@ -29,6 +29,12 @@
     const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#d99a78'); g.addColorStop(0.25, '#c47a5a'); g.addColorStop(0.5, '#e0a98a'); g.addColorStop(0.75, '#f4d9bd'); g.addColorStop(1, '#d99a78');
     x.fillStyle = g; x.fillRect(0, 0, W, H); const rn = VE.rng('tib|e'); for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(120,50,30,${0.04 + rn() * 0.1})`; x.fillRect(rn() * W, rn() * H, 2, 2); } });
 
+  const pielSp = (esp) => V.textura('tib|' + esp, 1024, 256, (x, W, H) => {
+    const c = esp === 'nodriza' ? ['#a07f52', '#7a5c38', '#b4945f', '#d6c49a', '#ddcfa8'] : ['#8d8579', '#6a635a', '#9a9285', '#dcd7cb', '#e6e2d6'];
+    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, c[0]); g.addColorStop(0.25, c[1]); g.addColorStop(0.42, c[2]); g.addColorStop(0.6, c[3]); g.addColorStop(0.8, c[4]); g.addColorStop(1, c[0]);
+    x.fillStyle = g; x.fillRect(0, 0, W, H); const rn = VE.rng('tib|' + esp);
+    if (esp === 'nodriza') for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(60,40,20,${0.15 + rn() * 0.25})`; x.beginPath(); x.arc(rn() * W, (0.08 + rn() * 0.4) * H, 1.5 + rn() * 2.5, 0, TAU); x.fill(); }
+    for (let i = 0; i < 2200; i++) { x.fillStyle = `rgba(255,255,255,${0.02 + rn() * 0.05})`; x.fillRect(rn() * W, rn() * H, 1 + rn() * 3, 1); } });
   MO.tiburon = (o = {}) => {
     const emb = !!o.embrion, L = o.escala == null ? 2.5 : o.escala, Lb = 0.83 * L, id = o.id || 'tib', t = o.t || 0;
     const amp = (o.amp == null ? 0.05 : o.amp) * L, ond = o.ondas == null ? 0.9 : o.ondas, fase = (o.vel == null ? 2.2 : o.vel) * t;
@@ -44,8 +50,8 @@
       return [m.p[0] + m.S[0] * ca + m.U[0] * sa, m.p[1] + m.S[1] * ca + m.U[1] * sa, m.p[2] + m.S[2] * ca + m.U[2] * sa]; };
     const vid = 1 - 0.78 * c01(o.vidrio || 0);
     const cuerpo = MA.parametrica(130, 22, (u, v) => punto(u, v * TAU), { dinamica: 'tib|c|' + id });
-    const mat = { color: '#ffffff', mapa: emb ? pielEmbrion() : pielAdulto(), esp: 0.35, dureza: 36, envolver: 0.3, borde: 0.3 };
-    const aleta = { color: emb ? '#c8896a' : '#6d6b63', esp: 0.2, dureza: 20, envolver: 0.45, dobleCara: true, borde: 0.3 }, aleta2 = { color: emb ? '#e6b595' : '#8a877d', esp: 0.2, dureza: 20, envolver: 0.45, dobleCara: true };
+    const esp0 = o.especie, mat = { color: '#ffffff', mapa: emb ? pielEmbrion() : (esp0 ? pielSp(esp0) : pielAdulto()), esp: 0.35, dureza: 36, envolver: 0.3, borde: 0.3 };
+    const aleta = { color: emb ? '#c8896a' : (esp0 === 'nodriza' ? '#8a6a40' : (esp0 ? '#7a746a' : '#6d6b63')), esp: 0.2, dureza: 20, envolver: 0.45, dobleCara: true, borde: 0.3 }, aleta2 = { color: emb ? '#e6b595' : '#8a877d', esp: 0.2, dureza: 20, envolver: 0.45, dobleCara: true };
     const ext = (pts, cl, k = 1) => MA.extrusion(pts.map(p => [p[0] * L * k, p[1] * L * k]), 0.0035 * L * k, 'tib|' + cl + '|' + L.toFixed(2));
     const dorsal1 = ext([[0.05, 0], [0.025, 0.045], [-0.012, 0.085], [-0.032, 0.095], [-0.03, 0.05], [-0.045, 0]], 'd1');
     const dorsal2 = ext([[0.04, 0], [0.01, 0.04], [-0.02, 0.078], [-0.04, 0.085], [-0.038, 0.04], [-0.05, 0]], 'd2');
@@ -60,6 +66,12 @@
       fin(0.72, -0.62, pect, [1.15, 0, 0]), fin(0.72, PI + 0.62, pect, [-1.15, 0, 0]), fin(0.33, -0.72, pelv, [1.0, 0, 0]), fin(0.33, PI + 0.72, pelv, [-1.0, 0, 0]),
       nodo({ pos: [mt.p[0] - 0.01 * L, mt.p[1], mt.p[2]], rot: [0, tailYaw, 0.1 * Math.sin(fase * 1.0 + 0.6)], hijos: [nodo({ malla: cola, mat: aleta })] })];
     hijos[4].nombre = 'aleta_pect';
+    if (esp0 === 'punta_blanca') {                                                                               // puntas blancas en dorsal 1, cola (lobulo superior) y pectorales
+      const blanco = { color: '#f4f4ee', esp: 0.2, dureza: 20, envolver: 0.45, dobleCara: true, borde: 0.3 };
+      const pd = ext([[0.014, 0.058], [-0.012, 0.087], [-0.033, 0.097], [-0.0325, 0.066], [-0.002, 0.062]], 'pd', 1.001), pc = ext([[-0.095, 0.115], [-0.13, 0.172], [-0.15, 0.205], [-0.152, 0.17], [-0.12, 0.1]], 'pc', 1.001), pp = ext([[-0.06, 0.12], [-0.078, 0.165], [-0.088, 0.178], [-0.088, 0.13]], 'pp', 1.001);
+      hijos.push(fin(0.55, PI / 2 - 0.05, pd, [0, 0, 0], blanco), fin(0.72, -0.62, pp, [1.15, 0, 0], blanco), fin(0.72, PI + 0.62, pp, [-1.15, 0, 0], blanco),
+        nodo({ pos: [mt.p[0] - 0.01 * L, mt.p[1], mt.p[2]], rot: [0, tailYaw, 0.1 * Math.sin(fase * 1.0 + 0.6)], hijos: [nodo({ malla: pc, mat: blanco })] }));
+    }
     /* ---- cabeza: hendiduras, ojos, boca ---- */
     for (const lado of [0, 1]) {
       const ph = lado ? PI - 0.05 : 0.05;
@@ -71,9 +83,9 @@
     }
     const xn = base(1)[0], nariz = marco(1), rB = prof(0.9), xb = base(0.9), yb = -rB * 0.62;
     const ang = c01(o.boca || 0) * 0.55, xc = base(0.86)[0] + 0.01 * L;
-    const diente = MA.cilindro(0.0028 * L * (emb ? 1.8 : 1), 0, 1, 6, false), matD = { color: '#f4efe0', esp: 0.65, dureza: 60, envolver: 0.5, borde: 0.4 };
+    const dk = esp0 ? 0.3 : 1, diente = MA.cilindro(0.0028 * L * (emb ? 1.8 : 1) * (esp0 ? 0.6 : 1), 0, 1, 6, false), matD = { color: '#f4efe0', esp: 0.65, dureza: 60, envolver: 0.5, borde: 0.4 };
     const dientes = (inf) => { const parts = [], rn = VE.rng('tib|d' + inf), n = inf ? 11 : 13;
-      for (let i = 0; i < n; i++) { const s = (i / (n - 1)) * 2 - 1, x = lerp(xn - 0.02 * L, xc, Math.pow(Math.abs(s), 1.6)) , z = s * rB * 0.74, ln = (0.02 + 0.014 * (1 - Math.abs(s))) * L * (emb ? 1.5 : 1) * (0.85 + 0.3 * rn());
+      for (let i = 0; i < n; i++) { const s = (i / (n - 1)) * 2 - 1, x = lerp(xn - 0.02 * L, xc, Math.pow(Math.abs(s), 1.6)) , z = s * rB * 0.74, ln = (0.02 + 0.014 * (1 - Math.abs(s))) * L * (emb ? 1.5 : 1) * (0.85 + 0.3 * rn()) * dk;
         parts.push({ malla: diente, m: V.m4.mul(V.m4.tras(x - (inf ? xc : 0), (inf ? 0 : yb) + (inf ? ln * 0.5 : -ln * 0.5), z), V.m4.mul(inf ? V.m4.rotX(PI) : V.m4.id(), V.m4.mul(V.m4.rotZ(0.12), V.m4.esc(1, ln, 1)))) }); }
       return MA.fusionar(parts, 'tib|dientes|' + inf + '|' + L.toFixed(2) + emb); };
     const mandibula = nodo({ nombre: 'mandibula', pos: [xc, yb, 0], rot: [0, 0, -ang], hijos: [
@@ -81,6 +93,7 @@
       nodo({ malla: MA.esfera(14), esc: [(xn - xc) * 0.46, rB * 0.3, rB * 0.6], pos: [(xn - xc) * 0.42, -rB * 0.1, 0], mat }),
       nodo({ malla: MA.esfera(12), esc: [(xn - xc) * 0.45, rB * 0.05, rB * 0.55], pos: [(xn - xc) * 0.5, rB * 0.02, 0], mat: { color: '#7a2c32', esp: 0.4, dureza: 30, envolver: 0.4 } })] });
     hijos.push(nodo({ malla: dientes(false), mat: matD }), mandibula);
+    if (esp0 === 'nodriza') for (const z of [-1, 1]) hijos.push(nodo({ malla: MA.cilindro(0.004 * L, 0.001 * L, 0.03 * L, 6, true), pos: [xn - 0.02 * L, yb * 0.8, z * rB * 0.35], rot: [0, 0, PI], mat: { color: '#8a6a40' } }));
     hijos.push(nodo({ nombre: 'boca', pos: [xn - 0.02 * L, yb, 0], esc: 0.001 }), nodo({ nombre: 'morro', pos: [xn, 0, 0], esc: 0.001 }), nodo({ nombre: 'cabeza', pos: [xb[0], 0, 0], esc: 0.001 }));
     if (ang > 0.05) hijos.push(nodo({ malla: MA.esfera(12), esc: [(xn - xc) * 0.5, rB * 0.18 * ang * 2, rB * 0.6], pos: [lerp(xc, xn, 0.5), yb - rB * 0.1 * ang, 0], mat: { color: '#3a0c12', tipo: 'plano' } }));
     if (o.estomago != null) hijos.push(nodo({ nombre: 'estomago', malla: MA.esfera(16), pos: punto(0.62, -PI / 2, 0.6), esc: [0.06 * L * (0.4 + o.estomago), 0.032 * L * (0.4 + o.estomago), 0.045 * L * (0.4 + o.estomago)], mat: { color: '#bfe9ff', alfa: 0.4, emision: 0.4, esp: 0.8, dureza: 60, tipo: 'plano' }, sinSombra: true }));
