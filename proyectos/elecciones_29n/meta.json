@@ -1,0 +1,40 @@
+{
+ "titulo": "Elecciones 29N: qué propone cada partido",
+ "tipo": "largo",
+ "formato": "youtube",
+ "lienzo": "yt",
+ "voz": "juanjo",
+ "musica": "curiosos",
+ "semilla": 29,
+ "estilo": "LAB",
+ "dings_en_palabras": [],
+ "cola_s": 3.5,
+ "fps": 24,
+ "ss": 1.0,
+ "crf": 20,
+ "calidad_jpeg": 0.95,
+ "lufs": -16,
+ "duracion_objetivo_s": [
+  600,
+  1000
+ ],
+ "ligero_MB": 60,
+ "ligero_lado": 480,
+ "capitulos": [
+  4,
+  5,
+  4,
+  4,
+  4,
+  4,
+  3,
+  3,
+  3,
+  8,
+  3
+ ],
+ "subtitulos": {
+  "palabras": 4,
+  "tam": 64
+ }
+}
