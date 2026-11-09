@@ -70,7 +70,6 @@
       hij.push(nodo({ malla: MA.esfera(40), esc: [1.0, 0.8, 1.3], pos: [0.1, -0.5 - abre * 0.85 - 0.45, 0], mat: m(sombra) }));                        // parpado inferior
       for (let i = 0; i < 17; i++) { const t = i / 16 - 0.5, z = t * 2.3, y = 0.5 + abre - 0.02 - Math.abs(t) * 0.3 + (1 - ab) * 0.0;
         hij.push(nodo({ malla: MA.capsula(0.016, 0.006, 0.34, 8), pos: [0.88 - Math.abs(t) * 0.25, y + 0.01, z * 0.92], rot: [-t * 0.9, 0, -1.15 + Math.abs(t) * 0.3 + (1 - ab) * 0.5], mat: { color: '#1e140f', esp: 0.05 } })); }
-      hij.push(nodo({ malla: MA.capsula(0.07, 0.04, 1.7, 14), pos: [0.78, 1.72, 0.0], rot: [PI / 2, 0, 0.12], mat: m('#2d1f16', { esp: 0.05 }) }));      // ceja
     }
     return nodo({ nombre: 'ojo', pos: o.pos, rot: o.rot, esc: o.esc, alfa: o.alfa, hijos: hij });
   };
@@ -109,14 +108,14 @@
     const P = (a) => [(a.p[0] - cm[0]) * k, (a.p[1] - cm[1]) * k, 0.06 * k * Math.sin(a.p[0] * 3 + a.p[1] * 2)];
     for (const a of at) hij.push(nodo({ malla: MA.esfera(14), pos: P(a), esc: a.e === 'O' ? 0.17 * 1.0 : 0.13, mat: { color: a.e === 'O' ? '#e0343b' : '#5d6672', esp: 0.7, dureza: 80, envolver: 0.3, emision: br } }));
     for (const [i, j] of enl) { const p = P(at[i]), q = P(at[j]), d = [q[0] - p[0], q[1] - p[1], q[2] - p[2]], l = Math.hypot(...d), ang = Math.atan2(d[1], d[0]);
-      hij.push(nodo({ malla: MA.capsula(0.028, 0.028, l, 8), pos: [(p[0] + q[0]) / 2 + 0, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2], rot: [0, 0, ang - PI / 2 + PI], mat: { color: '#c9d1da', esp: 0.4, dureza: 40, emision: br * 0.6 } })); }
+      hij.push(nodo({ malla: MA.cilindro(0.028, 0.028, l, 8, false), pos: [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2], rot: [0, 0, ang - PI / 2], mat: { color: '#c9d1da', esp: 0.4, dureza: 40, emision: br * 0.6 } })); }
     return nodo({ pos: o.pos, rot: [0, 0.35 * Math.sin(t * 0.8), 0.1 * Math.sin(t * 0.6)].map((v, i) => v + ((o.rot || [0, 0, 0])[i] || 0)), esc: o.esc, alfa: o.alfa, hijos: hij });
   };
 
   /* ---------------------------------------------------------------- receptor de membrana (7 helices) */
   MO.receptor = (o = {}) => {
     const ac = c01(o.activo || 0), hij = [], col = ac > 0.5 ? '#3fd0ff' : '#8a7cd8', em = 0.1 + 0.7 * ac;
-    for (let i = 0; i < 7; i++) { const a = i / 7 * TAU, r = 0.1; hij.push(nodo({ malla: MA.capsula(0.045, 0.045, 0.5, 12), pos: [r * Math.cos(a), 0.0, r * Math.sin(a)], rot: [0.1 * Math.sin(a), 0, 0.1 * Math.cos(a)], mat: { color: col, esp: 0.5, dureza: 60, envolver: 0.3, emision: em } })); }
+    for (let i = 0; i < 7; i++) { const a = i / 7 * TAU, r = 0.1; hij.push(nodo({ malla: MA.cilindro(0.045, 0.045, 0.5, 12), pos: [r * Math.cos(a), 0.0, r * Math.sin(a)], rot: [0.1 * Math.sin(a), 0, 0.1 * Math.cos(a)], mat: { color: col, esp: 0.5, dureza: 60, envolver: 0.3, emision: em } })); }
     hij.push(nodo({ malla: MA.esfera(14), esc: [0.16, 0.05, 0.16], pos: [0, 0.27, 0], mat: { color: col, emision: em, esp: 0.4 } }));
     return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, alfa: o.alfa, hijos: hij });
   };
