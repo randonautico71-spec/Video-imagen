@@ -1,0 +1,22 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Garganta 3D</title>
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/shorts.js"></script>
+<script src="../engine/volumen/motor.js"></script><script src="../engine/volumen/mallas.js"></script><script src="../engine/volumen/tierra_datos.js"></script>
+<script src="../engine/volumen/modelos.js"></script><script src="../engine/volumen/fondos.js"></script><script src="../engine/volumen/garganta.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), V = VE.vol;
+const esc = VE.crearEscenario({ formato: 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+const cam = V.camara({ pos: [0, -0.5, 7.5], mira: [0, -0.5, 0], arriba: [0, 1, 0], fov: 40 });
+const VISTAS = {
+  g1: (t) => ({ bajar: 1, bolo: -1, epiglotis: 0, piel: 1 }),
+  g2: (t) => ({ bajar: 1, bolo: 0.35, epiglotis: 0, piel: 0.18 }),
+  g3: (t) => ({ bajar: 1, bolo: 0.62, epiglotis: 1, piel: 0.18 }),
+  g4: (t) => ({ bajar: 0, bolo: -1, epiglotis: 0, piel: 0.18 })
+};
+const vista = (Q.get('v') || 'g1').split('?')[0];
+window.renderAt = (t) => { esc.abrir(); const x = esc.ctx; const g = x.createLinearGradient(0, 0, 0, esc.H); g.addColorStop(0, '#26364a'); g.addColorStop(1, '#0c1118'); x.fillStyle = g; x.fillRect(0, 0, esc.W, esc.H);
+  V.render(esc, V.nodo({ hijos: [V.modelos.garganta(VISTAS[vista](t))] }), cam, { ambiente: 'estudio' }); };
+window.ready = Promise.resolve();
+</script>
