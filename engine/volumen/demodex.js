@@ -49,7 +49,7 @@
     const et = o.etapa || 'adulto', t = o.t || 0, paso = c01(o.paso == null ? 0.5 : o.paso), ph = o.fase || 0;
     const mat = { color: '#ffffff', mapa: texAcaro(), esp: 0.35, dureza: 30, envolver: 0.6, borde: 0.55, alfa: o.alfaCuerpo };
     if (et === 'huevo') return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, alfa: o.alfa, nombre: o.nombre, hijos: [
-      nodo({ malla: MA.esfera(20), esc: [0.17, 0.095, 0.095], mat: { color: '#f4efe0', esp: 0.5, dureza: 50, envolver: 0.6, borde: 0.6, alfa: 0.92 } }),
+      nodo({ malla: MA.esfera(20), esc: [0.17, 0.095, 0.095], mat: { color: '#fbf6e8', esp: 0.4, dureza: 40, envolver: 0.7, borde: 0.5, alfa: 0.95 } }),
       nodo({ malla: MA.esfera(10), esc: [0.07, 0.04, 0.04], pos: [0.02, 0, 0], mat: { color: '#d9c590', esp: 0.2, dureza: 20, alfa: 0.7 } })] });
     const F = { adulto: [1, 4], deutoninfa: [0.82, 4], protoninfa: [0.62, 4], larva: [0.44, 3] }[et] || [1, 4];
     const L = F[0], npar = F[1], hij = [];
@@ -86,16 +86,16 @@
     if (r < rp * 1.06) { const q = r / (rp * 1.06); y -= 1.3 * Math.pow(1 - q * q, 0.5); }
     y += 0.075 * Math.exp(-Math.pow((r - rp * 1.28) / (rp * 0.34), 2));
     for (const q of poros) { const d = Math.hypot(x - q.x, z - q.z); if (d < q.s * 1.5) { const u = d / q.s; y -= u < 1 ? q.s * 1.0 * Math.pow(1 - u * u, 0.6) : 0; y += 0.02 * q.s * Math.exp(-Math.pow((d - q.s * 1.15) / (q.s * 0.3), 2)) * 4; } }
-    const g1 = Math.pow(Math.abs(Math.sin((x * 0.95 + z * 0.55) * 5.6 + 0.9 * Math.sin(z * 1.7))), 34), g2 = Math.pow(Math.abs(Math.sin((x * -0.55 + z * 0.95) * 5.0 + 0.8 * Math.sin(x * 1.5))), 34);
-    return y - 0.014 * g1 - 0.012 * g2 + 0.011 * Math.sin(x * 11.3 + z * 7.1) * Math.sin(z * 9.7 - x * 5.3);
+    const g1 = Math.pow(Math.abs(Math.sin((x * 0.95 + z * 0.55) * 5.6 + 0.9 * Math.sin(z * 1.7) + 1.3 * Math.sin(x * 2.9 + z * 2.1))), 34), g2 = Math.pow(Math.abs(Math.sin((x * -0.55 + z * 0.95) * 5.0 + 0.8 * Math.sin(x * 1.5))), 34);
+    return y - 0.006 * g1 - 0.005 * g2 + 0.011 * Math.sin(x * 11.3 + z * 7.1) * Math.sin(z * 9.7 - x * 5.3);
   };
   const texPiel = (semilla, rp, poros) => V.textura('piel|tex|' + semilla + '|' + rp, 1024, 1024, (x, W, H) => {
     const img = x.createImageData(W, H), d = img.data, S = SPAN * 2;
     for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
       const X = (i / W - 0.5) * S, Z = (j / H - 0.5) * S, k = (j * W + i) * 4;
-      const g1 = Math.pow(Math.abs(Math.sin((X * 0.95 + Z * 0.55) * 5.6 + 0.9 * Math.sin(Z * 1.7))), 34), g2 = Math.pow(Math.abs(Math.sin((X * -0.55 + Z * 0.95) * 5.0 + 0.8 * Math.sin(X * 1.5))), 34);
+      const g1 = Math.pow(Math.abs(Math.sin((X * 0.95 + Z * 0.55) * 5.6 + 0.9 * Math.sin(Z * 1.7) + 1.3 * Math.sin(X * 2.9 + Z * 2.1))), 34), g2 = Math.pow(Math.abs(Math.sin((X * -0.55 + Z * 0.95) * 5.0 + 0.8 * Math.sin(X * 1.5) + 1.2 * Math.sin(Z * 2.7 - X * 1.9))), 34);
       const n = 0.5 + 0.25 * Math.sin(X * 3.1 + Math.sin(Z * 2.3)) + 0.25 * Math.sin(Z * 4.7 - X * 1.9 + Math.sin(X * 5.1));
-      const gr = 1 - 0.28 * (g1 + g2), v = (0.9 + 0.2 * n) * gr;
+      const gr = 1 - 0.1 * (g1 + g2), v = (0.9 + 0.2 * n) * gr;
       d[k] = Math.min(255, 218 * v); d[k + 1] = Math.min(255, 166 * v * (1 - 0.06 * n)); d[k + 2] = Math.min(255, 138 * v * (1 - 0.1 * n)); d[k + 3] = 255;
     }
     x.putImageData(img, 0, 0);
