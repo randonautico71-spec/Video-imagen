@@ -86,14 +86,14 @@
     if (r < rp * 1.06) { const q = r / (rp * 1.06); y -= 1.3 * Math.pow(1 - q * q, 0.5); }
     y += 0.075 * Math.exp(-Math.pow((r - rp * 1.28) / (rp * 0.34), 2));
     for (const q of poros) { const d = Math.hypot(x - q.x, z - q.z); if (d < q.s * 1.5) { const u = d / q.s; y -= u < 1 ? q.s * 1.0 * Math.pow(1 - u * u, 0.6) : 0; y += 0.02 * q.s * Math.exp(-Math.pow((d - q.s * 1.15) / (q.s * 0.3), 2)) * 4; } }
-    const g1 = Math.pow(Math.abs(Math.sin((x * 0.95 + z * 0.55) * 2.4 + 0.7 * Math.sin(z * 1.2))), 26), g2 = Math.pow(Math.abs(Math.sin((x * -0.55 + z * 0.95) * 2.1 + 0.6 * Math.sin(x * 1.1))), 26);
-    return y - 0.035 * g1 - 0.03 * g2 + 0.011 * Math.sin(x * 11.3 + z * 7.1) * Math.sin(z * 9.7 - x * 5.3);
+    const g1 = Math.pow(Math.abs(Math.sin((x * 0.95 + z * 0.55) * 5.6 + 0.9 * Math.sin(z * 1.7))), 34), g2 = Math.pow(Math.abs(Math.sin((x * -0.55 + z * 0.95) * 5.0 + 0.8 * Math.sin(x * 1.5))), 34);
+    return y - 0.014 * g1 - 0.012 * g2 + 0.011 * Math.sin(x * 11.3 + z * 7.1) * Math.sin(z * 9.7 - x * 5.3);
   };
   const texPiel = (semilla, rp, poros) => V.textura('piel|tex|' + semilla + '|' + rp, 1024, 1024, (x, W, H) => {
     const img = x.createImageData(W, H), d = img.data, S = SPAN * 2;
     for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
       const X = (i / W - 0.5) * S, Z = (j / H - 0.5) * S, k = (j * W + i) * 4;
-      const g1 = Math.pow(Math.abs(Math.sin((X * 0.95 + Z * 0.55) * 2.4 + 0.7 * Math.sin(Z * 1.2))), 26), g2 = Math.pow(Math.abs(Math.sin((X * -0.55 + Z * 0.95) * 2.1 + 0.6 * Math.sin(X * 1.1))), 26);
+      const g1 = Math.pow(Math.abs(Math.sin((X * 0.95 + Z * 0.55) * 5.6 + 0.9 * Math.sin(Z * 1.7))), 34), g2 = Math.pow(Math.abs(Math.sin((X * -0.55 + Z * 0.95) * 5.0 + 0.8 * Math.sin(X * 1.5))), 34);
       const n = 0.5 + 0.25 * Math.sin(X * 3.1 + Math.sin(Z * 2.3)) + 0.25 * Math.sin(Z * 4.7 - X * 1.9 + Math.sin(X * 5.1));
       const gr = 1 - 0.28 * (g1 + g2), v = (0.9 + 0.2 * n) * gr;
       d[k] = Math.min(255, 218 * v); d[k + 1] = Math.min(255, 166 * v * (1 - 0.06 * n)); d[k + 2] = Math.min(255, 138 * v * (1 - 0.1 * n)); d[k + 3] = 255;
@@ -109,7 +109,7 @@
     const rp = o.poroRadio || 0.42, hij = [], sem = o.semilla || 0, tinte = o.color || '#ffffff', poros = listaPoros(sem, rp).slice(0, o.poros == null ? 54 : o.poros);
     const malla = MA.parametrica(GRID, GRID, (u, v) => { const x = (u - 0.5) * SPAN * 2, z = (v - 0.5) * SPAN * 2; return [x, alturaPiel(x, z, rp, poros), z]; }, { clave: 'piel|malla|' + sem + '|' + rp + '|' + poros.length });
     const mat = { color: tinte, mapa: texPiel(sem, rp, poros), esp: 0.28, dureza: 34, envolver: 0.55, borde: 0.2 };
-    hij.push(nodo({ malla, mat, sinSombra: true }), nodo({ malla: MA.plano(90, 90, 1), pos: [0, -0.03, 0], mat: { color: tinte === '#ffffff' ? '#d5a084' : tinte, esp: 0.2, dureza: 20, envolver: 0.5 }, sinSombra: true }));
+    hij.push(nodo({ malla, mat, sinSombra: true }), nodo({ malla: MA.plano(90, 90, 1), pos: [0, -4, 0], mat: { color: tinte === '#ffffff' ? '#d5a084' : tinte, esp: 0.2, dureza: 20, envolver: 0.5 }, sinSombra: true }));
     if (o.sebo !== false) hij.push(nodo({ malla: MA.esfera(16), esc: [rp * 0.7, 0.14, rp * 0.7], pos: [0, -0.98, 0], mat: { color: '#e8b94c', tipo: 'brillo', esp: 0.9, dureza: 90, alfa: 0.9, envolver: 0.4 } }));
     if (o.pelo !== false) hij.push(MO.pelo({ largo: o.largoPelo || 4.6, radio: 0.1, curva: 0.5, pos: [rp * 0.14, -1.2, 0], color: o.colorPelo }));
     poros.forEach((q, i) => { if (q.pelo) hij.push(MO.pelo({ largo: q.l, radio: 0.04, curva: q.c, pos: [q.x, -q.s * 0.7, q.z], rot: [0, q.a, 0], color: '#6a5040', clave: 'pelo|v|' + (i % 6) + '|' + q.l.toFixed(1) })); });
@@ -135,11 +135,12 @@
 
   /* ---------------------------------------------------------------- glándula sebácea con huevos */
   MO.glandula = (o = {}) => {
-    const t = o.t || 0, rn = VE.rng('gland' + (o.semilla || 0)), hij = [], lobulos = [[0, 0, 0, 1.5], [1.25, 0.35, 0.3, 1.15], [-1.2, 0.45, -0.2, 1.1], [0.3, 1.1, -0.6, 1.0], [-0.3, -0.95, 0.5, 1.0], [0.95, -0.7, -0.4, 0.9]];
-    for (const [x, y, z, s] of lobulos) hij.push(nodo({ malla: MA.esfera(24), pos: [x, y, z], esc: s, mat: { color: '#f1c366', tipo: 'brillo', esp: 0.5, dureza: 40, alfa: 0.26, dobleCara: true, envolver: 0.6, borde: 0.5 }, sinSombra: true }));
-    const nh = o.huevos == null ? 7 : o.huevos;
-    for (let i = 0; i < nh; i++) { const a = rn() * TAU, b = Math.acos(2 * rn() - 1), d = 0.25 + rn() * 0.8, k = c01(((o.t0 == null ? 0 : o.t0) + 1) * 0 + 1);
-      hij.push(MO.demodex({ etapa: 'huevo', esc: 1.0 * k, pos: [Math.sin(b) * Math.cos(a) * d + Math.sin(t * 0.7 + i) * 0.03, Math.cos(b) * d * 0.7, Math.sin(b) * Math.sin(a) * d], rot: [rn() * PI, rn() * PI, rn() * PI] })); }
+    const t = o.t || 0, rn = VE.rng('gland' + (o.semilla || 0)), hij = [];
+    const lob = [[0, 0, 0, 0.62]]; for (let i = 0; i < 9; i++) { const a = i / 9 * TAU + 0.3, r = 0.62 + (i % 2) * 0.1; lob.push([Math.cos(a) * r, Math.sin(a) * r * 1.0, (i % 3 - 1) * 0.22, 0.34 + 0.06 * (i % 3)]); }
+    for (let i = 0; i < 5; i++) { const a = i / 5 * TAU + 1.0, r = 0.98; lob.push([Math.cos(a) * r, Math.sin(a) * r, (i % 2 ? 0.2 : -0.25), 0.25]); }
+    lob.forEach(([x, y, z, s], i) => hij.push(nodo({ malla: MA.esfera(22), pos: [x, y, z], esc: s, mat: { color: i === 0 ? '#f3c970' : '#efb85a', tipo: 'brillo', esp: 0.6, dureza: 50, alfa: i === 0 ? 0.22 : 0.4, envolver: 0.7, borde: 0.6 }, sinSombra: true })));
+    const nh = o.huevos == null ? 0 : o.huevos;
+    for (let i = 0; i < nh; i++) { const a = rn() * TAU, d = 0.1 + rn() * 0.3; hij.push(MO.demodex({ etapa: 'huevo', pos: [Math.cos(a) * d, Math.sin(a) * d, rn() * 0.2], rot: [rn() * PI, rn() * PI, rn() * PI] })); }
     return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, hijos: hij });
   };
 })(window.VE);
