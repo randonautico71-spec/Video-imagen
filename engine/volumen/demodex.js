@@ -50,7 +50,7 @@
     const mat = { color: '#ffffff', mapa: texAcaro(), esp: 0.35, dureza: 30, envolver: 0.6, borde: 0.55, alfa: o.alfaCuerpo };
     if (et === 'huevo') return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, alfa: o.alfa, nombre: o.nombre, hijos: [
       nodo({ malla: MA.esfera(20), esc: [0.17, 0.095, 0.095], mat: { color: '#fbf6e8', esp: 0.4, dureza: 40, envolver: 0.7, borde: 0.5, alfa: 0.95 } }),
-      nodo({ malla: MA.esfera(10), esc: [0.07, 0.04, 0.04], pos: [0.02, 0, 0], mat: { color: '#d9c590', esp: 0.2, dureza: 20, alfa: 0.7 } })] });
+      nodo({ malla: MA.esfera(10), esc: [0.09, 0.05, 0.05], pos: [0.02, 0, 0.03], mat: { color: '#efe2b8', esp: 0.2, dureza: 20, alfa: 0.55, tipo: 'plano' } })] });
     const F = { adulto: [1, 4], deutoninfa: [0.82, 4], protoninfa: [0.62, 4], larva: [0.44, 3] }[et] || [1, 4];
     const L = F[0], npar = F[1], hij = [];
     hij.push(nodo({ malla: mallaCuerpo(), mat }));
