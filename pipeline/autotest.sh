@@ -29,10 +29,11 @@ rm -rf proyectos/_autotest
 echo "== Navegador y motor visual (sin errores en pagina)"
 if node -e "const n=require('./render/navegador.cjs');process.exit(n.EXE&&n.PW?0:1)" 2>/dev/null; then
   ok "Playwright + Chromium localizados"
-  mkdir -p /tmp/autotest_img && for m in "paisaje" "objetos" "rayo"; do
+  mkdir -p /tmp/autotest_img && for m in "realismo:paisaje" "realismo:objetos" "realismo:rayo" "plato:plato" "plato:personajes" "plato:piezas"; do
+    pag=${m%%:*}; m=${m#*:}
     node -e "
 const n=require('./render/navegador.cjs'),fs=require('fs');(async()=>{const {chromium}=require(n.PW);const b=await chromium.launch({executablePath:n.EXE,args:n.FLAGS});const pg=await b.newPage({viewport:{width:960,height:540}});const er=[];pg.on('pageerror',e=>er.push(String(e)));pg.on('console',m=>{if(m.type()==='error')er.push(m.text())});
-await pg.goto('file://'+process.cwd()+'/demo/realismo.html?modo=$m&ss=0.5');await pg.evaluate(()=>window.renderAt(0));const d=await pg.evaluate(()=>document.getElementById('c').toDataURL('image/jpeg',0.8).length);await b.close();if(er.length||d<5000){console.error(er.join('|')||'imagen vacia');process.exit(1)}})()" 2>/dev/null && ok "demo/realismo.html?modo=$m" || mal "demo realismo $m"
+await pg.goto('file://'+process.cwd()+'/demo/$pag.html?modo=$m&ss=0.5');await pg.evaluate(()=>window.renderAt(0));const d=await pg.evaluate(()=>document.getElementById('c').toDataURL('image/jpeg',0.8).length);await b.close();if(er.length||d<5000){console.error(er.join('|')||'imagen vacia');process.exit(1)}})()" 2>/dev/null && ok "demo/$pag.html?modo=$m" || mal "demo $pag $m"
   done
 else mal "no hay Playwright/Chromium (ver chat/bootstrap.sh)"; fi
 echo; [ $fallos = 0 ] && echo "TODO BIEN" || { echo "$fallos FALLO(S)"; exit 1; }

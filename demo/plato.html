@@ -1,0 +1,29 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Plato</title>
+<style>@font-face{font-family:Fredoka;src:url(../assets/fonts/fredoka-latin.woff2) format('woff2');font-weight:300 700}
+html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/plato.js"></script>
+<script>
+/* Revision del estilo PLATO: ?modo=plato | personajes | piezas  (lienzo vertical) */
+const Q = new URLSearchParams(location.search), modo = Q.get('modo') || 'plato', P = VE.plato;
+const esc = VE.crearEscenario({ formato: Q.get('lienzo') || Q.get('formato') || 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+window.renderAt = (t) => { esc.abrir(); const B = P.PERSONAS.broncano, A = P.PERSONAS.abascal;
+  if (modo === 'plato') {
+    P.fondo(esc, t); P.sillon(esc, 300, 1300, 1); P.personaje(esc, A, { x: 300, y: 1290, tam: 560, pose: 'sentado', expr: 'sonrie', t });
+    P.personaje(esc, B, { x: 780, y: 1250, tam: 600, expr: 'serio', habla: 0.6, t }); P.mesa(esc, 780, 1380, 1.05);
+    P.publico(esc, t, { y: 1990, filas: 3, por: 6, tam: 1.3, animo: 0.8 });
+  } else if (modo === 'personajes') {
+    P.fondo(esc, t);
+    const ex = ['neutro', 'sonrie', 'serio', 'enfadado', 'preocupado', 'triste'];
+    ex.forEach((e, i) => { const c = i % 3, f = Math.floor(i / 3); P.personaje(esc, i % 2 ? A : B, { x: 200 + c * 340, y: 900 + f * 800, tam: 640, expr: e, sudor: e === 'preocupado' ? 1 : 0, brazoD: e === 'enfadado' ? 1.45 : 0.08, habla: e === 'sonrie' ? 0.8 : 0, t }); });
+  } else {
+    P.fondo(esc, t);
+    P.cita(esc, 'Hoy, si te parece, hacemos un programa con menos chistecitos', 'Broncano', 540, 380, {});
+    P.bocadillo(esc, '¡PRESIDENTE!', 300, 700, { rot: -0.08 }); P.ceuta(esc, 780, 740, 300, { t });
+    P.periodico(esc, 'elDiario.es', 'La entrevista con Abascal le estalla en la cara a Broncano', 330, 1150, { rot: -0.06 });
+    P.barras(esc, [{ etiqueta: 'Abascal · 9 nov', valor: 4815000, color: '#7c5cff' }, { etiqueta: 'Sánchez · 22 oct', valor: 4387000, color: '#ff4d5e' }], { x: 120, y: 1500, w: 800 }, { a: 1 });
+  }
+};
+window.ready = document.fonts.load('700 50px Fredoka');
+</script>
