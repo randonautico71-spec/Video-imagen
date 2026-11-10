@@ -162,7 +162,7 @@
         x.beginPath(); x.arc(ex + mira - 3, ey - 2, 2.6, 0, 7); x.fillStyle = '#fff'; x.fill();
       }
       // ceja
-      const inc = e.ceja[0] * s, by = cy - 30 + e.ceja[1];
+      const inc = -e.ceja[0] * s, by = cy - 30 + e.ceja[1];
       x.save(); x.translate(ex, by); x.rotate(inc); rr(x, -16, -4, 32, 8.5, 4); x.fillStyle = d.cejas; x.fill(); x.restore();
     });
     // boca
@@ -282,13 +282,13 @@
   };
   /* Mesa del presentador: (cx, y) = centro del borde inferior. */
   P.mesa = function (esc, cx, y, tam = 1) {
-    const s = R.hornear(esc, 'plato|mesa', 520, 330, (x, w, h) => {
+    const s = R.hornear(esc, 'plato|mesa2', 520, 330, (x, w, h) => {
       x.translate(w / 2, h);
       x.beginPath(); x.moveTo(-250, -300); x.lineTo(250, -300); x.lineTo(232, -270); x.lineTo(-232, -270); x.closePath(); x.fillStyle = lin(x, 0, -300, 0, -270, '#c88a52', '#8a552b'); x.fill();
       x.fillStyle = lin(x, -232, 0, 232, 0, '#7a4523', '#4a2711'); x.fillRect(-232, -270, 464, 270);
       x.fillStyle = 'rgba(0,0,0,0.18)'; for (let i = 0; i < 9; i++) x.fillRect(-232, -250 + i * 28, 464, 2);
       rr(x, -190, -220, 380, 150, 18); x.fillStyle = lin(x, 0, -220, 0, -70, '#173f6e', '#0b1d38'); x.fill(); x.lineWidth = 6; x.strokeStyle = '#58f0ff'; x.stroke();
-      x.font = '700 46px Fredoka, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#c9f9ff'; x.fillText('LA ENTREVISTA', 0, -146);
+      for (let i = 0; i < 3; i++) { x.globalAlpha = 0.35 - i * 0.1; x.beginPath(); x.arc(0, -146, 30 + i * 18, 0, 7); x.lineWidth = 4; x.strokeStyle = '#58f0ff'; x.stroke(); } x.globalAlpha = 1;
       // taza
       rr(x, 150, -350, 40, 52, 8); x.fillStyle = lin(x, 150, 0, 190, 0, '#f4f4f4', '#bdbdbd'); x.fill(); x.beginPath(); x.arc(194, -326, 12, -PI / 2, PI / 2); x.lineWidth = 6; x.strokeStyle = '#cfcfcf'; x.stroke();
       // papeles
