@@ -1,0 +1,21 @@
+<!doctype html><html lang=es><meta charset=utf-8><title>Habitos</title>
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style><canvas id=c></canvas>
+<script src="../engine/core/rng.js"></script><script src="../engine/draw/util.js"></script><script src="../engine/design/tokens.js"></script><script src="../engine/motion/ease.js"></script>
+<script src="../engine/cache/atlas.js"></script><script src="../engine/core/stage.js"></script><script src="../engine/text/texto.js"></script>
+<script src="../engine/realismo/base.js"></script><script src="../engine/estilos/shorts.js"></script>
+<script src="../engine/volumen/motor.js"></script><script src="../engine/volumen/mallas.js"></script><script src="../engine/volumen/tierra_datos.js"></script>
+<script src="../engine/volumen/modelos.js"></script><script src="../engine/volumen/fondos.js"></script><script src="../engine/volumen/garganta.js"></script><script src="../engine/volumen/habitos.js"></script>
+<script>
+const Q = new URLSearchParams(location.search), V = VE.vol;
+const esc = VE.crearEscenario({ formato: 'vertical', estilo: 'DARK', ss: parseFloat(Q.get('ss') || '1') });
+const cam = V.camara({ pos: [0, 2.2, 9], mira: [0, 0.6, 0], arriba: [0, 1, 0], fov: 40 });
+const M = V.modelos;
+const VISTAS = {
+  props: () => [M.mesa({ ancho: 10 }), M.hucha({ pos: [-3.2, 0, 0] }), M.libros({ pos: [-1.6, 0, 0], n: 5 }), M.herramientas({ pos: [0, 0, 0] }), M.bombilla({ pos: [1.6, 0, 0] }), M.casa({ pos: [3.2, 0, 0] })],
+  casas: () => [M.mesa({ ancho: 10 }), M.casa({ pos: [-1.8, 0, 0], estado: 'dejada', esc: 1.6 }), M.casa({ pos: [1.8, 0, 0], estado: 'cuidada', esc: 1.6 }), M.pila_monedas({ pos: [-4, 0, 0.5], n: 12 }), M.moneda({ pos: [4, 0.2, 0.5] })]
+};
+const vista = (Q.get('v') || 'props').split('?')[0];
+window.renderAt = (t) => { esc.abrir(); const x = esc.ctx; const g = x.createLinearGradient(0, 0, 0, esc.H); g.addColorStop(0, '#cdb58f'); g.addColorStop(1, '#6d5238'); x.fillStyle = g; x.fillRect(0, 0, esc.W, esc.H);
+  V.render(esc, V.nodo({ hijos: VISTAS[vista](t) }), cam, { ambiente: 'estudio' }); };
+window.ready = Promise.resolve();
+</script>
