@@ -58,11 +58,11 @@
   // ---------------------------------------------------------------- subtitulos «COMIC» (centrados, letra condensada, rotulador amarillo)
   /* Estilo del corto «fragilidad»: MAYUSCULAS en Oswald 700 color oro con contorno oscuro; cada palabra entra con un rebote y un
      guino de rotacion; las palabras clave llevan un rotulador amarillo detras (texto oscuro). Pastilla de marca abajo a la izquierda.
-       subtitulos: { estilo: 'comic', clave: [...], marca: 'RANDONAUTICO', tam: 78, y: 0.6 (fraccion del alto) } */
+       subtitulos: { estilo: 'comic', clave: [...], marca: 'RANDONAUTICO', tam: 78, y: 0.6 (fraccion del alto), color: '#f7c21c', colorClave: '#ffd84a', contorno: '#2b1409' } */
   D.subtitulosComic = function (esc, grupos, tg, o = {}) {
     const g = VE.grupoEn(grupos, tg, o.persistencia == null ? 0.3 : o.persistencia); if (!g) return;
     const x = esc.ctx, k = esc.k, tam = (o.tam || 78) * k, w = (o.ancho || 0.84) * esc.W, cx = esc.W / 2, cy = (o.y || 0.6) * esc.H;
-    const clave = new Set((o.clave || []).map(norm)), lh = tam * (o.sinCaja ? 1.16 : 1.02), OSC = '#2b1409', ORO = '#f7c21c', CREMA = '#fff1c4';
+    const clave = new Set((o.clave || []).map(norm)), lh = tam * (o.sinCaja ? 1.16 : 1.02), OSC = o.contorno || '#2b1409', ORO = o.color || '#f7c21c', CLV = o.colorClave || '#ffd84a', CREMA = '#fff1c4';
     const fnt = (px) => { x.font = `700 ${Math.round(px)}px Oswald, Fredoka, sans-serif`; };
     const sal = c01((g.fin + (o.persistencia == null ? 0.3 : o.persistencia) - tg) / 0.18);                // fundido de salida del grupo
     x.save(); x.textBaseline = 'middle'; x.textAlign = 'left'; x.lineJoin = 'round'; fnt(tam);
@@ -83,9 +83,9 @@
           const bw = q.w + 26 * k, bh = tam * 0.98; x.save(); x.rotate(-0.012); x.fillStyle = OSC; x.fillRect(-bw / 2 + 5 * k, -bh / 2 + 6 * k, bw, bh); x.fillStyle = ORO; x.fillRect(-bw / 2, -bh / 2, bw, bh); x.restore();
         }
         fnt(tam); x.textAlign = 'center';
-        if (sc) { x.lineWidth = tam * (esClave ? 0.2 : 0.12); x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); x.fillStyle = esClave ? '#ffd84a' : ORO; x.fillText(q.t, 0, 0); if (esClave) { x.lineWidth = tam * 0.045; x.strokeStyle = '#ffd84a'; x.strokeText(q.t, 0, 0); } }
+        if (sc) { x.lineWidth = tam * (esClave ? 0.2 : 0.12); x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); x.fillStyle = esClave ? CLV : ORO; x.fillText(q.t, 0, 0); if (esClave) { x.lineWidth = tam * 0.045; x.strokeStyle = CLV; x.strokeText(q.t, 0, 0); } }
         else if (!esClave) { x.lineWidth = tam * 0.16; x.strokeStyle = OSC; x.strokeText(q.t, 4 * k, 5 * k); x.strokeText(q.t, 0, 0); }      // contorno + sombra dura
-        if (!sc) { x.fillStyle = esClave ? OSC : (activa ? '#ffd84a' : ORO); x.fillText(q.t, 0, 0); }
+        if (!sc) { x.fillStyle = esClave ? OSC : (activa ? CLV : ORO); x.fillText(q.t, 0, 0); }
         x.restore(); px += q.w + esp;
       }
     });
