@@ -10,10 +10,10 @@ const [pagina, salida] = pos;
 if (!pagina || !salida) { console.error('Uso: node render/animacion.cjs <pagina.html> <salida.mp4> [--lienzo vertical] [--pasos 10] [--fps 30] [--ss 1.5]'); process.exit(1); }
 const pasos = parseFloat(A.pasos || 10), fps = parseFloat(A.fps || 30), ss = parseFloat(A.ss || 1.5);
 (async () => {
-  const { navegador, page } = await abrir({ formato: A.lienzo || 'vertical', ss, pagina: path.resolve(pagina) });
+  const { navegador, page, W, H } = await abrir({ formato: A.lienzo || 'vertical', ss, pagina: path.resolve(pagina) });   // el canvas mide W*ss x H*ss: se reduce a W x H al codificar
   const dur = await page.evaluate(() => window.DURACION), N = Math.ceil(dur * pasos);
   const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(pasos), '-vcodec', 'mjpeg', '-i', '-',
-    '-vf', `fps=${fps},scale=in_range=pc:in_color_matrix=bt601:out_range=tv:out_color_matrix=bt709,format=yuv420p`,
+    '-vf', `fps=${fps},scale=${W}:${H}:flags=lanczos:in_range=pc:in_color_matrix=bt601:out_range=tv:out_color_matrix=bt709,format=yuv420p`,
     '-c:v', 'libx264', '-preset', 'medium', '-crf', String(A.crf || 18), '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv',
     '-movflags', '+faststart', salida], { stdio: ['pipe', 'inherit', 'inherit'] });
   const fin = new Promise((ok, ko) => ff.on('close', c => c === 0 ? ok() : ko(new Error('ffmpeg salio con codigo ' + c))));
