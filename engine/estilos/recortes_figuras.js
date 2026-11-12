@@ -1,14 +1,11 @@
 /* FIGURAS del estilo RECORTES (requiere engine/estilos/recortes.js).
-   R.chica(x, cx, pies_y, escala, estado)   personaje propio de frente (alto ~1000 px a escala 1, pies en el origen).
-     estado: { turbante, pelo (0..1 suelto), sueno (ojos medio cerrados), crema (0..1 puntos), colorete, rimel, labial (0..1),
-               sonrisa (0..1), horquillas (0..2), pelo_color, bata_color }
+   El personaje R.chica esta en recortes_chica.js (cargar despues de este fichero).
    R.obj[nombre](x, o)  objetos de tocador dibujados centrados en el origen, ~100-200 px:
      cepilloDientes, neceser({abierto}), turbante, crema, colorete, brocha, rimel, pintalabios, cepilloPelo, horquilla({color}), patito
    R.bano(x, piezas)    baño completo en coordenadas locales (suelo en y=0, ~900 px de ancho); piezas = {nombre: escala_pop}
      nombres: pared, suelo, banera, lavabo, espejo, estante, planta, toalla, alfombra, patito (la chica se dibuja aparte). */
 (function (VE) {
   const R = VE.recorte;
-  const PIEL = '#f6cfb4', PIEL_S = '#e9ad93';
   const mix = (a, b, u) => {
     const p = (c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
     const A = p(a), B = p(b); return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * u)).join(',') + ')';
@@ -32,104 +29,8 @@
     }
   };
 
-  /* ---------------- PERSONAJE ---------------- */
-  R.chica = function (x, cx, pies, s, e = {}) {
-    const PELO = e.pelo_color || '#9a5a34', PELO_L = mix(PELO, '#ffe2b8', .35), BATA = e.bata_color || '#fdf0f2';
-    R.con(x, cx, pies, s, e.rot || 0, () => {
-      const suelto = e.pelo == null ? (e.turbante ? 0 : 1) : e.pelo;
-      // pelo largo por detras (cae a saltos: crece hacia abajo)
-      if (suelto > 0) {
-        const ys = (y) => -985 + (y + 985) * (0.55 + 0.45 * suelto);
-        const B = [[0, -985], [60, -975], [92, -930], [100, -870], [112, -810], [104, -760], [122, -705], [110, -650], [124, -600], [96, -568], [60, -585], [0, -598],
-          [-60, -585], [-96, -568], [-124, -600], [-110, -650], [-122, -705], [-104, -760], [-112, -810], [-100, -870], [-92, -930], [-60, -975]].map(p => [p[0], ys(p[1])]);
-        R.forma(x, B, { relleno: PELO });
-      }
-      // piernas y zapatillas
-      const pierna = [[-50, -330], [-47, -180], [-43, -48], [-21, -48], [-19, -180], [-14, -330]];
-      R.forma(x, pierna, { relleno: PIEL }); R.forma(x, R.espejo(pierna), { relleno: PIEL });
-      const zap = [[-74, -52], [-84, -22], [-74, 2], [-18, 2], [-6, -20], [-16, -52]];
-      for (const P of [zap, R.espejo(zap)]) { R.forma(x, P, { relleno: '#f4a7b9' }); R.forma(x, P.slice(0, 1).concat([[P[0][0] + (P[5][0] - P[0][0]) / 2, -66], P[5]]), { relleno: '#fff', ancho: 2.4 }); }
-      // cuello y escote
-      R.forma(x, [[-19, -812], [19, -812], [24, -770], [0, -690], [-24, -770]], { relleno: PIEL });
-      // bata
-      const bata = [[-30, -790], [-90, -776], [-118, -750], [-126, -690], [-122, -600], [-128, -500], [-138, -400], [-142, -325], [-60, -316], [0, -318], [60, -316],
-        [142, -325], [138, -400], [128, -500], [122, -600], [126, -690], [118, -750], [90, -776], [30, -790], [6, -716], [-6, -716]];
-      R.forma(x, bata, { relleno: (c) => { c.fillStyle = BATA; c.fillRect(-160, -800, 320, 500); lunares(bata, 'rgba(240,150,170,0.55)', 30, 4.5)(c); } });
-      R.linea(x, [[30, -790], [4, -706], [-20, -620], [-26, -560]], { ancho: 2.6 });
-      R.linea(x, [[-30, -790], [-44, -730], [-30, -660]], { ancho: 2.6 });
-      R.linea(x, [[-139, -352], [0, -346], [139, -352]], { ancho: 2.4 });
-      R.forma(x, [[-124, -590], [0, -594], [124, -590], [126, -562], [0, -558], [-126, -562]], { relleno: '#f2a3b6' });   // cinturon
-      R.forma(x, R.elipse(-34, -576, 15, 12, 8), { relleno: '#f2a3b6' });
-      R.forma(x, [[-40, -566], [-58, -500], [-44, -478], [-36, -520], [-30, -565]], { relleno: '#f2a3b6' });
-      R.forma(x, [[-30, -566], [-18, -510], [-4, -496], [-10, -530], [-22, -566]], { relleno: '#f2a3b6' });
-      // mangas y manos
-      const manga = [[-112, -762], [-150, -702], [-168, -600], [-178, -520], [-128, -510], [-128, -600], [-118, -690]];
-      const mano = [[-170, -520], [-180, -482], [-168, -458], [-150, -462], [-140, -490], [-136, -516]];
-      for (const sg of [1, -1]) {
-        const f = (P) => sg === 1 ? P : R.espejo(P);
-        R.forma(x, f(mano), { relleno: PIEL });
-        R.forma(x, f(manga), { relleno: BATA });
-        R.linea(x, f([[-176, -540], [-152, -536], [-130, -532]]), { ancho: 2.4 });
-      }
-      // mechones delanteros sobre los hombros
-      if (suelto > 0.6) {
-        const m = [[-66, -900], [-86, -840], [-96, -780], [-84, -730], [-98, -680], [-88, -626], [-70, -606], [-64, -650], [-74, -700], [-62, -760], [-64, -830]];
-        R.forma(x, m, { relleno: PELO }); R.forma(x, R.espejo(m), { relleno: PELO });
-      }
-      // cabeza
-      const cab = []; for (let i = 0; i < 18; i++) { const a = i / 18 * 6.283, sy = Math.sin(a); cab.push([Math.cos(a) * 68 * (sy > 0 ? 1 - .24 * sy * sy : 1), -875 + sy * 86]); }
-      R.forma(x, cab, { relleno: PIEL });
-      cara(x, e);
-      // pelo de arriba (raya en medio) o turbante
-      if (suelto > 0) {
-        R.forma(x, [[0, -970], [-32, -964], [-62, -946], [-80, -910], [-84, -868], [-76, -830], [-66, -856], [-60, -900], [-40, -928], [-4, -940],
-          [4, -940], [40, -928], [60, -900], [66, -856], [76, -830], [84, -868], [80, -910], [62, -946], [32, -964]], { relleno: PELO });
-        R.linea(x, [[-30, -950], [-54, -925], [-66, -890]], { trazo: PELO_L, ancho: 2.6, j: .5 });
-        R.linea(x, [[34, -952], [58, -922], [68, -884]], { trazo: PELO_L, ancho: 2.6, j: .5 });
-        const hq = ['#a9d3f0', '#f7c6d6'];
-        for (let i = 0; i < (e.horquillas || 0); i++) R.con(x, i ? 56 : -56, -930, 1, i ? 0.5 : -0.5, () => R.obj.horquilla(x, { color: hq[i] }));
-      }
-      if (e.turbante) R.obj.turbante(x);
-    });
-  };
-
-  function cara(x, e) {
-    const sueno = !!e.sueno, son = e.sonrisa || 0;
-    for (const sg of [-1, 1]) {
-      const X = (v) => v * sg;
-      // ojo
-      const ojo = [[X(50), -882], [X(40), -893], [X(28), -896], [X(14), -889], [X(10), -882], [X(22), -873], [X(38), -873]];
-      R.forma(x, ojo, { relleno: (c) => { c.fillStyle = '#fff'; c.fillRect(-60, -900, 120, 30);
-        R.punto(c, X(30), -883, 9, '#6b3f2a'); R.punto(c, X(30), -883, 4.2, '#2b1a14'); R.punto(c, X(30) + 3, -887, 2.4, '#fff'); }, ancho: 2.4 });
-      if (sueno) {
-        R.forma(x, [[X(53), -881], [X(40), -897], [X(26), -899], [X(8), -884], [X(30), -880]], { relleno: PIEL, trazo: false });
-        R.linea(x, [[X(52), -881], [X(30), -878], [X(9), -883]], { ancho: 3.4 });
-      } else R.linea(x, [[X(53), -880], [X(40), -895], [X(26), -898], [X(9), -886]], { ancho: 4 });
-      // pestanas
-      const rim = e.rimel || 0, n = rim > .5 ? 5 : 3, L = rim > .5 ? 12 : 7;
-      for (let i = 0; i < n; i++) {
-        const u = sueno ? 0.6 + i * .1 : 0.55 + i * (0.45 / n), px = X(9 + 44 * u), py = sueno ? -880 : -886 - 10 * Math.sin(u * Math.PI);
-        R.linea(x, [[px, py], [px + X(L * .8), py - L * (sueno ? .2 : .7)]], { ancho: rim > .5 ? 3 : 2.2, j: .4 });
-      }
-      // ceja
-      R.linea(x, [[X(54), -914], [X(34), -928], [X(14), -924]], { trazo: '#6a3c24', ancho: 3.4 });
-      // colorete (degradado radial: barato, sin filtros)
-      if (e.colorete > 0) {
-        const g = x.createRadialGradient(X(42), -850, 1, X(42), -850, 22);
-        g.addColorStop(0, `rgba(242,110,135,${0.55 * e.colorete})`); g.addColorStop(1, 'rgba(242,110,135,0)');
-        x.fillStyle = g; x.beginPath(); x.ellipse(X(42), -850, 24, 16, 0, 0, 6.283); x.fill();
-      }
-    }
-    R.linea(x, [[-3, -864], [-8, -851], [0, -846], [6, -849]], { ancho: 2.4, j: .5 });                               // nariz
-    const lab = mix('#d9978b', '#d63c5a', e.labial || 0), c = -3 * son;
-    R.forma(x, [[-18, -826 + c], [-8, -833], [0, -830], [8, -833], [18, -826 + c], [0, -823]], { relleno: lab, ancho: 2.2, j: .4 });
-    R.forma(x, [[-18, -826 + c], [0, -823], [18, -826 + c], [9, -815], [-9, -815]], { relleno: lab, ancho: 2.2, j: .4 });
-    if (e.labial > .5) R.punto(x, -5, -819, 2.2, 'rgba(255,255,255,0.7)');
-    if (e.crema > 0) {                                                                                             // puntitos de crema
-      const pts = [[-14, -928], [16, -930], [-44, -856], [44, -856], [0, -806], [-24, -906], [28, -906]];
-      for (let i = 0; i < Math.ceil(e.crema * pts.length); i++) R.forma(x, R.elipse(pts[i][0], pts[i][1], 6.5, 5, 7), { relleno: '#ffffff', ancho: 1.8, j: .4 });
-    }
-  }
+  /* El PERSONAJE (R.chica) vive en engine/estilos/recortes_chica.js. */
+  R.mix = mix;
 
   /* ---------------- OBJETOS DE TOCADOR ---------------- */
   const O = R.obj = {};
