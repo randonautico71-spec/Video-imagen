@@ -5,7 +5,7 @@
 
    R.chica(x, cx, pies_y, escala, e)
      e.turbante (bool) · e.pelo 0..1 (suelto; crece hacia abajo al caer) · e.crema 0..1 · e.colorete 0..1 · e.rimel 0..1 · e.labial 0..1
-     e.horquillas 0..2 · e.cara = { ojos:[izq,der] apertura 0..1, feliz (ojos cerrados en arco), mirada:[dx,dy] -1..1,
+     e.perfil = 'base' | 'rubia_bronceada' | {..} (ver R.PERFILES) · e.horquillas 0..2 · e.cara = { ojos:[izq,der] apertura 0..1, feliz (ojos cerrados en arco), mirada:[dx,dy] -1..1,
                                     ceja:{alto, pena} -1..1, boca: 'neutra'|'sonrisa'|'risa'|'o'|'bostezo'|'beso'|'espuma' }
      e.brazos = { izq: spec, der: spec }   (izq = lado izquierdo de la PANTALLA)
        spec = null (reposo) | { herr: nombre de R.HERR, punta:[x,y] local, ang: direccion empuñadura->punta (rad) }
@@ -13,8 +13,22 @@
    Coordenadas locales utiles: ojos (±27,-898), mejillas (±34,-866), boca (0,-843), sien (±62,-905), pelo lateral (±80,-760). */
 (function (VE) {
   const R = VE.recorte, O = R.obj;
-  const PIEL = '#f7d2bb', PIEL_S = '#e7ae97', PIEL_L = '#fde6d8', LINEA_SUAVE = '#b98471';
-  const PELO = '#7b4a2c', PELO_S = '#5c3520', PELO_L = '#a8714a';
+  /* PERFILES de aspecto (e.perfil = nombre u objeto). 'base' = morena de la v1; 'rubia_bronceada' = melena lisa con raya al
+     medio y mechas rubias de raiz oscura, piel bronceada con brillo, cejas pobladas, ojos avellana, labios carnosos nude. */
+  R.PERFILES = {
+    base: { piel: '#f7d2bb', piel_s: '#e7ae97', piel_l: '#fde6d8', linea: '#b98471', pelo: '#7b4a2c', pelo_s: '#5c3520', pelo_l: '#a8714a',
+            raiz: null, puntas: null, raya: 'lado', liso: false, ceja: '#7a4a2e', ceja_g: 1, iris: ['#4a2a1a', '#7d4c2e', '#9a6844'],
+            labios: '#d39282', labial: '#d23a58', carnosos: 1, brillo: false, rubor: [240, 112, 130] },
+    rubia_bronceada: { piel: '#e2a77f', piel_s: '#c98764', piel_l: '#f4c9a6', linea: '#9c6448', pelo: '#c9965e', pelo_s: '#9a6a3e', pelo_l: '#ecc994',
+            raiz: '#6e4a30', puntas: '#e6c08a', raya: 'centro', liso: true, ceja: '#4a2f20', ceja_g: 1.45, iris: ['#3e2a18', '#7a5a34', '#a8874e'],
+            labios: '#b8705e', labial: '#a65746', carnosos: 1.3, brillo: true, rubor: [214, 110, 90] }
+  };
+  let PIEL, PIEL_S, PIEL_L, LINEA_SUAVE, PELO, PELO_S, PELO_L, PF;
+  function perfil(p) {
+    PF = Object.assign({}, R.PERFILES.base, typeof p === 'string' ? R.PERFILES[p] : (p || {}));
+    PIEL = PF.piel; PIEL_S = PF.piel_s; PIEL_L = PF.piel_l; LINEA_SUAVE = PF.linea; PELO = PF.pelo; PELO_S = PF.pelo_s; PELO_L = PF.pelo_l;
+  }
+  perfil('base');
   const BATA = '#fbe4e8', BATA_S = '#efc4cd', BATA_B = '#f3c9d2';
   const L1 = 168, L2 = 150, HOMBRO = [108, -770];
 
@@ -149,7 +163,7 @@
     const ix = cx + mir[0] * 5, iy = cy - 1 + mir[1] * 2.5;
     R.forma(x, top.concat(bot), { relleno: (c) => {
       c.fillStyle = '#fbf8f6'; c.fillRect(-60, cy - 14, 120, 26);
-      R.punto(c, ix, iy, 8.6, '#4a2a1a'); R.punto(c, ix, iy, 7.2, '#7d4c2e'); R.punto(c, ix - 1, iy + 2, 4.5, '#9a6844');
+      R.punto(c, ix, iy, 8.6, PF.iris[0]); R.punto(c, ix, iy, 7.2, PF.iris[1]); R.punto(c, ix - 1, iy + 2, 4.5, PF.iris[2]);
       R.punto(c, ix, iy, 3.9, '#1a0f0a'); R.punto(c, ix + 2.6, iy - 3.2, 2.3, '#fff'); R.punto(c, ix - 3, iy + 2.6, 1.1, '#fff');
       c.fillStyle = 'rgba(120,70,60,0.18)'; c.fillRect(-60, cy - 14, 120, 5); }, ancho: 1.4, trazo: '#9b6b5e', j: .3 });
     R.linea(x, top.concat([[X(51), cy - 4]]), { ancho: 3.4, j: .35 });                                      // linea del parpado
@@ -158,9 +172,9 @@
     pest((u) => [X(9 + 37 * u), cy - 9.5 * o * Math.sin(Math.PI * Math.min(u, .92)) - 1], rim > .5 ? 6 : 3, rim > .5 ? 12 : 7, false);
   }
   function ceja(x, sg, alto, pena) {
-    const by = -921 - alto * 7, X = (v) => sg * v, pi = pena * 6;
-    R.forma(x, [[X(9), by + 1 - pi], [X(20), by - 2.5 - pi * .6], [X(33), by - 4.5], [X(45), by - 1.5], [X(51), by + 3], [X(44), by + 0.5], [X(32), by - 1.5], [X(20), by + 1 - pi * .6], [X(10), by + 3.5 - pi]],
-      { relleno: '#7a4a2e', trazo: '#6a3c24', ancho: .8, j: .3 });
+    const by = -921 - alto * 7, X = (v) => sg * v, pi = pena * 6, g = PF.ceja_g;
+    R.forma(x, [[X(9), by + 1 - pi - g * 1.5 + 1.5], [X(20), by - 2.5 * g - pi * .6], [X(33), by - 4.5 * g], [X(45), by - 1.5 * g], [X(51), by + 3], [X(44), by + 0.5 + (g - 1) * 2], [X(32), by - 1.5 + (g - 1) * 2.5], [X(20), by + 1 + (g - 1) * 3 - pi * .6], [X(10), by + 3.5 + (g - 1) * 3 - pi]],
+      { relleno: PF.ceja, trazo: PF.ceja, ancho: .8, j: .3 });
   }
   function boca(x, tipo, lab) {
     const y = -843, borde = { ancho: 1.5, trazo: '#9e5157', j: .3 }, f = (o) => Object.assign({ relleno: lab }, borde, o || {});
@@ -180,17 +194,18 @@
       return;
     }
     if (tipo === 'risa') {
-      const P = [[-20, y - 4], [-8, y - 5.5], [0, y - 4.5], [8, y - 5.5], [20, y - 4], [13, y + 8], [0, y + 11.5], [-13, y + 8]];
-      R.forma(x, P, { relleno: (c) => { c.fillStyle = OSC; c.fillRect(-25, y - 10, 50, 26); c.fillStyle = '#fffaf6'; c.fillRect(-25, y - 10, 50, 9); R.punto(c, 0, y + 12, 8, '#d9727e'); }, trazo: lab, ancho: 4, j: .3 });
+      const cl = PF.carnosos, P = [[-23, y - 5], [-9, y - 6.5], [0, y - 5.5], [9, y - 6.5], [23, y - 5], [14, y + 7 * cl], [0, y + 10 * cl], [-14, y + 7 * cl]];
+      R.forma(x, P, { relleno: (c) => { c.fillStyle = '#8a3438'; c.fillRect(-26, y - 12, 52, 30); c.fillStyle = '#fffaf4'; c.beginPath(); c.moveTo(-24, y - 8); c.lineTo(24, y - 8); c.quadraticCurveTo(12, y + 5, 0, y + 5.5); c.quadraticCurveTo(-12, y + 5, -24, y - 8); c.fill();
+        c.strokeStyle = 'rgba(180,150,140,0.6)'; c.lineWidth = .8; for (const tx of [-11, -4, 4, 11]) { c.beginPath(); c.moveTo(tx, y - 6); c.lineTo(tx * .95, y + 3); c.stroke(); } }, trazo: lab, ancho: 4 * cl, j: .3 });
       R.linea(x, P.concat([P[0]]), Object.assign({}, borde, { ancho: 1.2 }));
       R.linea(x, [[-23, y - 6], [-20, y - 2]], { trazo: LINEA_SUAVE, ancho: 1.4, j: .2 }); R.linea(x, [[23, y - 6], [20, y - 2]], { trazo: LINEA_SUAVE, ancho: 1.4, j: .2 });
       return;
     }
-    const sonr = tipo === 'sonrisa', k = sonr ? -3 : 0, w = sonr ? 17 : 15;
-    R.forma(x, [[-w, y + k], [-6, y - 5], [0, y - 3], [6, y - 5], [w, y + k], [0, y + 1 + (sonr ? 1.5 : 0)]], f());
-    R.forma(x, [[-w, y + k], [0, y + 1 + (sonr ? 1.5 : 0)], [w, y + k], [8, y + 7.5], [-8, y + 7.5]], f());
+    const sonr = tipo === 'sonrisa', k = sonr ? -3 : 0, w = sonr ? 17 : 15, cl = PF.carnosos;
+    R.forma(x, [[-w, y + k], [-6, y - 5 * cl], [0, y - 3 * cl], [6, y - 5 * cl], [w, y + k], [0, y + 1 + (sonr ? 1.5 : 0)]], f());
+    R.forma(x, [[-w, y + k], [0, y + 1 + (sonr ? 1.5 : 0)], [w, y + k], [8, y + 7.5 * cl], [-8, y + 7.5 * cl]], f());
     R.linea(x, [[-w, y + k], [-7, y + 1], [0, y + 1.5 + (sonr ? 1.5 : 0)], [7, y + 1], [w, y + k]], { trazo: '#7e3a40', ancho: 1.8, j: .25 });
-    R.punto(x, -4, y + 4, 2, 'rgba(255,255,255,0.45)');
+    R.punto(x, -4, y + 4 * cl, 2 * cl, 'rgba(255,255,255,0.55)'); if (PF.brillo) R.punto(x, 5, y + 4.5 * cl, 1.4, 'rgba(255,255,255,0.45)');
     if (sonr) { R.linea(x, [[-w - 3, y + k - 2], [-w - 1, y + k + 2]], { trazo: LINEA_SUAVE, ancho: 1.3, j: .2 }); R.linea(x, [[w + 3, y + k - 2], [w + 1, y + k + 2]], { trazo: LINEA_SUAVE, ancho: 1.3, j: .2 }); }
   }
 
@@ -201,8 +216,10 @@
       c.fillStyle = PIEL; c.fillRect(-70, -990, 140, 180);
       c.fillStyle = 'rgba(214,140,115,0.30)'; c.beginPath(); c.moveTo(36, -990); c.quadraticCurveTo(46, -880, 18, -812); c.lineTo(70, -812); c.lineTo(70, -990); c.fill();   // lado en sombra
       const g = c.createRadialGradient(-22, -930, 2, -22, -930, 40); g.addColorStop(0, 'rgba(255,240,230,0.55)'); g.addColorStop(1, 'rgba(255,240,230,0)'); c.fillStyle = g; c.fillRect(-70, -990, 140, 120);
-      const rub = 0.14 + 0.5 * (e.colorete || 0);
-      for (const sg of [-1, 1]) { const b = c.createRadialGradient(sg * 34, -864, 1, sg * 34, -864, 21); b.addColorStop(0, `rgba(240,112,130,${rub})`); b.addColorStop(1, 'rgba(240,112,130,0)'); c.fillStyle = b; c.fillRect(sg * 34 - 24, -888, 48, 48); }
+      const rub = 0.14 + 0.5 * (e.colorete || 0), rc = PF.rubor.join(',');
+      for (const sg of [-1, 1]) { const b = c.createRadialGradient(sg * 34, -864, 1, sg * 34, -864, 21); b.addColorStop(0, `rgba(${rc},${rub})`); b.addColorStop(1, `rgba(${rc},0)`); c.fillStyle = b; c.fillRect(sg * 34 - 24, -888, 48, 48); }
+      if (PF.brillo) for (const [bx, by, br] of [[-30, -878, 12], [30, -878, 10], [0, -872, 6], [0, -940, 14]]) {                        // piel con brillo (iluminador)
+        const h = c.createRadialGradient(bx, by, 0, bx, by, br); h.addColorStop(0, 'rgba(255,245,230,0.4)'); h.addColorStop(1, 'rgba(255,245,230,0)'); c.fillStyle = h; c.fillRect(bx - br, by - br, br * 2, br * 2); }
       c.fillStyle = 'rgba(205,130,110,0.35)'; c.beginPath(); c.ellipse(0, -826, 12, 3.5, 0, 0, 6.283); c.fill();                   // sombra bajo el labio
     } });
     const cara = C || {}, oj = cara.ojos || [1, 1], mir = cara.mirada || [0, 0], cj = cara.ceja || {};
@@ -211,25 +228,37 @@
     R.linea(x, [[-9, -861], [-5, -857], [-1, -858]], { trazo: '#a8705e', ancho: 1.8, j: .25 });
     R.linea(x, [[9, -861], [5, -857], [1, -858]], { trazo: '#a8705e', ancho: 1.8, j: .25 });
     R.punto(x, 2, -866, 2.2, 'rgba(255,255,255,0.5)');
-    boca(x, cara.boca || 'neutra', R.mix('#d39282', '#d23a58', e.labial || 0));
+    boca(x, cara.boca || 'neutra', R.mix(PF.labios, PF.labial, e.labial || 0));
     if (e.crema > 0) {
       const pts = [[-12, -944], [14, -946], [-36, -870], [36, -870], [0, -828], [-24, -930], [26, -928]];
       for (let i = 0; i < Math.ceil(e.crema * pts.length); i++) R.forma(x, R.elipse(pts[i][0], pts[i][1], 6, 4.6, 7), { relleno: '#ffffff', ancho: 1.5, j: .35 });
     }
   }
 
-  const degr = (c, a, b) => { const g = c.createLinearGradient(a, 0, b, 0); g.addColorStop(0, PELO_L); g.addColorStop(.35, PELO); g.addColorStop(.75, PELO); g.addColorStop(1, PELO_S); return g; };   // luz desde la izquierda
+  /* relleno del pelo: luz desde la izquierda + (perfil) raiz oscura arriba, puntas claras abajo y mechas */
+  function pintaPelo(c, x0, x1, y0, y1) {
+    const g = c.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, PELO_L); g.addColorStop(.35, PELO); g.addColorStop(.75, PELO); g.addColorStop(1, PELO_S);
+    c.fillStyle = g; c.fillRect(x0 - 10, y0 - 10, x1 - x0 + 20, y1 - y0 + 20);
+    if (PF.puntas) { const v = c.createLinearGradient(0, -860, 0, -560); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, PF.puntas); c.fillStyle = v; c.fillRect(x0 - 10, -860, x1 - x0 + 20, 340); }
+    if (PF.raiz) { const v = c.createLinearGradient(0, -995, 0, -930); v.addColorStop(0, PF.raiz); v.addColorStop(1, R.mix(PF.raiz, PELO, 1).replace('rgb', 'rgba').replace(')', ',0)')); c.fillStyle = v; c.fillRect(x0 - 10, -1010, x1 - x0 + 20, 90); }
+    if (PF.liso) { c.globalAlpha = .22; c.lineWidth = 1.6;
+      for (let X = x0 + 6; X < x1; X += 13) { c.strokeStyle = (Math.round(X / 13) % 3) ? PELO_L : '#f5dcaa'; c.beginPath(); c.moveTo(X * .55, -990); c.quadraticCurveTo(X, -900, X * 1.05, y1); c.stroke(); }
+      c.globalAlpha = 1; }
+  }
 
   /* ---------------- CUERPO COMPLETO ---------------- */
   R.chica = function (x, cx, pies, s, e = {}) {
+    perfil(e.perfil);
     R.con(x, cx, pies, s, e.rot || 0, () => {
       const suelto = e.pelo == null ? (e.turbante ? 0 : 1) : e.pelo;
       const caida = (y) => -990 + (y + 990) * (0.5 + 0.5 * suelto);
       // pelo largo por detras
       if (suelto > 0) {
-        const B = [[0, -998], [50, -988], [80, -952], [90, -890], [94, -830], [100, -770], [94, -720], [110, -668], [104, -616], [114, -572], [90, -548], [62, -562], [30, -574], [0, -580],
-          [-30, -574], [-62, -562], [-90, -548], [-114, -572], [-104, -616], [-110, -668], [-94, -720], [-100, -770], [-94, -830], [-90, -890], [-80, -952], [-50, -988]].map(p => [p[0], caida(p[1])]);
-        R.forma(x, B, { relleno: (c) => { c.fillStyle = degr(c, -120, 120); c.fillRect(-130, -1010, 260, 480); } });
+        const B = (PF.liso ? [[0, -998], [50, -988], [78, -952], [86, -890], [92, -820], [98, -740], [104, -660], [110, -590], [114, -528], [60, -520], [0, -524],
+          [-60, -520], [-114, -528], [-110, -590], [-104, -660], [-98, -740], [-92, -820], [-86, -890], [-78, -952], [-50, -988]]
+          : [[0, -998], [50, -988], [80, -952], [90, -890], [94, -830], [100, -770], [94, -720], [110, -668], [104, -616], [114, -572], [90, -548], [62, -562], [30, -574], [0, -580],
+          [-30, -574], [-62, -562], [-90, -548], [-114, -572], [-104, -616], [-110, -668], [-94, -720], [-100, -770], [-94, -830], [-90, -890], [-80, -952], [-50, -988]]).map(p => [p[0], caida(p[1])]);
+        R.forma(x, B, { relleno: (c) => pintaPelo(c, -120, 120, -1000, -520) });
       }
       // piernas
       const pierna = [[-64, -350], [-60, -272], [-63, -192], [-50, -112], [-42, -56], [-24, -56], [-20, -120], [-15, -200], [-12, -272], [-9, -350]];
@@ -262,19 +291,30 @@
       R.forma(x, [[-22, -586], [-12, -530], [0, -516], [-4, -548], [-16, -586]], { relleno: '#eba3b4' });
       // mechones delanteros
       if (suelto > 0.6) {
-        const m = [[-56, -905], [-66, -850], [-72, -800], [-80, -760], [-76, -720], [-88, -680], [-82, -630], [-94, -592], [-72, -580], [-60, -620], [-56, -670], [-48, -720], [-46, -780], [-50, -845]].map(p => [p[0], caida(p[1])]);
-        R.forma(x, m, { relleno: PELO }); R.forma(x, R.espejo(m), { relleno: '#6b3f25' });
-        for (const sg of [-1, 1]) R.linea(x, [[sg * 58, caida(-860)], [sg * 70, caida(-760)], [sg * 76, caida(-660)]], { trazo: sg < 0 ? PELO_L : '#7b4a2c', ancho: 1.8, j: .4 });
+        const m = (PF.liso ? [[-54, -905], [-60, -850], [-64, -790], [-70, -720], [-76, -650], [-82, -585], [-90, -535], [-62, -530], [-54, -590], [-48, -660], [-42, -730], [-40, -800], [-46, -860]]
+          : [[-56, -905], [-66, -850], [-72, -800], [-80, -760], [-76, -720], [-88, -680], [-82, -630], [-94, -592], [-72, -580], [-60, -620], [-56, -670], [-48, -720], [-46, -780], [-50, -845]]).map(p => [p[0], caida(p[1])]);
+        R.forma(x, m, { relleno: (c) => pintaPelo(c, -100, -30, -1000, -520) });
+        R.forma(x, R.espejo(m), { relleno: (c) => { pintaPelo(c, 30, 100, -1000, -520); c.fillStyle = 'rgba(60,30,15,0.18)'; c.fillRect(20, -1000, 90, 480); } });
+        for (const sg of [-1, 1]) R.linea(x, [[sg * 56, caida(-860)], [sg * 64, caida(-760)], [sg * 72, caida(-640)]], { trazo: sg < 0 ? PELO_L : PELO_S, ancho: 1.8, j: .4 });
       }
       cabeza(x, e, e.cara);
       if (suelto > 0) {
         R.forma(x, [[-52, -930], [-40, -950], [-20, -960], [10, -962], [30, -956], [50, -940], [54, -925]], { relleno: 'rgba(200,120,100,0.35)', trazo: false, j: .3 });  // sombra del flequillo
-        const cap = [[-58, -872], [-62, -920], [-52, -962], [-24, -988], [12, -994], [46, -982], [62, -952], [64, -906], [60, -872], [54, -902], [44, -934], [22, -952], [14, -954],
-          [0, -950], [-26, -946], [-46, -930], [-54, -900]];
-        R.forma(x, cap, { relleno: (c) => { c.fillStyle = degr(c, -66, 66); c.fillRect(-70, -1000, 140, 140); } });
-        R.linea(x, [[12, -990], [-16, -972], [-40, -948], [-54, -912]], { trazo: PELO_L, ancho: 2, j: .4 });
-        R.linea(x, [[2, -986], [-24, -962], [-46, -932]], { trazo: PELO_L, ancho: 1.6, j: .4 });
-        R.linea(x, [[18, -990], [40, -970], [56, -936]], { trazo: PELO_S, ancho: 1.8, j: .4 });
+        if (PF.raya === 'centro') {
+          const cap = [[-58, -872], [-62, -920], [-52, -962], [-28, -986], [0, -994], [28, -986], [52, -962], [62, -920], [58, -872], [52, -904], [40, -938], [18, -956], [0, -962],
+            [-18, -956], [-40, -938], [-52, -904]];
+          R.forma(x, cap, { relleno: (c) => pintaPelo(c, -66, 66, -1000, -860) });
+          R.linea(x, [[0, -994], [0, -978], [0, -962]], { trazo: PF.raiz || PELO_S, ancho: 2, j: .3 });
+          R.linea(x, [[-6, -988], [-30, -966], [-48, -932], [-56, -890]], { trazo: PELO_L, ancho: 2, j: .4 });
+          R.linea(x, [[6, -988], [30, -966], [48, -932], [56, -890]], { trazo: PELO_S, ancho: 1.8, j: .4 });
+        } else {
+          const cap = [[-58, -872], [-62, -920], [-52, -962], [-24, -988], [12, -994], [46, -982], [62, -952], [64, -906], [60, -872], [54, -902], [44, -934], [22, -952], [14, -954],
+            [0, -950], [-26, -946], [-46, -930], [-54, -900]];
+          R.forma(x, cap, { relleno: (c) => pintaPelo(c, -66, 66, -1000, -860) });
+          R.linea(x, [[12, -990], [-16, -972], [-40, -948], [-54, -912]], { trazo: PELO_L, ancho: 2, j: .4 });
+          R.linea(x, [[2, -986], [-24, -962], [-46, -932]], { trazo: PELO_L, ancho: 1.6, j: .4 });
+          R.linea(x, [[18, -990], [40, -970], [56, -936]], { trazo: PELO_S, ancho: 1.8, j: .4 });
+        }
         const hq = ['#a9d3f0', '#f7c6d6'];
         for (let i = 0; i < (e.horquillas || 0); i++) R.con(x, i ? 50 : -48, -944, .8, i ? 0.6 : -0.6, () => O.horquilla(x, { color: hq[i] }));
       }
