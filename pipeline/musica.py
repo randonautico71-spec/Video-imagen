@@ -373,7 +373,16 @@ def componer(cues, mood):
     for d in cues.get('dings', []):
         ding(buses, float(d), mood, rng)
     n = int((cues['duracion'] + (4 if mood in ('meditacion', 'mistico', 'natural', 'intriga') else 1.5)) * SR)
+    curva = None
+    if cues.get('curva'):                                                        # dinamica: [[t, ganancia], ...] suavizada (sube y baja con la oratoria)
+        from scipy.ndimage import gaussian_filter1d
+        pts = sorted((float(a), float(b)) for a, b in cues['curva']); fs = 50
+        tt = np.arange(0, n / SR + 1, 1 / fs)
+        e = np.interp(tt, [a for a, _ in pts], [b for _, b in pts])
+        e = gaussian_filter1d(e, cues.get('curva_suavizado_s', 5.0) * fs)
+        curva = np.interp(np.arange(n) / SR, tt, e).astype(np.float32)
     L = sum(b.L[:n] for b in buses); R = sum(b.R[:n] for b in buses)
+    if curva is not None: L = L * curva; R = R * curva
     fin = np.ones(n, np.float32)                                                # fundidos
     fin[: int(2 * SR)] = np.linspace(0, 1, int(2 * SR)); fin[-int(3.5 * SR):] *= np.linspace(1, 0, int(3.5 * SR))
     st = np.stack([L * fin, R * fin], 1)

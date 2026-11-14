@@ -192,6 +192,10 @@ def cmd_musica(a):
         escenas = [{'ini': i} for i in ini_cap]
     cues = {'duracion': tl['duracion_total'], 'semilla': meta.get('semilla', 1),
             'escenas': [{'ini': e['ini']} for e in escenas], 'dings': sorted(dings)}
+    if meta.get('curva_musica'):                     # dinamica por parrafo (0..1.3): la musica sube y baja con la oratoria
+        cm = meta['curva_musica']; ini = [e['ini'] for e in tl['escenas']]
+        if len(cm) == len(ini):
+            cues['curva'] = [[0.0, cm[0]]] + [[ini[k] + 1.0, cm[k]] for k in range(len(ini))] + [[tl['duracion_total'] - 4, cm[-1]], [tl['duracion_total'], 0.2]]
     (s / 'cues.json').write_text(json.dumps(cues))
     audio = musica.componer(cues, meta['musica'])
     musica.guardar(audio, s / 'musica.wav')
