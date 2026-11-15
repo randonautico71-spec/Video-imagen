@@ -23,6 +23,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 
 ## Reglas del usuario (no reabrir)
+- **Animaciones: antes de decidir el tipo de animación, PREGUNTAR al usuario qué tipo quiere** (familia → estilo, catálogo `kit-animaciones-3d/catalogo.jpg`; skill `animaciones-3d`). No elegirlo por cuenta propia salvo que lo haya nombrado.
 - **NO ALUCINES**: cifra sin fuente primaria no entra; di qué está verificado (`datos.md` con niveles V / V* / X).
 - Visual: objetos y paisajes reales bien dibujados (no iconos esquemáticos). Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 - No renderizar ni enviar vídeos de prueba salvo que lo pida; validar con linter, medidas y fotogramas. Los entregables que pide sí se renderizan.
@@ -44,3 +45,8 @@ Límites de duración de Instagram/Reels/TikTok · safe areas verticales (estima
 
 ## Regla: no subir proyectos
 No hacer `git add` de `proyectos/*` (salvo `_plantilla`). Subir solo material visual y del motor que sirva para futuros videos.
+
+## Animaciones 3D (kit-animaciones-3d)
+- **Antes de decidir el tipo de animación, PREGUNTA al usuario qué tipo quiere** (familia y estilo, con el catálogo `kit-animaciones-3d/catalogo.jpg`). No elegir el estilo por cuenta propia salvo que el usuario ya lo haya nombrado.
+- Cómo generar y adaptar: skill `animaciones-3d` (`.claude/skills/animaciones-3d/SKILL.md`) y `kit-animaciones-3d/README.md`.
+- Siempre fotogramas de control (`--stills`) y mirarlos antes del vídeo. Animales SDF: ~18 min por 10 s en 4 CPU.
