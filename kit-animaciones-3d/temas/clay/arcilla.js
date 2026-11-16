@@ -47,7 +47,7 @@ function crearEscena(o) {
       if (!liso) alb = alb.map(v => v * veta);
       if (o.pinta) alb = o.pinta(part, x, y, z, alb, n, m) || alb;
       const [Nx, Ny, Nz] = n, ndl = Nx * L[0] + Ny * L[1] + Nz * L[2];
-      const sh = ndl > -.2 ? M.sombra(mapa, x + Nx * .01, y + Ny * .01, z + Nz * .01, L[0], L[1], L[2], 9, o.sombraMax || 8, 50) : 0, ao = M.oclusion(mapa, x, y, z, Nx, Ny, Nz);
+      const sh = ndl > -.2 ? M.sombra(mapa, x + Nx * .035, y + Ny * .035, z + Nz * .035, L[0], L[1], L[2], 6, o.sombraMax || 8, 50) : 0, ao = M.oclusion(mapa, x, y, z, Nx, Ny, Nz);
       const wrap = Math.max(0, (ndl + .3) / 1.3), fill = Math.max(0, Nx * .7 + Ny * .3 - Nz * .1) * .25, sky = .5 + .5 * Ny;
       const hv = (() => { const v = [L[0] - dx, L[1] - dy, L[2] - dz], l = len(...v); return v.map(q => q / l); })(), nh = Math.max(0, Nx * hv[0] + Ny * hv[1] + Nz * hv[2]);
       const brillo = brill.has(part) ? Math.pow(nh, 90) * 1.2 : Math.pow(nh, 14) * .14, rim = Math.pow(1 - Math.max(0, -(Nx * dx + Ny * dy + Nz * dz)), 3) * .12;
