@@ -5,7 +5,7 @@ const M = require('../motor');
 const { clamp, mix, sstep, fract, h2, n2, n3, fbm2, voro3, cuadrupedo, sdAnimal, primCercana, sombra, sdEll, sdCap } = M;
 const SUN = (() => { const v = [0.62, 0.27, 0.74], l = Math.hypot(...v); return v.map(a => a / l); })();
 const B = [0, 4.39, 11.99, 27.57, 31.99, 54.53, 59.57, 80.39, 88.16];
-const ROCA = [-14, -3, 1.35];
+const ROCA = [-14, -9.5, 1.35];
 const roca = (x, z) => ROCA[2] * sstep(3.3, 1.2, Math.hypot(x - ROCA[0], z - ROCA[1]) * (1 + .12 * Math.sin(Math.atan2(z - ROCA[1], x - ROCA[0]) * 3)));
 const sueloH = (x, z) => .12 * Math.sin(x * .3 + 1) * Math.cos(z * .25) + .06 * Math.sin(x * .9 + z * .7) + roca(x, z);
 // ---- árboles periódicos (acacias) en celdas de 30 m; no caen sobre las calles de los animales
