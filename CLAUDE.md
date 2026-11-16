@@ -6,7 +6,7 @@ El usuario dice **LARGO** o **SHORT** + tema (+ descripción visual); tú ya sab
 |---|---|---|
 | Qué es | vertical 1080×1920, 30 fps, **60–90 s**, subtítulos, letrero final «SIGUE A @randonautico» | YouTube 16:9, 24 fps, **30–60 min**, capítulos de 3–5 min |
 | Voz | **Carmen** (ElevenLabs, peninsular; se genera con la herramienta del conector y se importa) | **Serena** (Qwen3-TTS local, `.venv-qwen`) |
-| Música | `curiosos` · −14 LUFS | `meditacion` · −16/−19 LUFS |
+| Música | `natural` (suave, sin pulso ni sonidos chirriantes) · −14 LUFS | `meditacion` · −16/−19 LUFS |
 
 ## Arranque
 1. Sesión nueva: `bash pipeline/instalar.sh` (voces, MeloTTS, Qwen; requisitos de red en su cabecera). Contenedor de un chat de Project: `bash chat/bootstrap.sh`.
@@ -32,7 +32,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - Visual: objetos y paisajes reales bien dibujados (no iconos esquemáticos). Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 - No renderizar ni enviar vídeos de prueba salvo que lo pida; validar con linter, medidas y fotogramas. Los entregables que pide sí se renderizan.
 - Voces: **Serena** (Qwen, largos), **Carmen** (ElevenLabs, shorts), **Aiden** (Qwen, voz masculina: `meta.voz = 'aiden'` o `'aiden_meditacion'`, cualquier tipo), **Vivian** (`vivian`, Qwen), `sharvard_1` (Piper, CC BY 3.0: atribuir) y `melo_es` (tal cual), **Carmelot** (`carmelot`: Serena ajustada al estilo de Carmen, sin oír por el usuario), MeloTTS (meditación antigua) y Piper (pendiente de ajuste). Los perfiles de `config/perfiles_voz.json` no se tocan sin que lo pida.
-- Música: un estilo por perfil en `pipeline/musica.py`; no cambiarla sin que lo pida.
+- Música: un estilo por perfil en `pipeline/musica.py`. **Shorts: música suave de acompañamiento (`natural`), nunca la `curiosos` chirriante** (orden del usuario). No cambiarla sin que lo pida.
 - ElevenLabs gasta créditos: `estimate_only` primero y `generations_count = 1`.
 - Entrega doble: YouTube de 3–5 min ⇒ también versión Instagram vertical.
 - MP4 ligero: < 10 MB en shorts (la app no reproduce > ~12 MB); en largos el objetivo va en `meta.ligero_MB`.
