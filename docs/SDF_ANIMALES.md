@@ -30,6 +30,7 @@ Progreso del render: `proyectos/sdf_<escena>/salida/progreso_<escena>.json` (no 
 |---|---|---|
 | `bosque` | SDF / ray marching | Ciervo con cornamenta, cierva, cría con manchas y zorro al galope por un pinar con niebla, a contraluz de atardecer. La cámara los acompaña. |
 | `sabana` | Texturas procedurales | Jirafa (manchas Voronoi), dos cebras (rayas con ruido) y guepardo (motas y «lágrimas») caminando entre acacias con luz dorada. |
+| `fondo_marino` | SDF submarino con voz | Buzo a pulmón (patada), cachalote, zifio de Cuvier y traje rígido (atmosférico) bajo el agua: luz solar que se apaga con la profundidad (absorción por canal), foco de vehículo a partir de ~80 m, superficie vista desde abajo. Los modelos (`sdCachalote`, `sdZifio`, `sdBuzo`, `sdAds`) son funciones de distancia en coordenadas locales (x = hacia delante) y se colocan con `ent(tipo, pos, dirección, dorso, escala, radio, t)`. `E.anclas(t)` devuelve puntos 2D proyectados para anclar grafismos (se superponen después con Chromium). ~0,8 s/fotograma a 540×960 con 2 CPU. |
 
 ## Coste (medido en este contenedor, 4 CPU)
 
