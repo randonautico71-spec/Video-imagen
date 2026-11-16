@@ -30,6 +30,9 @@ const ESPECIES = {
   zorro: { bl: .3, bh: .14, bw: .12, L1: .2, L2: .22, lr: .032, amp: .85, fold: 1.3, freq: 4.2, gait: GALOPE_CORTO, bob: .05, nx: .1, ny: .14, nr: .07, nod: .03, hl: .12, hh: .08, hw: .08, sl: .14, sd: .025, sr: .035, el: .11, er: .03, tx: -.55, ty: -.06, tw: .08, tr: .085, k: .06, zarpa: 1, colaBase: .6, colaPunta: 1.25, orejaPunta: .35, ojo: .9 },
   jirafa: { bl: .65, bh: .33, bw: .27, L1: .95, L2: 1.0, lr: .07, amp: .32, fold: .5, freq: .9, gait: PASO, bob: .03, alto: 1.03, nx: .6, ny: 1.75, nr: .13, nod: .06, hl: .28, hh: .12, hw: .11, sl: .18, sd: .05, sr: .08, el: .14, er: .035, tx: -.12, ty: -.65, tw: .08, tr: .03, k: .1, osic: 1, crin: .55, cruz: .55, borla: 1, colaPunta: .7, ojo: 1.15 },
   cebra: { bl: .62, bh: .3, bw: .25, L1: .48, L2: .52, lr: .06, amp: .4, fold: .6, freq: 1.3, gait: PASO, bob: .025, alto: 1.03, nx: .3, ny: .5, nr: .15, nod: .05, hl: .24, hh: .12, hw: .11, sl: .2, sd: .08, sr: .085, el: .15, er: .035, tx: -.12, ty: -.5, tw: .08, tr: .035, k: .09, crin: 1, borla: 1, colaPunta: .8, orejaPunta: .45 },
+  leon: { bl: .62, bh: .27, bw: .24, L1: .38, L2: .4, lr: .075, amp: .42, fold: .7, freq: 1.0, gait: PASO, bob: .018, alto: 1.0, nx: .2, ny: .1, nr: .14, nod: .03, hl: .2, hh: .15, hw: .15, sl: .1, sd: .035, sr: .075, el: .05, er: .04, tx: -.75, ty: -.5, tw: .05, tr: .035, k: .09, zarpa: 1, borla: 1, colaPunta: .8, orejaPunta: .85, melena: 1, ojo: .95 },
+  hiena: { bl: .5, bh: .2, bw: .17, L1: .36, L2: .36, lr: .05, amp: .4, fold: .7, freq: 1.2, gait: PASO, bob: .018, alto: 1.0, nx: .2, ny: .1, nr: .1, nod: .035, hl: .17, hh: .12, hw: .12, sl: .08, sd: .02, sr: .08, el: .09, er: .06, tx: -.3, ty: -.38, tw: .04, tr: .045, k: .08, zarpa: 1, crin: .55, cruz: .5, baja: .8, colaPunta: .6, orejaPunta: .9, ojo: .9 },
+  elefante: { bl: 1.5, bh: .95, bw: .8, L1: .9, L2: .9, lr: .21, amp: .26, fold: .3, freq: .62, gait: PASO, bob: .02, alto: 1.0, nx: .4, ny: .02, nr: .42, nod: .03, hl: .55, hh: .5, hw: .38, sl: .08, sd: .1, sr: .17, el: .5, er: .1, tx: -.1, ty: -1.0, tw: .04, tr: .045, k: .12, orejaG: .95, trompa: 2.0, colmillos: 1, colaPunta: .5, ojo: .3 },
   guepardo: { bl: .5, bh: .17, bw: .15, L1: .36, L2: .38, lr: .045, amp: .45, fold: .7, freq: 1.2, gait: PASO, bob: .02, alto: 1.0, nx: .16, ny: .12, nr: .09, nod: .03, hl: .13, hh: .1, hw: .11, sl: .07, sd: .02, sr: .065, el: .06, er: .035, tx: -.62, ty: -.42, tw: .1, tr: .04, k: .07, zarpa: 1, colaPunta: .8, orejaPunta: .8, ojo: 1.1 },
 };
 function sdRC(px, py, pz, ax, ay, az, bx, by, bz, r1, r2) {
@@ -44,9 +47,9 @@ function sdRC(px, py, pz, ax, ay, az, bx, by, bz, r1, r2) {
 /* o.v = velocidad de avance en m/s (hacia +x) y o.suelo(x, z) = altura del terreno: con ambos, las pezuñas se quedan clavadas al apoyar.
    Los animales pequeños dan pasos más rápidos (freq / sqrt(escala)). */
 function cuadrupedo(nombre, ox, oz, t, ph, esc = 1, o = {}) {
-  const S = ESPECIES[nombre], s = esc, freq = S.freq / Math.sqrt(s), T = 2 * Math.PI * freq * t + ph;
-  const suelo = o.suelo || (() => 0), v = o.v || 0;
-  const hb = (.35 * S.bh + (S.L1 + S.L2) * (S.alto || .93)) * s, oy = hb + S.bob * s * Math.sin(2 * T);
+  const S = ESPECIES[nombre], s = esc, freq = S.freq / Math.sqrt(s), T = o.quieto ? ph : 2 * Math.PI * freq * t + ph;
+  const suelo = o.suelo || (() => 0), v = o.quieto ? 0 : (o.v || 0);
+  const hb = (.35 * S.bh + (S.L1 + S.L2) * (S.alto || .93)) * s, oy = hb + S.bob * s * Math.sin(2 * T) + (o.y0 || 0);
   const P = [];
   const E = (cx, cy, cz, rx, ry, rz, m, hard) => P.push({ t: 0, cx: ox + cx * s, cy: oy + cy * s, cz: oz + cz * s, rx: rx * s, ry: ry * s, rz: rz * s, m, hard });
   const C = (ax, ay, az, bx, by, bz, r, m, hard) => P.push({ t: 1, ax: ox + ax * s, ay: oy + ay * s, az: oz + az * s, bx: ox + bx * s, by: oy + by * s, bz: oz + bz * s, r: r * s, m, hard });
@@ -54,7 +57,7 @@ function cuadrupedo(nombre, ox, oz, t, ph, esc = 1, o = {}) {
   // tronco: costillar, pecho, grupa, cruz y vientre
   E(0, 0, 0, S.bl, S.bh, S.bw, 'cuerpo');
   E(S.bl * .5, S.bh * .1, 0, S.bl * .48, S.bh * 1.05, S.bw * .95, 'cuerpo');
-  E(-S.bl * .55, S.bh * .08, 0, S.bl * .42, S.bh, S.bw, 'cuerpo');
+  E(-S.bl * .55, S.bh * (.08 - (S.baja || 0) * .75), 0, S.bl * .42, S.bh, S.bw, 'cuerpo');
   E(S.bl * .5, S.bh * .62, 0, S.bl * .32, S.bh * (S.cruz || .35), S.bw * .55, 'cuerpo');
   E(-S.bl * .05, -S.bh * .3, 0, S.bl * .6, S.bh * .7, S.bw * .92, 'cuerpo');
   // cuello que se estrecha y cabeza con mandíbula
@@ -69,7 +72,22 @@ function cuadrupedo(nombre, ox, oz, t, ph, esc = 1, o = {}) {
   E(tipx + S.sr * .62, tipy + S.sr * .12, 0, S.sr * .32, S.sr * .42, S.sr * .7, 'nariz', true);
   const ojx = hx + S.hl * .36, ojy = hy + S.hh * .32;
   for (const sd of [-1, 1]) E(ojx, ojy, sd * S.hw * .8, S.hh * .25 * (S.ojo || 1), S.hh * .23 * (S.ojo || 1), S.hh * .17, 'ojo', true);
-  for (const sd of [-1, 1]) RC(hx - S.hl * .45, hy + S.hh * .6, sd * S.hw * .55, hx - S.hl * .45 - S.el * .45, hy + S.hh * .6 + S.el, sd * (S.hw * .55 + S.el * .45), S.er * 1.05, S.er * (S.orejaPunta || .55), 'oreja');
+  if (S.melena && o.melena !== false) {
+    const sw = .012 * Math.sin(T * 2);
+    E(hx - S.hl * .95, hy - S.hh * .15, 0, S.hl * .95, S.hh * 1.4, S.hw * 1.3, 'melena');
+    E(hx - S.hl * .45, hy + S.hh * .55, 0, S.hl * .55, S.hh * .5, S.hw * 1.15, 'melena');
+    E(nbx + S.nx * .35, nby + S.ny * .3 + sw, 0, S.nr * 2.1, S.nr * 2.0, S.nr * 2.0, 'melena');
+    E(nbx + .02, nby - S.nr * 1.1, 0, S.nr * 2.0, S.nr * 1.6, S.nr * 1.7, 'melena');
+    E(nbx - S.bl * .25, nby - S.nr * .4, 0, S.bl * .32, S.nr * 1.5, S.bw * .9, 'melena');
+  }
+  if (S.orejaG) for (const sd of [-1, 1]) { const fl = .1 * Math.sin(T * 1.5 + (sd > 0 ? 0 : 1.3)); E(hx - S.hl * .55, hy + S.hh * .15, sd * (S.hw + S.orejaG * .42 + fl), .05, S.orejaG * .62, S.orejaG * .55, 'oreja'); E(hx - S.hl * .5, hy + S.hh * .5, sd * (S.hw + S.orejaG * .3 + fl * .5), .06, S.orejaG * .35, S.orejaG * .4, 'oreja'); }
+  if (S.trompa) {
+    const b0x = hx + S.hl * .75, b0y = hy - S.hh * .1; let px = b0x, py = b0y, pr = S.nr * .62; const n = 7;
+    for (let i = 1; i <= n; i++) { const u = i / n, nx_ = b0x + S.trompa * .32 * Math.sin(u * Math.PI * .75) + .14 * u * Math.sin(T * .9 + u * 2), ny_ = b0y - S.trompa * u * .92, nr_ = S.nr * (.62 - .4 * u); RC(px, py, 0, nx_, ny_, 0, pr, nr_, 'trompa'); px = nx_; py = ny_; pr = nr_; }
+    E(px + .02, py - .02, 0, pr * 1.1, pr * 1.5, pr * 1.0, 'trompa');
+  }
+  if (S.colmillos) for (const sd of [-1, 1]) { const bx0 = hx + S.hl * .5, by0 = hy - S.hh * .5, z0 = sd * S.hw * .6; RC(bx0, by0, z0, bx0 + .22, by0 - .38, z0 + sd * .06, .065, .05, 'colmillo', true); RC(bx0 + .22, by0 - .38, z0 + sd * .06, bx0 + .55, by0 - .42, z0 + sd * .1, .05, .014, 'colmillo', true); }
+  if (!S.orejaG) for (const sd of [-1, 1]) RC(hx - S.hl * .45, hy + S.hh * .6, sd * S.hw * .55, hx - S.hl * .45 - S.el * .45, hy + S.hh * .6 + S.el, sd * (S.hw * .55 + S.el * .45), S.er * 1.05, S.er * (S.orejaPunta || .55), 'oreja');
   if (S.astas && s > .9) for (const sd of [-1, 1]) { const bx0 = hx - S.hl * .3, by0 = hy + S.hh * .8, bz0 = sd * .05, mx = bx0 - .12, my = by0 + .3, mz = sd * .18; RC(bx0, by0, bz0, mx, my, mz, .028, .02, 'asta', true); RC(mx, my, mz, mx - .12, my + .22, mz + sd * .08, .02, .011, 'asta', true); RC(bx0 - .06, by0 + .15, bz0 + sd * .07, bx0 + .08, by0 + .3, sd * .14, .018, .009, 'asta', true); RC(mx - .05, my + .1, mz + sd * .03, mx + .08, my + .28, mz + sd * .04, .016, .008, 'asta', true); }
   if (S.osic) for (const sd of [-1, 1]) { const ax = hx - S.hl * .3, ay = hy + S.hh * .7, bx = hx - S.hl * .38, by = hy + S.hh * .7 + .14; RC(ax, ay, sd * .05, bx, by, sd * .06, .03, .02, 'osicon'); E(bx, by + .01, sd * .06, .032, .03, .032, 'borla', true); }
   // cola
@@ -79,14 +97,15 @@ function cuadrupedo(nombre, ox, oz, t, ph, esc = 1, o = {}) {
   // patas: muslo, rodilla, caña y pezuña/zarpa
   const L1 = S.L1, L2 = S.L2, g = S.gait, zancada = v / (freq * s), alza = (L1 + L2) * .16, p0 = T / (2 * Math.PI);
   for (let i = 0; i < 4; i++) {
-    const front = i < 2, sd = i % 2 ? 1 : -1, hipx = (front ? 1 : -1) * S.bl * .62, hipy = -S.bh * .35, hipz = sd * S.bw * .55;
+    const front = i < 2, sd = i % 2 ? 1 : -1, hipx = (front ? 1 : -1) * S.bl * .62, hipy = -S.bh * .35 - (front ? 0 : S.bh * (S.baja || 0) * .55), hipz = sd * S.bw * .55;
     // trayectoria del pie: apoyado (retrocede respecto al cuerpo justo lo que avanza el animal) y en vuelo (vuelve adelante levantado)
     const p = fract(p0 + g.f[i]), half = zancada * g.beta / 2;
     let fxr, lift = 0;
     if (p < g.beta) fxr = half - p / g.beta * 2 * half;
     else { const q = (p - g.beta) / (1 - g.beta), e = q * q * (3 - 2 * q); fxr = -half + e * 2 * half; lift = Math.sin(Math.PI * q) * alza; }
     const fxl = hipx + fxr, wx = ox + fxl * s, wz = oz + hipz * s;
-    let fx = fxl, fy = (suelo(wx, wz) - oy) / s + S.lr * .9 + lift;
+    if (o.quieto) { fxr = 0; lift = 0; }
+    const fxl2 = hipx + fxr; let fx = fxl2, fy = (suelo(ox + fxl2 * s, wz) - oy) / s + S.lr * .9 + lift;
     // cinemática inversa de dos huesos: rodilla delantera hacia delante, corvejón trasero hacia atrás
     let dx = fx - hipx, dy = fy - hipy, d = Math.hypot(dx, dy); const dmax = (L1 + L2) * .999;
     if (d > dmax) { dx *= dmax / d; dy *= dmax / d; fx = hipx + dx; fy = hipy + dy; d = dmax; }

@@ -13,7 +13,8 @@ const a = process.argv.slice(2), arg = (k, d) => { const i = a.indexOf('--' + k)
 const escena = path.resolve(__dirname, '../engine/sdf/escenas', a[0] + '.js'), salida = a[1];
 const w = +arg('w', 540), h = +arg('h', 960), fps = +arg('fps', 30), seg = +arg('seg', 10), hilos = +arg('hilos', require('os').cpus().length);
 const stills = arg('stills', null);
-const tiempos = stills ? stills.split(',').map(Number) : Array.from({ length: Math.round(seg * fps) }, (_, i) => i / fps);
+const ini = +arg('ini', 0);
+const tiempos = stills ? stills.split(',').map(Number) : Array.from({ length: Math.round(seg * fps) }, (_, i) => ini + i / fps);
 const N = tiempos.length, t0 = Date.now(), listos = new Map();
 let siguiente = 0, escrito = 0, ff = null;
 if (!stills) {
