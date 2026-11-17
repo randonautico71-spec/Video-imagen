@@ -16,7 +16,13 @@
     leon:  { pel: '#c79b5e', cla: '#ecdab0', osc: '#6f5128', iris: '#cf9326', nariz: '#a8706a', labio: '#2a1a16', melena: true, rayas: false,
              alto: 1.0, largo: 1.0, grueso: 1.0, patas: 1.0, cabeza: 0.96 },
     tigre: { pel: '#d96f18', cla: '#f6efe0', osc: '#15100b', iris: '#d9a31c', nariz: '#d98e86', labio: '#201513', melena: false, rayas: true,
-             alto: 0.97, largo: 1.1, grueso: 1.12, patas: 0.94, cabeza: 1.06 }
+             alto: 0.97, largo: 1.1, grueso: 1.12, patas: 0.94, cabeza: 1.06 },
+    // guepardo: esbelto, patas largas, cabeza pequena, manchas negras redondas y «lagrimas» negras del ojo a la boca
+    guepardo: { pel: '#dcae5c', cla: '#f4e9cd', osc: '#171009', iris: '#c08a2c', nariz: '#2b1c17', labio: '#171009', melena: false, rayas: false, manchas: true,
+             alto: 0.82, largo: 1.05, grueso: 0.7, patas: 1.15, cabeza: 0.62 },
+    // gato domestico atigrado (naranja): el mismo molde a escala de gato, rayas finas y ojos verdes
+    gato: { pel: '#a9a29a', cla: '#efe9df', osc: '#4b4640', iris: '#8fb23a', nariz: '#df9a92', labio: '#3a2f2a', melena: false, rayas: true,
+             alto: 0.82, largo: 0.85, grueso: 0.8, patas: 0.85, cabeza: 1.08 }
   };
   MO.felino = function (o = {}) {
     const E0 = ESP[o.especie || 'leon'] || ESP.leon, nom = o.especie || 'leon', E = o.hembra ? Object.assign({}, E0, { melena: false }) : E0;
@@ -44,10 +50,18 @@
         for (let k = 0; k < 40; k++) { const yk = r() * H, x0 = W * (0.25 + (r() - 0.5) * 0.3); x.globalAlpha = 0.85; x.fillStyle = E.osc; x.beginPath(); x.ellipse(x0, yk, 5 + r() * 7, 2 + r() * 3, 0, 0, 7); x.fill(); }
         x.globalAlpha = 1;
       }
+      if (E.manchas) {   // manchas negras redondas, mas pequenas hacia el vientre; mas densas en dorso y costados
+        const r = VE.rng('manchas|' + nom);
+        for (let k = 0; k < 520; k++) { const xx = W * (0.04 + r() * 0.62), yy = r() * H, rr = 3.2 + r() * 3.8, q = Math.abs(xx / W - 0.25);
+          if (q > 0.34 && r() < 0.6) continue;
+          x.globalAlpha = 0.92; x.fillStyle = E.osc; x.beginPath(); x.ellipse(xx, yy, rr, rr * (0.85 + r() * 0.3), r() * 3, 0, 7); x.fill(); }
+        x.globalAlpha = 1;
+      }
     });
     const texPata = V.textura('fel|' + nom + '|pata', 256, 256, (x, W, H) => {
       x.fillStyle = E.pel; x.fillRect(0, 0, W, H); const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(255,255,255,0.18)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
       pelo(x, W, H, 6000, [E.osc, E.pel, E.cla], 10, true);
+      if (E.manchas) { const r = VE.rng('manchasP'); x.fillStyle = E.osc; for (let k = 0; k < 90; k++) { x.globalAlpha = 0.9; x.beginPath(); x.arc(r() * W, r() * H * 0.8, 2 + r() * 2.5, 0, 7); x.fill(); } x.globalAlpha = 1; }
       if (E.rayas) { const r = VE.rng('rayasP'); x.fillStyle = E.osc; for (let k = 0; k < 7; k++) { const y = (k + 0.4 + r() * 0.3) / 7 * H * 0.85; x.globalAlpha = 0.9; x.fillRect(0, y, W * (0.6 + r() * 0.25), 6 + r() * 5); } x.globalAlpha = 1; }
     });
     const texPaw = V.textura('fel|' + nom + '|paw', 128, 128, (x, W, H) => { x.fillStyle = E.pel; x.fillRect(0, 0, W, H); x.globalAlpha = 0.45; x.fillStyle = E.cla; x.fillRect(0, 0, W, H); x.globalAlpha = 1; pelo(x, W, H, 1200, [E.pel, E.cla, E.osc], 8, true); });
@@ -140,6 +154,11 @@
           for (let i = 0; i < 3; i++) h.push(elip(liso(E.osc, { esp: 0.05 }), [0.052 - i * 0.008, 0.007, 0.012], [0.02 * k - i * 0.012, (0.03 - i * 0.032) * k, s * 0.153 * k], [0, s * 0.35, s * (0.35 - i * 0.18)]));
           h.push(elip(liso('#f7f0e2', { esp: 0.05 }), [0.028, 0.016, 0.016], [0.105 * k, 0.098 * k, s * 0.085 * k], [0, s * 0.3, 0]));
         }
+      }
+      if (E.manchas) for (const s of [-1, 1]) {   // lagrimas negras: del ojo al borde de la boca
+        h.push(elip(liso(E.osc, { esp: 0.05 }), [0.055, 0.007, 0.007], [0.15 * k, -0.02 * k, s * 0.1 * k], [0, s * 0.45, s * -0.9]));
+        h.push(elip(liso(E.osc, { esp: 0.05 }), [0.04, 0.007, 0.007], [0.2 * k, -0.075 * k, s * 0.085 * k], [0, s * 0.35, s * -0.5]));
+        for (let i = 0; i < 6; i++) h.push(elip(liso(E.osc, { esp: 0.05 }), [0.007, 0.007, 0.007], [(0.0 + (i % 3) * 0.045) * k, (0.12 - Math.floor(i / 3) * 0.05) * k, (i % 2 ? 1 : -1) * 0.06 * k]));
       }
       if (E.rayas) for (let i = 0; i < 3; i++) h.push(elip(liso(E.osc, { esp: 0.05 }), [0.052, 0.006, 0.01], [0.04 * k, 0.158 * k, (i - 1) * 0.035 * k], [0, 1.5708, 0]));
       // mandibula
