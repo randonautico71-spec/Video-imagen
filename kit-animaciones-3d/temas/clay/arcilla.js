@@ -1,5 +1,5 @@
 'use strict';
-// MATERIAL DE PLASTILINA (claymotion) para escenas SDF. Lo usan temas/<tema>/clay.js.
+// MATERIAL DE PLASTILINA (13 · claymotion) y de FIELTRO (14, con MATERIAL=fieltro) para escenas SDF. Lo usan temas/<tema>/clay.js.
 //  · bultos de modelado a mano y huellas dactilares, que cambian un poco en cada imagen («hervido» del stop-motion)
 //  · color mezclado a mano con vetas, luz cálida de estudio, sombras blandas, brillo suave y algo de luz que atraviesa la plastilina
 //  · temblor leve de cámara por imagen. El vídeo se renderiza a 12 imágenes/s (bin/tema.cjs lo pasa luego a los fps pedidos).
@@ -27,6 +27,8 @@ function huella(x, y, z) { const s = .2, ix = Math.floor(x / s), iy = Math.floor
   const cx = (ix + .3 + .4 * hs(iy, iz, ix)) * s, cy = (iy + .3 + .4 * hs(iz, ix, iy)) * s, cz = (iz + .3 + .4 * hs(ix, iz, iy)) * s, r = len(x - cx, (y - cy) * 1.3, z - cz), R = s * .42; if (r > R) return 0;
   return Math.sin(r * 330 + 2 * Math.sin((x + z) * 40)) * (1 - r / R); }
 const lumpy = (x, y, z) => .6 * n3(x * 12 + S.F * .7, y * 12, z * 12 + S.F * .4) + .25 * n3(x * 40, y * 40 + S.F, z * 40);
+const FIELTRO = process.env.MATERIAL === 'fieltro';   // estilo 14: mismas escenas, material de fieltro (fibras y pelusa)
+const fibra = (x, y, z) => .6 * n3(x * 160 + S.F * .3, y * 160, z * 160) + .4 * n3(x * 45, y * 45 + S.F * .2, z * 45);
 const LISOS = new Set(['ojo', 'pupila', 'carton', 'cielo', 'cristal', 'ventana']);
 /* crearEscena({ escena(x,y,z)->[d, material], parte?(material,x,y,z)->parte, colores:{parte:[r,g,b]}, pinta?(parte,x,y,z,alb,n)->alb,
                  camara(t)->{eye,target,fov}, luz?:[x,y,z], fondo?:[r,g,b], lejos?:30, brillantes?:Set }) → escena para bin/fotograma_sdf.cjs y bin/sdf.cjs */
@@ -42,18 +44,21 @@ function crearEscena(o) {
       const [, m] = o.escena(x, y, z), part = o.parte ? (o.parte(m, x, y, z) || m) : m; let alb = (o.colores[part] || o.colores[m] || [.8, .8, .8]).slice(), n = [nx, ny, nz];
       const g = (f, e) => { const f0 = f(x, y, z); return [(f(x + e, y, z) - f0) / e, (f(x, y + e, z) - f0) / e, (f(x, y, z + e) - f0) / e]; };
       const liso = LISOS.has(part) || LISOS.has(m), suave = part === 'piel' || part === 'mejilla' || part === 'boca', ka = liso ? .004 : suave ? .007 : .02, kh = liso ? 0 : suave ? .00012 : .00032;
-      const g1 = g(lumpy, .004), g2 = kh ? g(huella, .0015) : [0, 0, 0]; n = n.map((v, k) => v - ka * g1[k] - kh * g2[k]); const nl = len(...n); n = n.map(v => v / nl);
-      const veta = .9 + .18 * n3(x * 3.5 + 7, y * 3.5, z * 3.5) + .06 * Math.sin((x + y * .5) * 25 + 3 * n3(x * 2, y * 2, z * 2));
-      if (!liso) alb = alb.map(v => v * veta);
+      if (FIELTRO && !liso) { const g1 = g(lumpy, .004), g2 = g(fibra, .0015); n = n.map((v, k) => v - .008 * g1[k] - .0035 * g2[k]); const nl = len(...n); n = n.map(v => v / nl);
+        const L0 = alb[0] * .3 + alb[1] * .59 + alb[2] * .11; alb = alb.map(v => (L0 + (v - L0) * .85) * (.86 + .22 * n3(x * 60, y * 60, z * 60))); }
+      else { const g1 = g(lumpy, .004), g2 = kh ? g(huella, .0015) : [0, 0, 0]; n = n.map((v, k) => v - ka * g1[k] - kh * g2[k]); const nl = len(...n); n = n.map(v => v / nl);
+        const veta = .9 + .18 * n3(x * 3.5 + 7, y * 3.5, z * 3.5) + .06 * Math.sin((x + y * .5) * 25 + 3 * n3(x * 2, y * 2, z * 2));
+        if (!liso) alb = alb.map(v => v * veta); }
       if (o.pinta) alb = o.pinta(part, x, y, z, alb, n, m) || alb;
       const [Nx, Ny, Nz] = n, ndl = Nx * L[0] + Ny * L[1] + Nz * L[2];
       const sh = ndl > -.2 ? M.sombra(mapa, x + Nx * .035, y + Ny * .035, z + Nz * .035, L[0], L[1], L[2], 6, o.sombraMax || 8, 50) : 0, ao = M.oclusion(mapa, x, y, z, Nx, Ny, Nz);
       const wrap = Math.max(0, (ndl + .3) / 1.3), fill = Math.max(0, Nx * .7 + Ny * .3 - Nz * .1) * .25, sky = .5 + .5 * Ny;
       const hv = (() => { const v = [L[0] - dx, L[1] - dy, L[2] - dz], l = len(...v); return v.map(q => q / l); })(), nh = Math.max(0, Nx * hv[0] + Ny * hv[1] + Nz * hv[2]);
-      const brillo = brill.has(part) ? Math.pow(nh, 90) * 1.2 : Math.pow(nh, 14) * .14, rim = Math.pow(1 - Math.max(0, -(Nx * dx + Ny * dy + Nz * dz)), 3) * .12;
+      const ndv = Math.max(0, -(Nx * dx + Ny * dy + Nz * dz)), fieltroAqui = FIELTRO && !liso;
+      const brillo = brill.has(part) ? Math.pow(nh, 90) * 1.2 : fieltroAqui ? 0 : Math.pow(nh, 14) * .14, rim = fieltroAqui ? 0 : Math.pow(1 - ndv, 3) * .12, pelusa = fieltroAqui ? Math.pow(1 - ndv, 2.2) * .45 : 0;
       const sss = [.25, .1, .04].map(v => v * Math.max(0, wrap - Math.max(0, ndl)));
       const kl = o.luzColor || [1.25, 1.12, .95], amb = o.ambiente || [.32, .36, .45], emi = o.emite ? o.emite(part, x, y, z) : 0;
-      const c = [0, 1, 2].map(k => alb[k] * (kl[k] * wrap * (.25 + .75 * sh) + amb[k] * sky * ao + [.28, .3, .38][k] * fill + sss[k] * 1.5) + brillo * sh + rim * ao + (emi ? alb[k] * emi : 0));
+      const c = [0, 1, 2].map(k => alb[k] * (kl[k] * wrap * (.25 + .75 * sh) + amb[k] * sky * ao + [.28, .3, .38][k] * fill + sss[k] * (fieltroAqui ? .6 : 1.5) + pelusa * (.6 + .4 * sh)) + brillo * sh + rim * ao + (emi ? alb[k] * emi : 0));
       if (o.niebla) { const f = 1 - Math.exp(-Math.max(0, T - (o.niebla.desde || 0)) * o.niebla.k); return c.map((v, k) => v + (o.niebla.col[k] - v) * f); }
       return c;
     },
