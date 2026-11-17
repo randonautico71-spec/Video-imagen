@@ -1,0 +1,56 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}canvas{display:block}</style></head><body><canvas id="c" width="1080" height="1920"></canvas>
+<script>
+const W = 1080, H = 1920, cv = document.getElementById('c'), ctx = cv.getContext('2d'), FONT = 'Poppins, sans-serif';
+const AMB = '#F7C531', RED = '#E5503F', BLUE = '#3B82F6', INK = '#0b1020';
+let MARKS = {}, WORDS = [];
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const ease = (a, b, t) => { const x = clamp((t - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const win = (t, a, b, fi = .25, fo = .3) => Math.min(ease(a, a + fi, t), 1 - ease(b - fo, b, t));
+const pop = (t, a) => { const x = clamp((t - a) / .45, 0, 1); return x <= 0 ? 0 : 1 + Math.sin(x * Math.PI) * .1 * (1 - x) * 3; };
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function txt(s, x, y, size, o = {}) { ctx.save(); ctx.font = `${o.w || 700} ${size}px ${FONT}`; ctx.textAlign = o.al || 'center'; ctx.textBaseline = 'middle'; ctx.globalAlpha *= o.a == null ? 1 : o.a;
+  if (o.sombra !== false) { ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillText(s, x + 2, y + 4); } ctx.fillStyle = o.c || '#fff'; ctx.fillText(s, x, y); ctx.restore(); }
+function chip(s, cx, cy, col, a) { ctx.save(); ctx.globalAlpha *= a; ctx.font = `800 36px ${FONT}`; const w = ctx.measureText(s).width + 64; rr(cx - w / 2, cy - 33, w, 66, 33); ctx.fillStyle = 'rgba(8,12,24,.72)'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = col; ctx.stroke(); ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, cx, cy + 2); ctx.restore(); return w; }
+function card(cy, h, col) { rr(90, cy - h / 2, 900, h, 36); ctx.fillStyle = 'rgba(8,12,24,.74)'; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = col; ctx.stroke(); }
+function dato(t, t0, t1, big, small, col, o = {}) { const a = win(t, t0, t1, .25, .3); if (a <= 0) return; const s = pop(t, t0), cy = o.cy || 1190, h = o.h || 200; ctx.save(); ctx.globalAlpha = a; ctx.translate(540, cy); ctx.scale(s, s); ctx.translate(-540, -cy);
+  card(cy, h, col); txt(big, 540, cy - 24, o.size || 104, { c: col, w: 800, sombra: false }); txt(small, 540, cy + h / 2 - 42, 29, { c: '#cfd6e6', w: 600, sombra: false }); ctx.restore(); }
+// ---------- secciones (chip superior) ----------
+const SECC = [[2.7, 9.0, 'HIPÓTESIS', AMB], [9.2, 13.7, 'MASA', AMB], [13.9, 24.3, 'ÓRBITA', AMB], [24.5, 31.4, 'MAR · HOY', '#8FB8E8'], [31.5, 47.6, 'ESTIMACIÓN', AMB], [47.7, 49.4, 'IO · LUNA DE JÚPITER', '#E8893A'], [49.6, 53.4, 'TU NOCHE', AMB], [53.5, 66.0, 'ESTIMACIÓN', AMB]];
+function hook(t) { const a = win(t, 1.55, 2.7, .2, .35); if (a <= 0) return; ctx.save(); ctx.globalAlpha = a; const w = chip('LA LUNA ≈ JÚPITER', 540, 235, '#fff', 1);
+  const k = ease(1.85, 2.3, t); if (k > 0) { ctx.strokeStyle = RED; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(540 - w / 2 - 10, 240); ctx.lineTo(540 - w / 2 - 10 + (w + 20) * k, 240 - 8 * k + 4); ctx.stroke(); } ctx.restore(); }
+function marcaTierra(t) { const i = Math.round(t * 30), m = MARKS[i]; if (!m) return; const a = win(t, 13.9, 21.2, .3, .6); if (a <= 0) return; const x = m[0] * W, y = m[1] * H, r = 16 + 2.5 * Math.sin(t * 5);
+  ctx.save(); ctx.globalAlpha = a; ctx.lineWidth = 4; ctx.strokeStyle = '#7fd0ff'; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.stroke();
+  const lab = t < 17.3 ? 'TIERRA' : 'TU CASA', side = x > 700 ? -1 : 1; ctx.beginPath(); ctx.moveTo(x + side * (r + 4), y); ctx.lineTo(x + side * (r + 46), y - 38); ctx.stroke();
+  ctx.font = `800 34px ${FONT}`; const w = ctx.measureText(lab).width + 40, bx = x + side * (r + 46) + (side > 0 ? 0 : -w); rr(bx, y - 38 - 30, w, 60, 30); ctx.fillStyle = 'rgba(8,12,24,.78)'; ctx.fill(); ctx.stroke(); ctx.fillStyle = '#e8f6ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(lab, bx + w / 2, y - 36); ctx.restore(); }
+function reloj(t) { const a = win(t, 21.5, 24.1, .25, .35); if (a <= 0) return; const w = ease(21.54, 23.94, t), hrs = 36.9 * w; ctx.save(); ctx.globalAlpha = a; card(1190, 200, '#7fd0ff'); txt(hrs.toFixed(1).replace('.', ',') + ' h', 540, 1166, 104, { c: '#7fd0ff', w: 800, sombra: false }); txt('UNA VUELTA COMPLETA (EST.)', 540, 1248, 29, { c: '#cfd6e6', w: 600, sombra: false });
+  ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(127,208,255,.9)'; ctx.beginPath(); ctx.arc(190, 1178, 34, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * w); ctx.stroke(); ctx.restore(); }
+function barras(t) { const a = win(t, 34.6, 38.6, .3, .35); if (a <= 0) return; const s = pop(t, 34.6), cy = 1160; ctx.save(); ctx.globalAlpha = a; ctx.translate(540, cy); ctx.scale(s, s); ctx.translate(-540, -cy); card(cy, 250, '#F2A0A0');
+  const k = ease(34.9, 36.3, t); txt('MAREA ≈ 14 km', 130, cy - 62, 30, { al: 'left', c: '#ffb0a6', w: 800, sombra: false }); rr(130, cy - 38, 780 * k, 40, 20); ctx.fillStyle = RED; ctx.fill();
+  txt('OCÉANO MEDIO ≈ 3,7 km', 130, cy + 22, 30, { al: 'left', c: '#9cc4ff', w: 800, sombra: false }); rr(130, cy + 46, 780 * k * 3.7 / 14, 40, 20); ctx.fillStyle = BLUE; ctx.fill(); ctx.restore(); }
+function regla(t) { const a = win(t, 28.4, 31.3, .3, .3); if (a <= 0) return; const k = ease(28.5, 31.0, t); ctx.save(); ctx.globalAlpha = a; const x = 150, y1 = 1180, h = 420; ctx.strokeStyle = '#3ddc84'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, y1 - h); ctx.stroke();
+  for (let i = 0; i <= 5; i++) { ctx.beginPath(); ctx.moveTo(x - 14, y1 - i * h / 5); ctx.lineTo(x + 14, y1 - i * h / 5); ctx.stroke(); } ctx.fillStyle = '#3ddc84'; rr(x - 11, y1 - h * k, 22, h * k, 8); ctx.fill(); ctx.restore(); }
+// ---------- subtítulos editoriales ----------
+const CLAVE = new Set(['júpiter', 'notarías', 'enorme', 'pesaría', 'veinticinco', 'tierra', 'medio', 'kilómetros', 'io', 'volcanes', 'noche', 'miles', 'dormir', 'pesa', '@chispaindiscreta', 'mar', 'agua', 'roca']);
+const norm = s => s.toLowerCase().replace(/[.,:;¿?¡!]/g, '');
+let GRUPOS = null;
+function grupos() { const g = []; let cur = []; for (const w of WORDS) { cur.push(w); const fin = /[.?!:]$/.test(w.t) || cur.length >= 5 || (/,$/.test(w.t) && cur.length >= 3); if (fin) { g.push(cur); cur = []; } } if (cur.length) g.push(cur); return g; }
+function subs(t) { if (!GRUPOS) GRUPOS = grupos(); const SZ = 62, Y = 1370, MAXW = W * .78;
+  for (let gi = 0; gi < GRUPOS.length; gi++) { const g = GRUPOS[gi], t0 = g[0].ini, nxt = GRUPOS[gi + 1], t1 = Math.min(g[g.length - 1].fin + .25, nxt ? nxt[0].ini : 1e9); if (t < t0 || t >= t1) continue;
+    ctx.save(); ctx.font = `800 ${SZ}px ${FONT}`; const sp = ctx.measureText(' ').width, vis = g.filter(w => t >= w.ini - .02); let lines = [[]], lw = 0;
+    for (const w of g) { const ww = ctx.measureText(w.t).width; if (lw + ww > MAXW && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push({ w, ww }); lw += ww + sp; }
+    lines.forEach((ln, li) => { const tot = ln.reduce((s, x) => s + x.ww, 0) + sp * (ln.length - 1); let x = 540 - tot / 2; for (const { w, ww } of ln) { const on = t >= w.ini - .02; if (on) { const act = t < w.fin + .02 || (w === g[g.length - 1]), y = Y + li * 78;
+          ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(0,0,0,.65)'; ctx.fillText(w.t, x + 2, y + 4); ctx.fillStyle = (t >= w.ini && t < w.fin + .04) ? '#fff' : '#b9bfcc'; ctx.fillText(w.t, x, y);
+          if (CLAVE.has(norm(w.t)) && t >= w.ini) { const k = ease(w.ini, w.ini + .15, t); ctx.strokeStyle = '#3B82F6'; ctx.lineWidth = 5; ctx.setLineDash([]); rr(x - 10, y - 44, ww + 20, 88, 10); ctx.globalAlpha = k; ctx.stroke(); ctx.fillStyle = '#3B82F6'; for (const [cx, cy] of [[x - 10, y - 44], [x + ww + 10, y - 44], [x - 10, y + 44], [x + ww + 10, y + 44]]) ctx.fillRect(cx - 6, cy - 6, 12, 12); ctx.globalAlpha = 1; } } x += ww + sp; } });
+    ctx.restore(); } }
+window.capa = (t) => { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H);
+  for (const [t0, t1, s, c] of SECC) { const a = win(t, t0, t1, .3, .3); if (a > 0) chip(s, 540, 235 + (1 - ease(t0, t0 + .35, t)) * -30, c, a); }
+  hook(t); marcaTierra(t); reloj(t); regla(t);
+  dato(t, 5.26, 8.6, '≈ 20°', 'ANCHO EN EL CIELO · HOY: 0,5°', AMB);
+  dato(t, 10.6, 13.5, '25.800 ×', 'MÁS MASA QUE LA LUNA REAL', AMB);
+  dato(t, 28.5, 31.3, '≈ 0,5 m', 'MAREA ACTUAL', '#3ddc84', { cy: 1190, h: 200 });
+  barras(t);
+  dato(t, 57.18, 59.7, '≈ 6.500 ×', 'MÁS LUZ QUE LA LUNA LLENA (EST.)', AMB);
+  dato(t, 59.8, 61.6, '≈ 1.600 lux', 'COMO UN DÍA NUBLADO (EST.)', '#cfd6e6');
+  subs(t); };
+window.init = (m, w) => { MARKS = m; WORDS = w; };
+</script></body></html>
