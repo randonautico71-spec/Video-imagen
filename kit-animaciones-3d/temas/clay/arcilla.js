@@ -29,11 +29,11 @@ function huella(x, y, z) { const s = .2, ix = Math.floor(x / s), iy = Math.floor
 const lumpy = (x, y, z) => .6 * n3(x * 12 + S.F * .7, y * 12, z * 12 + S.F * .4) + .25 * n3(x * 40, y * 40 + S.F, z * 40);
 const FIELTRO = process.env.MATERIAL === 'fieltro';   // estilo 14: mismas escenas, material de fieltro (fibras y pelusa)
 const fibra = (x, y, z) => .6 * n3(x * 160 + S.F * .3, y * 160, z * 160) + .4 * n3(x * 45, y * 45 + S.F * .2, z * 45);
-const LISOS = new Set(['ojo', 'pupila', 'carton', 'cielo', 'cristal', 'ventana']);
+const LISOS = new Set(['ojo', 'pupila', 'carton', 'cielo', 'cristal', 'ventana', 'lengua', 'boca', 'diente']);
 /* crearEscena({ escena(x,y,z)->[d, material], parte?(material,x,y,z)->parte, colores:{parte:[r,g,b]}, pinta?(parte,x,y,z,alb,n)->alb,
                  camara(t)->{eye,target,fov}, luz?:[x,y,z], fondo?:[r,g,b], lejos?:30, brillantes?:Set }) → escena para bin/fotograma_sdf.cjs y bin/sdf.cjs */
 function crearEscena(o) {
-  const L = (() => { const v = o.luz || [-.55, .8, .6], l = len(...v); return v.map(q => q / l); })(), mapa = (x, y, z) => o.escena(x, y, z)[0], brill = o.brillantes || new Set(['ojo', 'pupila', 'nariz', 'cristal', 'ventana']);
+  const L = (() => { const v = o.luz || [-.55, .8, .6], l = len(...v); return v.map(q => q / l); })(), mapa = (x, y, z) => o.escena(x, y, z)[0], mapaS = o.escenaSombra ? (x, y, z) => o.escenaSombra(x, y, z)[0] : mapa, brill = o.brillantes || new Set(['ojo', 'pupila', 'nariz', 'cristal', 'ventana']);
   const E = {
     info: { seg: 8, ips: IPS },
     prepara(t) { S.F = Math.floor(t * IPS + 1e-6); const tq = S.F / IPS, c = o.camara(tq), j = [hs(S.F, 1, 1) - .5, hs(S.F, 2, 2) - .5].map(v => v * .01 * (c.temblor ?? 1));
@@ -51,7 +51,7 @@ function crearEscena(o) {
         if (!liso) alb = alb.map(v => v * veta); }
       if (o.pinta) alb = o.pinta(part, x, y, z, alb, n, m) || alb;
       const [Nx, Ny, Nz] = n, ndl = Nx * L[0] + Ny * L[1] + Nz * L[2];
-      const sh = ndl > -.2 ? M.sombra(mapa, x + Nx * .035, y + Ny * .035, z + Nz * .035, L[0], L[1], L[2], 6, o.sombraMax || 8, 50) : 0, ao = M.oclusion(mapa, x, y, z, Nx, Ny, Nz);
+      const sh = ndl > -.2 ? M.sombra(mapaS, x + Nx * .035, y + Ny * .035, z + Nz * .035, L[0], L[1], L[2], 6, o.sombraMax || 8, 50) : 0, ao = M.oclusion(mapaS, x, y, z, Nx, Ny, Nz);
       const wrap = Math.max(0, (ndl + .3) / 1.3), fill = Math.max(0, Nx * .7 + Ny * .3 - Nz * .1) * .25, sky = .5 + .5 * Ny;
       const hv = (() => { const v = [L[0] - dx, L[1] - dy, L[2] - dz], l = len(...v); return v.map(q => q / l); })(), nh = Math.max(0, Nx * hv[0] + Ny * hv[1] + Nz * hv[2]);
       const ndv = Math.max(0, -(Nx * dx + Ny * dy + Nz * dz)), fieltroAqui = FIELTRO && !liso;
