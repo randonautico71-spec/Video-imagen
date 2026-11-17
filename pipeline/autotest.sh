@@ -49,4 +49,14 @@ const n=require('./render/navegador.cjs');(async()=>{const {chromium}=require(n.
 await pg.goto('file://'+process.cwd()+'/demo/volumen.html?modo=$m&ss=0.5');await pg.evaluate(()=>window.ready);await pg.evaluate(()=>window.renderAt(6));const d=await pg.evaluate(()=>document.getElementById('c').toDataURL('image/jpeg',0.8).length);await b.close();if(er.length||d<5000){console.error(er.join('|')||'imagen vacia');process.exit(1)}})()" 2>/dev/null && ok "demo/volumen.html?modo=$m (3D WebGL)" || mal "demo volumen $m"
   done
 else mal "no hay Playwright/Chromium (ver chat/bootstrap.sh)"; fi
+echo "== Motor SDF (fotograma diminuto de cada escena)"
+for e in $(ls engine/sdf/escenas/*.js | xargs -n1 basename | sed 's/\.js$//'); do
+  rm -rf /tmp/autotest_sdf && node render/sdf.cjs "$e" /tmp/autotest_sdf --stills 1 --w 54 --h 96 --hilos 1 >/dev/null 2>&1 && \
+    [ -s "/tmp/autotest_sdf/${e}_t1.png" ] && ok "sdf: $e" || mal "sdf: $e"
+done
+echo "== Kit de animaciones 3D (kit-animaciones-3d)"
+rm -rf /tmp/autotest_kit && node kit-animaciones-3d/bin/estilo.cjs wire /tmp/autotest_kit --stills 1 >/dev/null 2>&1 && [ -s /tmp/autotest_kit/wire_t1.png ] && ok "kit: estilo wire" || mal "kit: estilo wire"
+node kit-animaciones-3d/bin/sdf.cjs sabana /tmp/autotest_kit --stills 1 --w 54 --h 96 --hilos 1 >/dev/null 2>&1 && [ -s /tmp/autotest_kit/sabana_t1.png ] && ok "kit: sdf sabana" || mal "kit: sdf sabana"
+rm -f /tmp/autotest_kit/tema.png; node kit-animaciones-3d/bin/tema.cjs leon toon /tmp/autotest_kit/tema.png >/dev/null 2>&1 && [ -s /tmp/autotest_kit/tema.png ] && ok "kit: tema leon (toon)" || mal "kit: tema leon (toon)"
+[ -f .claude/skills/animaciones-3d/SKILL.md ] && ok "skill animaciones-3d instalada" || mal "skill animaciones-3d (bash kit-animaciones-3d/instalar.sh)"
 echo; [ $fallos = 0 ] && echo "TODO BIEN" || { echo "$fallos FALLO(S)"; exit 1; }
