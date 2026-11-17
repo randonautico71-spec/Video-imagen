@@ -3,7 +3,9 @@
      meta.json   formato, perfil de voz, estilo de musica
      guion.md    la locucion; cada PARRAFO (separado por linea en blanco) es una ESCENA
      escenas.js  el diseno visual de ESE video (lo escribe Claude a partir de lo que pide el usuario)
-Subcomandos:  nuevo | voz | musica | mezcla | qa | render | todo | plan"""
+Subcomandos:  nuevo | voz | musica | mezcla | qa | render | todo | plan | sdf
+  sdf <escena>: video vertical de animales en 3D por ray marching (engine/sdf/escenas/<escena>.js), sin voz;
+               ver docs/SDF_ANIMALES.md"""
 import argparse, json, math, os, re, shutil, subprocess, sys, time
 from pathlib import Path
 
@@ -60,7 +62,7 @@ def meta_de_tipo(tipo):
 
 
 def avisar_rango(meta, total_s):
-    """Avisa si la duracion se sale del rango del TIPO (largo 30-60 min, short 60-90 s)."""
+    """Avisa si la duracion se sale del rango del TIPO (largo 30-60 min, short 1-3 min)."""
     r = meta.get('duracion_objetivo_s')
     if not r: return
     if total_s < r[0] or total_s > r[1]:
@@ -343,6 +345,52 @@ def cmd_plan(a):
     print(json.dumps({'versiones': vs, 'avisos': av}, indent=1, ensure_ascii=False))
 
 
+# ------------------------------------------------------------------ sdf (animales 3D por ray marching)
+def escenas_sdf():
+    return sorted(p.stem for p in (RAIZ / 'engine/sdf/escenas').glob('*.js'))
+
+
+def cmd_sdf(a):
+    """Video vertical SDF sin voz: render mudo (CPU, con hilos) -> letrero final del short -> musica 'curiosos' -> MP4 pesado y ligero (<10 MB).
+    Salida en proyectos/sdf_<escena>/salida/. El render mudo se reutiliza si ya existe (usar --rehacer tras cambiar la escena)."""
+    if a.escena not in escenas_sdf():
+        raise SystemExit(f'Escena desconocida: {a.escena}. Hay: {", ".join(escenas_sdf())}')
+    info = json.loads(sh(['node', '-e', f"process.stdout.write(JSON.stringify(require('./engine/sdf/escenas/{a.escena}.js').info || {{}}))"],
+                         cwd=RAIZ, capture_output=True, text=True).stdout or '{}')
+    seg = a.seg or info.get('seg', 10); t_let = info.get('letrero_s', seg - 3) if a.letrero is None else a.letrero
+    if seg < 6: raise SystemExit('Minimo 6 s (la musica necesita entrada de 2 s y salida de 3,5 s)')
+    d = RAIZ / 'proyectos' / f'sdf_{a.escena}' / 'salida'; d.mkdir(parents=True, exist_ok=True)
+    res = ['--w', str(a.w), '--h', str(a.h)]
+    if a.stills:
+        sh(['node', 'render/sdf.cjs', a.escena, str(d / 'stills'), '--stills', a.stills, *res], cwd=RAIZ)
+        print(f'Fotogramas en {d / "stills"} (mirarlos antes de renderizar)'); return
+    mudo = d / 'mudo.mp4'
+    if a.rehacer or not mudo.exists() or abs(duracion(mudo) - seg) > 0.1:
+        t0 = time.time(); sh(['node', 'render/sdf.cjs', a.escena, str(mudo), '--seg', str(seg), *res], cwd=RAIZ)
+        print(f'Render SDF: {seg} s de video en {(time.time() - t0) / 60:.1f} min')
+    fps = 30; entradas = ['-i', str(mudo)]; filtro = '[0:v]null[v0];'; ult = 'v0'
+    if a.letrero_final and 0 < t_let < seg:
+        capas = d / 'letrero'; shutil.rmtree(capas, ignore_errors=True)
+        sh(['node', 'render/letrero.cjs', str(capas), str(t_let), str(seg), str(fps), TIPOS['marca']['handle']], cwd=RAIZ)
+        entradas += ['-framerate', str(fps), '-i', str(capas / 'l_%04d.png')]
+        filtro += f'[1:v]setpts=PTS-STARTPTS+{t_let}/TB[l];[v0][l]overlay=eof_action=pass[v1];'; ult = 'v1'
+    import musica
+    estilo = TIPOS['short']['musica']
+    cues = {'duracion': seg, 'semilla': a.semilla, 'escenas': [{'ini': 0.0}] + ([{'ini': t_let}] if 0 < t_let < seg else []), 'dings': []}
+    musica.guardar(musica.componer(cues, estilo), d / 'musica.wav')
+    ia = len([e for e in entradas if e == '-i'])
+    filtro += (f'[{ia}:a]afade=t=in:d=0.4,afade=t=out:st={seg - 1.5:.2f}:d=1.5,'
+               f'loudnorm=I={TIPOS["short"]["lufs"]}:TP=-1.5,atrim=0:{seg}[a]')
+    pesado = d / f'{a.escena}.mp4'
+    sh(['ffmpeg', '-v', 'error', '-y', *entradas, '-i', str(d / 'musica.wav'), '-filter_complex', filtro, '-map', f'[{ult}]', '-map', '[a]',
+        '-c:v', 'libx264', '-crf', '17', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '44100',
+        '-t', str(seg), '-movflags', '+faststart', str(pesado)])
+    lig, nota = ligero(pesado, d / f'{a.escena}_ligero.mp4', seg, objetivo_MB=TIPOS['short'].get('ligero_MB', 9.5))
+    print(f'Listo: {pesado} ({os.path.getsize(pesado) / 1e6:.1f} MB) · musica "{estilo}" · letrero en {t_let} s')
+    if lig: print(f'Ligero: {lig} ({os.path.getsize(lig) / 1e6:.1f} MB, {nota})')
+    else: print('Ligero: ' + nota)
+
+
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
@@ -358,4 +406,9 @@ if __name__ == '__main__':
     for nombre, f in (('estimar', cmd_estimar), ('estado', cmd_estado)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.set_defaults(f=f)
     p = sp.add_parser('plan'); p.add_argument('formato'); p.add_argument('duracion', type=float); p.set_defaults(f=cmd_plan)
+    p = sp.add_parser('sdf', help='video vertical de animales 3D por ray marching (sin voz)'); p.add_argument('escena', help='nombre en engine/sdf/escenas/')
+    p.add_argument('--stills', help='solo fotogramas de control, p. ej. 0,3,6'); p.add_argument('--seg', type=float, help='duracion (por defecto, la de la escena)')
+    p.add_argument('--w', type=int, default=540); p.add_argument('--h', type=int, default=960); p.add_argument('--letrero', type=float, help='segundo de entrada del letrero final')
+    p.add_argument('--sin-letrero', dest='letrero_final', action='store_false'); p.add_argument('--semilla', type=int, default=1)
+    p.add_argument('--rehacer', action='store_true', help='volver a renderizar aunque exista mudo.mp4'); p.set_defaults(f=cmd_sdf)
     a = ap.parse_args(); a.f(a)
