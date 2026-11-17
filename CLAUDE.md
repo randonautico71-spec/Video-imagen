@@ -54,3 +54,5 @@ No hacer `git add` de `proyectos/*` (salvo `_plantilla`). Subir solo material vi
 - **Antes de decidir el tipo de animación, PREGUNTA al usuario qué tipo quiere** (familia y estilo, con el catálogo `kit-animaciones-3d/catalogo.jpg`). No elegir el estilo por cuenta propia salvo que el usuario ya lo haya nombrado.
 - Cómo generar y adaptar: skill `animaciones-3d` (`.claude/skills/animaciones-3d/SKILL.md`) y `kit-animaciones-3d/README.md`.
 - Siempre fotogramas de control (`--stills`) y mirarlos antes del vídeo. Animales SDF: ~18 min por 10 s en 4 CPU.
+- **Clips del kit dentro de las escenas con voz**: el MP4 va en `proyectos/<tema>/clips/` y en `escenas.js` se dibuja con `VE.clip(esc, 'nombre', t, {...})`, con subtítulos y grafismos encima (detalle en `docs/REFERENCIA_TECNICA.md`). Para pasar de un estilo a otro sin cortar: `node kit-animaciones-3d/bin/transicion.cjs <tema> <estiloA> <estiloB> clip.mp4 --tipo pincel`.
+- Temas listos del kit: león, planeta, ciudad, persona y océano. **Cualquier otro tema se puede hacer**: se escribe su escena para ese vídeo con las técnicas del estilo elegido (skill `animaciones-3d`, paso 4).

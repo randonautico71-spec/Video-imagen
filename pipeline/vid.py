@@ -262,12 +262,37 @@ def cmd_estado(a):
 
 
 # ------------------------------------------------------------------ qa
+# ------------------------------------------------------------------ clips de video dentro de las escenas (VE.clip)
+def preparar_clips(d, fps):
+    """Extrae los fotogramas de proyectos/<tema>/clips/*.mp4 a salida/clips/<nombre>/ a los fps del render y escribe clips.json.
+    Solo rehace un clip si cambió el MP4 o los fps. Sin carpeta clips/ no hace nada."""
+    origen = d / 'clips'
+    if not origen.is_dir(): return {}
+    dst = d / 'salida/clips'; dst.mkdir(parents=True, exist_ok=True); ruta_info = dst / 'clips.json'
+    info = json.loads(ruta_info.read_text()) if ruta_info.exists() else {}
+    for mp4 in sorted(origen.glob('*.mp4')):
+        nombre = mp4.stem; firma = f'{mp4.stat().st_size}-{int(mp4.stat().st_mtime)}-{fps}'
+        if info.get(nombre, {}).get('firma') == firma and (dst / nombre).is_dir(): continue
+        carpeta = dst / nombre; shutil.rmtree(carpeta, ignore_errors=True); carpeta.mkdir()
+        sh(['ffmpeg', '-v', 'error', '-y', '-i', str(mp4), '-vf', f"fps={fps},scale='min(1080,iw)':-2", '-q:v', '3', str(carpeta / '%05d.jpg')])
+        n = len(list(carpeta.glob('*.jpg')))
+        info[nombre] = {'fps': fps, 'n': n, 'firma': firma}; print(f'clip {nombre}: {n} fotogramas a {fps} fps')
+    ruta_info.write_text(json.dumps(info, indent=1))
+    return info
+
+
+def cmd_clips(a):
+    d = dir_proyecto(a.tema); meta = leer_meta(d)
+    info = preparar_clips(d, a.fps or meta.get('fps', 30))
+    if not info: print(f'No hay clips: pon los MP4 en {d / "clips"}/ y usalos en escenas.js con VE.clip(esc, "nombre", t).')
+
+
 def cmd_qa(a):
     d = dir_proyecto(a.tema); meta = leer_meta(d)
     vs, _ = entrega.plan(meta['formato'], json.loads((d / 'salida/timeline.json').read_text())['duracion_total'])
     codigo = 0
     for v in vs:
-        v['ss'] = meta.get('ss', v['ss'])
+        v['ss'] = meta.get('ss', v['ss']); preparar_clips(d, meta.get('fps', v.get('fps', 30)))
         cmd = ['node', str(RAIZ / 'render/revisar.cjs'), '--proyecto', f'proyectos/{a.tema}', '--lienzo', v['lienzo'],
                '--paso', str(a.paso), '--ss', str(v['ss']), '--salida', str(d / f'salida/stills_{v["nombre"]}')]
         if a.stills: cmd += ['--stills', a.stills]
@@ -312,6 +337,7 @@ def cmd_render(a):
         if a.version and v['nombre'] != a.version:
             continue
         out = s / f'v_{v["nombre"]}'; out.mkdir(exist_ok=True)
+        preparar_clips(d, v['fps'])
         t0 = time.time()
         cmd = ['node', str(RAIZ / 'render/render.cjs'), '--proyecto', f'proyectos/{a.tema}', '--lienzo', v['lienzo'], '--fps', str(v['fps']),
                '--ss', str(v['ss']), '--salida', str(out), '--workers', str(a.workers or workers_auto())]
@@ -405,6 +431,7 @@ if __name__ == '__main__':
         p.add_argument('--hasta', type=float); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     for nombre, f in (('estimar', cmd_estimar), ('estado', cmd_estado)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.set_defaults(f=f)
+    p = sp.add_parser('clips', help='prepara los MP4 de proyectos/<tema>/clips/ para usarlos en escenas.js con VE.clip'); p.add_argument('tema'); p.add_argument('--fps', type=float); p.set_defaults(f=cmd_clips)
     p = sp.add_parser('plan'); p.add_argument('formato'); p.add_argument('duracion', type=float); p.set_defaults(f=cmd_plan)
     p = sp.add_parser('sdf', help='video vertical de animales 3D por ray marching (sin voz)'); p.add_argument('escena', help='nombre en engine/sdf/escenas/')
     p.add_argument('--stills', help='solo fotogramas de control, p. ej. 0,3,6'); p.add_argument('--seg', type=float, help='duracion (por defecto, la de la escena)')
