@@ -98,6 +98,11 @@ Ya cargado en `engine/video/index.html`. Revision: `demo/volumen.html?modo=avion
 ctx: i, n, t(local), tg(global), dur, p, entra, sale, zonas.cuerpo/sub, palabra(texto,desde)->{ini,fin} local, palabras, voz(tg)->0..1.
 Herramientas: VE.ease/tramo/escalonado (movimiento), VE.texto.ajustar/trazar (texto medido), esc.cache.halo/disco/bokeh/panel (sprites
 precocidos), VE.rng('semilla') (determinista), VE.registrar(tipo,caja,{detras,nota}) para el linter.
+**Clips de vídeo dentro de una escena** (`engine/video/clips.js`): los MP4 van en `proyectos/<tema>/clips/<nombre>.mp4` (p. ej. hechos con
+`kit-animaciones-3d/bin/tema.cjs` o `transicion.cjs`, en cualquiera de sus 14 estilos). En la escena: `VE.clip(esc, 'nombre', t, {x, y, w, h,
+ajuste: 'cubrir'|'contener', alfa, radio, bucle, velocidad})` (t = segundo del clip; sin x/y/w/h, pantalla completa). Subtítulos y grafismos
+se dibujan encima. `vid.py qa` y `vid.py render` extraen solos los fotogramas a los fps del render (`salida/clips/`, también `vid.py clips <tema>`)
+y el render espera a que cada fotograma esté cargado (`window.renderAtListo`). Medido: 90 fotogramas 1080×1920 a ~10 fps de render con 2 procesos.
 
 ## Lecciones MEDIDAS (no suposiciones)
 - Sin GPU: ctx.filter=blur y shadowBlur por fotograma cuestan ~1700 ms/fotograma; con sprites precocidos ~9 ms. NUNCA usarlos dentro de renderAt.

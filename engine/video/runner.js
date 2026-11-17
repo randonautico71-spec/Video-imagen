@@ -10,6 +10,7 @@
        fondo(esc, tg, ctx)  {...},                    // opcional: capa persistente bajo las escenas
        escenas: [ (esc, t, ctx) => {...}, ... ],      // UNA por parrafo del guion, en orden
        subtitulos: false | { palabras (por grupo), tam (letra maxima), resalte } | { estilo: 'editorial', clave: [...], marca, tam },  // editorial = arriba (VE.ed)
+       // Clips de video (p. ej. del kit-animaciones-3d) dentro de una escena: VE.clip(esc, 'nombre', t, {x,y,w,h,ajuste,alfa}) -> engine/video/clips.js
        progreso: true|false, transicion: {entrada, salida}
      });
    ctx: { i, n, ini, fin, dur, t (local), tg (global), p (0-1), entra (0-1), sale (0-1), zonas, tp/dp (tiempo y duracion del PARRAFO actual), pars (limites de parrafos), pw(palabra,n)=segundos desde el inicio del parrafo,
@@ -52,6 +53,7 @@
     const [meta, tl, palabras, env] = await Promise.all([
       json(base + 'meta.json'), json(base + 'salida/timeline.json'),
       json(base + 'salida/palabras.json'), json(base + 'salida/envolvente.json')]);
+    try { const r = await fetch(base + 'salida/clips/clips.json'); if (r.ok && VE.clips) VE.clips.cargar(base, await r.json()); } catch (e) { /* proyecto sin clips */ }
     await cargarScript(base + 'escenas.js?v=' + Date.now());
     if (!CFG) throw new Error('escenas.js no llamo a VE.proyecto({...})');
     // Unidades de dibujo: una por parrafo (CFG.escenas) o una por CAPITULO que agrupa varios parrafos (CFG.capitulos),
@@ -124,8 +126,12 @@
         x.fillStyle = esc.estilo.acento; x.fillRect(0, H - h, W * Math.min(1, tg / tl.duracion_total), h);
       }
     };
-    window.capturar = function (tg, q = 0.92) {
-      window.renderAt(tg);
+    // Igual que renderAt, pero si una escena pidio fotogramas de un clip que aun no estaban cargados, los espera y repite.
+    window.renderAtListo = async function (tg) {
+      for (let k = 0; k < 6; k++) { if (VE.clips) VE.clips.faltan = false; window.renderAt(tg); if (!VE.clips || !VE.clips.faltan) return; await VE.clips.esperar(); }
+    };
+    window.capturar = async function (tg, q = 0.92) {
+      await window.renderAtListo(tg);
       ox.drawImage(esc.canvas, 0, 0, out.width, out.height);
       return out.toDataURL('image/jpeg', q).slice(23);
     };

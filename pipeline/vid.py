@@ -3,7 +3,9 @@
      meta.json   formato, perfil de voz, estilo de musica
      guion.md    la locucion; cada PARRAFO (separado por linea en blanco) es una ESCENA
      escenas.js  el diseno visual de ESE video (lo escribe Claude a partir de lo que pide el usuario)
-Subcomandos:  nuevo | voz | musica | mezcla | qa | render | todo | plan"""
+Subcomandos:  nuevo | voz | musica | mezcla | qa | render | todo | plan | sdf
+  sdf <escena>: video vertical de animales en 3D por ray marching (engine/sdf/escenas/<escena>.js), sin voz;
+               ver docs/SDF_ANIMALES.md"""
 import argparse, json, math, os, re, shutil, subprocess, sys, time
 from pathlib import Path
 
@@ -260,12 +262,37 @@ def cmd_estado(a):
 
 
 # ------------------------------------------------------------------ qa
+# ------------------------------------------------------------------ clips de video dentro de las escenas (VE.clip)
+def preparar_clips(d, fps):
+    """Extrae los fotogramas de proyectos/<tema>/clips/*.mp4 a salida/clips/<nombre>/ a los fps del render y escribe clips.json.
+    Solo rehace un clip si cambió el MP4 o los fps. Sin carpeta clips/ no hace nada."""
+    origen = d / 'clips'
+    if not origen.is_dir(): return {}
+    dst = d / 'salida/clips'; dst.mkdir(parents=True, exist_ok=True); ruta_info = dst / 'clips.json'
+    info = json.loads(ruta_info.read_text()) if ruta_info.exists() else {}
+    for mp4 in sorted(origen.glob('*.mp4')):
+        nombre = mp4.stem; firma = f'{mp4.stat().st_size}-{int(mp4.stat().st_mtime)}-{fps}'
+        if info.get(nombre, {}).get('firma') == firma and (dst / nombre).is_dir(): continue
+        carpeta = dst / nombre; shutil.rmtree(carpeta, ignore_errors=True); carpeta.mkdir()
+        sh(['ffmpeg', '-v', 'error', '-y', '-i', str(mp4), '-vf', f"fps={fps},scale='min(1080,iw)':-2", '-q:v', '3', str(carpeta / '%05d.jpg')])
+        n = len(list(carpeta.glob('*.jpg')))
+        info[nombre] = {'fps': fps, 'n': n, 'firma': firma}; print(f'clip {nombre}: {n} fotogramas a {fps} fps')
+    ruta_info.write_text(json.dumps(info, indent=1))
+    return info
+
+
+def cmd_clips(a):
+    d = dir_proyecto(a.tema); meta = leer_meta(d)
+    info = preparar_clips(d, a.fps or meta.get('fps', 30))
+    if not info: print(f'No hay clips: pon los MP4 en {d / "clips"}/ y usalos en escenas.js con VE.clip(esc, "nombre", t).')
+
+
 def cmd_qa(a):
     d = dir_proyecto(a.tema); meta = leer_meta(d)
     vs, _ = entrega.plan(meta['formato'], json.loads((d / 'salida/timeline.json').read_text())['duracion_total'])
     codigo = 0
     for v in vs:
-        v['ss'] = meta.get('ss', v['ss'])
+        v['ss'] = meta.get('ss', v['ss']); preparar_clips(d, meta.get('fps', v.get('fps', 30)))
         cmd = ['node', str(RAIZ / 'render/revisar.cjs'), '--proyecto', f'proyectos/{a.tema}', '--lienzo', v['lienzo'],
                '--paso', str(a.paso), '--ss', str(v['ss']), '--salida', str(d / f'salida/stills_{v["nombre"]}')]
         if a.stills: cmd += ['--stills', a.stills]
@@ -310,6 +337,7 @@ def cmd_render(a):
         if a.version and v['nombre'] != a.version:
             continue
         out = s / f'v_{v["nombre"]}'; out.mkdir(exist_ok=True)
+        preparar_clips(d, v['fps'])
         t0 = time.time()
         cmd = ['node', str(RAIZ / 'render/render.cjs'), '--proyecto', f'proyectos/{a.tema}', '--lienzo', v['lienzo'], '--fps', str(v['fps']),
                '--ss', str(v['ss']), '--salida', str(out), '--workers', str(a.workers or workers_auto())]
@@ -343,6 +371,52 @@ def cmd_plan(a):
     print(json.dumps({'versiones': vs, 'avisos': av}, indent=1, ensure_ascii=False))
 
 
+# ------------------------------------------------------------------ sdf (animales 3D por ray marching)
+def escenas_sdf():
+    return sorted(p.stem for p in (RAIZ / 'engine/sdf/escenas').glob('*.js'))
+
+
+def cmd_sdf(a):
+    """Video vertical SDF sin voz: render mudo (CPU, con hilos) -> letrero final del short -> musica 'curiosos' -> MP4 pesado y ligero (<10 MB).
+    Salida en proyectos/sdf_<escena>/salida/. El render mudo se reutiliza si ya existe (usar --rehacer tras cambiar la escena)."""
+    if a.escena not in escenas_sdf():
+        raise SystemExit(f'Escena desconocida: {a.escena}. Hay: {", ".join(escenas_sdf())}')
+    info = json.loads(sh(['node', '-e', f"process.stdout.write(JSON.stringify(require('./engine/sdf/escenas/{a.escena}.js').info || {{}}))"],
+                         cwd=RAIZ, capture_output=True, text=True).stdout or '{}')
+    seg = a.seg or info.get('seg', 10); t_let = info.get('letrero_s', seg - 3) if a.letrero is None else a.letrero
+    if seg < 6: raise SystemExit('Minimo 6 s (la musica necesita entrada de 2 s y salida de 3,5 s)')
+    d = RAIZ / 'proyectos' / f'sdf_{a.escena}' / 'salida'; d.mkdir(parents=True, exist_ok=True)
+    res = ['--w', str(a.w), '--h', str(a.h)]
+    if a.stills:
+        sh(['node', 'render/sdf.cjs', a.escena, str(d / 'stills'), '--stills', a.stills, *res], cwd=RAIZ)
+        print(f'Fotogramas en {d / "stills"} (mirarlos antes de renderizar)'); return
+    mudo = d / 'mudo.mp4'
+    if a.rehacer or not mudo.exists() or abs(duracion(mudo) - seg) > 0.1:
+        t0 = time.time(); sh(['node', 'render/sdf.cjs', a.escena, str(mudo), '--seg', str(seg), *res], cwd=RAIZ)
+        print(f'Render SDF: {seg} s de video en {(time.time() - t0) / 60:.1f} min')
+    fps = 30; entradas = ['-i', str(mudo)]; filtro = '[0:v]null[v0];'; ult = 'v0'
+    if a.letrero_final and 0 < t_let < seg:
+        capas = d / 'letrero'; shutil.rmtree(capas, ignore_errors=True)
+        sh(['node', 'render/letrero.cjs', str(capas), str(t_let), str(seg), str(fps), TIPOS['marca']['handle']], cwd=RAIZ)
+        entradas += ['-framerate', str(fps), '-i', str(capas / 'l_%04d.png')]
+        filtro += f'[1:v]setpts=PTS-STARTPTS+{t_let}/TB[l];[v0][l]overlay=eof_action=pass[v1];'; ult = 'v1'
+    import musica
+    estilo = TIPOS['short']['musica']
+    cues = {'duracion': seg, 'semilla': a.semilla, 'escenas': [{'ini': 0.0}] + ([{'ini': t_let}] if 0 < t_let < seg else []), 'dings': []}
+    musica.guardar(musica.componer(cues, estilo), d / 'musica.wav')
+    ia = len([e for e in entradas if e == '-i'])
+    filtro += (f'[{ia}:a]afade=t=in:d=0.4,afade=t=out:st={seg - 1.5:.2f}:d=1.5,'
+               f'loudnorm=I={TIPOS["short"]["lufs"]}:TP=-1.5,atrim=0:{seg}[a]')
+    pesado = d / f'{a.escena}.mp4'
+    sh(['ffmpeg', '-v', 'error', '-y', *entradas, '-i', str(d / 'musica.wav'), '-filter_complex', filtro, '-map', f'[{ult}]', '-map', '[a]',
+        '-c:v', 'libx264', '-crf', '17', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ar', '44100',
+        '-t', str(seg), '-movflags', '+faststart', str(pesado)])
+    lig, nota = ligero(pesado, d / f'{a.escena}_ligero.mp4', seg, objetivo_MB=TIPOS['short'].get('ligero_MB', 9.5))
+    print(f'Listo: {pesado} ({os.path.getsize(pesado) / 1e6:.1f} MB) · musica "{estilo}" · letrero en {t_let} s')
+    if lig: print(f'Ligero: {lig} ({os.path.getsize(lig) / 1e6:.1f} MB, {nota})')
+    else: print('Ligero: ' + nota)
+
+
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
@@ -357,5 +431,11 @@ if __name__ == '__main__':
         p.add_argument('--hasta', type=float); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     for nombre, f in (('estimar', cmd_estimar), ('estado', cmd_estado)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.set_defaults(f=f)
+    p = sp.add_parser('clips', help='prepara los MP4 de proyectos/<tema>/clips/ para usarlos en escenas.js con VE.clip'); p.add_argument('tema'); p.add_argument('--fps', type=float); p.set_defaults(f=cmd_clips)
     p = sp.add_parser('plan'); p.add_argument('formato'); p.add_argument('duracion', type=float); p.set_defaults(f=cmd_plan)
+    p = sp.add_parser('sdf', help='video vertical de animales 3D por ray marching (sin voz)'); p.add_argument('escena', help='nombre en engine/sdf/escenas/')
+    p.add_argument('--stills', help='solo fotogramas de control, p. ej. 0,3,6'); p.add_argument('--seg', type=float, help='duracion (por defecto, la de la escena)')
+    p.add_argument('--w', type=int, default=540); p.add_argument('--h', type=int, default=960); p.add_argument('--letrero', type=float, help='segundo de entrada del letrero final')
+    p.add_argument('--sin-letrero', dest='letrero_final', action='store_false'); p.add_argument('--semilla', type=int, default=1)
+    p.add_argument('--rehacer', action='store_true', help='volver a renderizar aunque exista mudo.mp4'); p.set_defaults(f=cmd_sdf)
     a = ap.parse_args(); a.f(a)

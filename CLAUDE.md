@@ -23,9 +23,11 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **`VE.vol`** (`engine/volumen/`): **3D de verdad** (WebGL2 por CPU): objetos con volumen, luz suave, sombras, cámara que se mueve y modo **rayos X** (plano técnico). Modelos: Tierra con costas reales, avión, maniquí articulado con poses (vestible: vikingo), barco vikingo, castillo, terreno costero y mar con olas, silla, nube, árbol, sala; se añaden más montando piezas (esfera, cápsula, caja redondeada, torno, loft, tubo). Grafismos 2D anclados a puntos 3D (`V.proyectar`, `V.linea`, `V.marcador`). Revisión: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra`.
 - **`VE.ed`** (`engine/estilos/edicion.js`): **montaje editorial** de las referencias del usuario: subtítulos arriba con palabra clave enmarcada, etiquetas con línea guía, ondas, tarjetas de dato (con tachado), regla de medida, lupa, partículas, grano, viñeta, zoom «a través» y cierre (`VE.ed.cierre`: letrero «SIGUE A @randonautico»; el móvil «Envíaselo» ya NO se usa, solo con `{movil:true}`). Tarjetas de dato **sin fuente en pantalla**. Rasgos de personas (planos cercanos) y bichos se recrean solo si el tema lo pide. Análisis en `docs/GUIA_IMAGEN.md` §3 ter; revisión `demo/edicion.html`.
 - **`VE.trazo` / `VE.med` / `VE.paisaje`**: estilo LUZ (contornos sin relleno) para meditación.
+- **Animales 3D por SDF / ray marching** (`engine/sdf/`, `vid.py sdf <escena>`): clips verticales sin voz, en CPU (~15–20 min por 10 s), con música `curiosos` y letrero final. Escenas `bosque` y `sabana`; guía en `docs/SDF_ANIMALES.md`.
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
 
 ## Reglas del usuario (no reabrir)
+- **Animaciones: antes de decidir el tipo de animación, PREGUNTAR al usuario qué tipo quiere** (familia → estilo, catálogo `kit-animaciones-3d/catalogo.jpg`; skill `animaciones-3d`). No elegirlo por cuenta propia salvo que lo haya nombrado.
 - **NO ALUCINES** (aclarado por el usuario): se puede contar una invención, un mito, una suposición o una creencia generalizada, pero **el vídeo tiene que decir que lo es** («se dice que…», «es un mito», «se cree», «nadie lo ha medido»). Lo que se presente como hecho lleva fuente primaria. `datos.md` con niveles V (verificado) / V* (fuente secundaria fiable) / S (suposición o creencia: entra solo si la narración lo aclara) / E (estimación de un «¿qué pasaría si…?», solo si el usuario lo pide: hipótesis y cálculo en datos.md y la narración dice que es estimación) / X (no entra). Nunca datos inventados presentados como hechos.
 - Visual: objetos y paisajes reales bien dibujados (no iconos esquemáticos). Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 - No renderizar ni enviar vídeos de prueba salvo que lo pida; validar con linter, medidas y fotogramas. Los entregables que pide sí se renderizan.
@@ -47,3 +49,10 @@ Límites de duración de Instagram/Reels/TikTok · safe areas verticales (estima
 
 ## Regla: no subir proyectos
 No hacer `git add` de `proyectos/*` (salvo `_plantilla`). Subir solo material visual y del motor que sirva para futuros videos.
+
+## Animaciones 3D (kit-animaciones-3d)
+- **Antes de decidir el tipo de animación, PREGUNTA al usuario qué tipo quiere** (familia y estilo, con el catálogo `kit-animaciones-3d/catalogo.jpg`). No elegir el estilo por cuenta propia salvo que el usuario ya lo haya nombrado.
+- Cómo generar y adaptar: skill `animaciones-3d` (`.claude/skills/animaciones-3d/SKILL.md`) y `kit-animaciones-3d/README.md`.
+- Siempre fotogramas de control (`--stills`) y mirarlos antes del vídeo. Animales SDF: ~18 min por 10 s en 4 CPU.
+- **Clips del kit dentro de las escenas con voz**: el MP4 va en `proyectos/<tema>/clips/` y en `escenas.js` se dibuja con `VE.clip(esc, 'nombre', t, {...})`, con subtítulos y grafismos encima (detalle en `docs/REFERENCIA_TECNICA.md`). Para pasar de un estilo a otro sin cortar: `node kit-animaciones-3d/bin/transicion.cjs <tema> <estiloA> <estiloB> clip.mp4 --tipo pincel`.
+- Temas listos del kit: león, planeta, ciudad, persona y océano. **Cualquier otro tema se puede hacer**: se escribe su escena para ese vídeo con las técnicas del estilo elegido (skill `animaciones-3d`, paso 4).
