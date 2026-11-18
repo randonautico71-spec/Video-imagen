@@ -40,7 +40,8 @@
   const Q = {
     elefante: {
       pel: '#7b756f', osc: '#58524d', cla: '#8d867e', cpata: '#716b65', pie: '#4f4a45', cab: '#7b756f', pelos: 900, pcols: ['#3e3935', '#a39b92'], largoPelo: 7, mezcla: 0.55,
-      extra(x, W, H) { arrugas(x, W, H, 520, '#2f2b28', 'ele', 0.5, 2.6, 0.22); arrugas(x, W, H, 420, '#a8a097', 'eleb', 0.22, 1.6, 0.22); motas(x, W, H, 120, ['#9d8b76', '#a99679'], 14, 60, 'elpol', 0.16); },
+      extra(x, W, H) { arrugas(x, W, H, 160, '#2f2b28', 'ele', 0.3, 2.2, 0.16); arrugas(x, W, H, 120, '#a8a097', 'eleb', 0.14, 1.4, 0.16);
+        { const r = VE.rng('eleX'); x.lineCap = 'round'; for (let i = 0; i < 2600; i++) { const x0 = r() * W, y0 = r() * H, ang = (r() - 0.5) * 2.4 + (r() < 0.45 ? 1.5708 : 0), l = 14 + r() * 46; x.globalAlpha = 0.07 + r() * 0.13; x.strokeStyle = r() < 0.75 ? '#2c2824' : '#b4aba0'; x.lineWidth = 0.8 + r() * 1.6; x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(x0 + Math.cos(ang) * l * 0.5 + (r() - 0.5) * 8, y0 + Math.sin(ang) * l * 0.5 + (r() - 0.5) * 8, x0 + Math.cos(ang) * l, y0 + Math.sin(ang) * l); x.stroke(); } x.globalAlpha = 1; } motas(x, W, H, 120, ['#9d8b76', '#a99679'], 14, 60, 'elpol', 0.16); },
       yb: 2.42, tronco: { a: 0.84, b: 1.5, c: 0.78 }, pecho: { x: 0.88, a: 0.8, b: 0.7, c: 0.72 }, grupa: { x: -0.95, a: 0.8, b: 0.65, c: 0.72 },
       pata: { L1: 1.14, L2: 1.08, r1d: 0.34, r1t: 0.38, r2: 0.26, r3: 0.23, dx: 1.0, tx: -1.05, z: 0.5, pie: 'elefante' },
       cuello: { x: 1.5, y: 0.5, ln: 0.5, r1: 0.52, r2: 0.46, elev: 0.08 }, gait: { A: 0.5, K: 0.55 }, cabeza: 'elefante', cola: 'elefante', hip: 1.0
@@ -208,17 +209,14 @@
         // oreja africana: gran pantalla fina con borde rugoso, que se mueve con t
         h.push(V.nodo({ pos: [0.05, 0.28, s * 0.5], rot: [s * (0.18 + 0.06 * sn(t * 2.4 + s)), s * (0.5 + 0.07 * sn(t * 2.4 + s)), 0], hijos: [
           el(M.oreja, [0.04, 0.72, 0.62], [0, -0.38, s * 0.26]), el(liso('#a98d88', { esp: 0.1 }), [0.034, 0.6, 0.5], [s * 0.03, -0.38, s * 0.26])] }));
-        // colmillo: tres tramos curvados hacia delante y arriba
-        h.push(V.nodo({ pos: [0.9, -0.34, s * 0.2], rot: [s * 0.18, 0, 0.0], hijos: [
-          V.nodo({ rot: [0, 0, 1.75], hijos: [cil(0.07, 0.056, 0.55, mw, [0, -0.27, 0])] }),
-          V.nodo({ pos: [0.28 * 0.97, -0.07, 0], rot: [0, 0, 1.2], hijos: [cil(0.056, 0.04, 0.5, mw, [0, -0.25, 0])] }),
-          V.nodo({ pos: [0.55, 0.12, 0], rot: [0, 0, 0.55], hijos: [cil(0.04, 0.012, 0.42, mw, [0, -0.2, 0])] })] }));
+        // colmillo: tubo curvo liso (sale junto a la base de la trompa, baja y se curva hacia delante y arriba)
+        h.push(V.nodo({ malla: MA.tubo(V.suavizar([[0.86, -0.3, s * 0.2], [1.08, -0.48, s * 0.25], [1.42, -0.6, s * 0.3], [1.78, -0.52, s * 0.33], [2.08, -0.33, s * 0.34]], 18), (q) => 0.075 * Math.pow(0.16, q), 12, { clave: 'ele|colmillo|' + s }), mat: mw }));
       }
       // trompa: cuatro tramos con anillos y movimiento suave
       const rt = (len, r1, r2, ang, hijo) => V.nodo({ rot: [0, 0, ang], hijos: [V.nodo({ malla: MA.capsula(r1, r2, len, 22), mat: M.trompa }), hijo ? V.nodo({ pos: [0, -len, 0], hijos: [hijo] }) : null].filter(Boolean) });
       const sw = 0.1 * sn(t * 1.7), alz = tr * 1.1;
       const punta = V.nodo({ pos: [0, -0.02, 0], hijos: [el(liso('#6a625b', { esp: 0.2 }), [0.05, 0.07, 0.05], [0.0, -0.02, 0]), el(liso('#3a322d'), [0.02, 0.035, 0.012], [0.035, -0.05, 0.016]), el(liso('#3a322d'), [0.02, 0.035, 0.012], [0.035, -0.05, -0.016])] });
-      h.push(V.nodo({ pos: [0.95, -0.12, 0], hijos: [rt(0.62, 0.27, 0.2, 0.5 - alz * 0.3 + sw, rt(0.55, 0.2, 0.15, 0.2 - alz * 0.7 + sw, rt(0.5, 0.15, 0.11, -0.2 - alz * 0.7 - sw, rt(0.42, 0.11, 0.09, -0.45 - alz * 0.6 - sw, punta))))] }));
+      if (!o.trompaTubo) h.push(V.nodo({ pos: [0.95, -0.12, 0], hijos: [rt(0.62, 0.27, 0.2, 0.5 - alz * 0.3 + sw, rt(0.55, 0.2, 0.15, 0.2 - alz * 0.7 + sw, rt(0.5, 0.15, 0.11, -0.2 - alz * 0.7 - sw, rt(0.42, 0.11, 0.09, -0.45 - alz * 0.6 - sw, punta))))] }));
       // boca bajo la trompa
       h.push(V.nodo({ pos: [0.82, -0.52, 0], rot: [0, 0, -c01(o.boca || 0) * 0.5], hijos: [el(M.cab, [0.14, 0.05, 0.14], [0.0, 0, 0]), el(liso('#8a4a4c'), [0.1, 0.02, 0.1], [0.02, 0.03, 0])] }));
       return h;
@@ -277,6 +275,22 @@
   }
 
   /* ---------------------------------------------------------------- el modelo */
+  /* Trompa como tubo continuo por una polilinea (coordenadas del modelo, y = altura sobre el suelo). Radio: de 0,27 en la base a 0,075 en la punta. */
+  function trompaNodo(pts, M, id) {
+    const r = (t) => 0.27 * Math.pow(0.075 / 0.27, Math.pow(t, 0.85)) * (1 + 0.05 * Math.sin(t * 60));
+    const fin = pts[pts.length - 1];
+    return V.nodo({ hijos: [V.nodo({ malla: MA.tubo(pts, r, 14, { dinamica: 'trompa|' + id }), mat: M.trompa }), el(M.trompa, [0.078, 0.078, 0.078], fin)] });
+  }
+  /* Catmull-Rom: suaviza una lista de puntos de control a n puntos. */
+  V.suavizar = function (c, n) {
+    const out = [], m = c.length - 1;
+    for (let i = 0; i < n; i++) {
+      const u = i / (n - 1) * m, k = Math.min(m - 1, Math.floor(u)), t = u - k, p0 = c[Math.max(0, k - 1)], p1 = c[k], p2 = c[k + 1], p3 = c[Math.min(m, k + 2)];
+      out.push([0, 1, 2].map(j => 0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t * t + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t * t * t)));
+    }
+    return out;
+  };
+
   MO.cuadrupedo = function (o = {}) {
     const nom = o.especie || 'caballo', E = Q[nom];
     if (!E) throw new Error('cuadrupedo: especie desconocida ' + nom);
@@ -317,7 +331,7 @@
     const M = { cuerpo: mt(cuerpo), pata: mt(pata), cab: mt(cab), cola: mt(colaT), crin: mt(crinT, { envolver: 0.55 }), oreja: mt(orejaT, { envolver: 0.5 }), trompa: mt(trompaT) };
 
     const P = E.pata, T = E.tronco, G = E.gait, ph = (o.fase || 0) * TAU, m = o.marcha || 'quieto';
-    const g = marcha(m, ph, G);
+    const g = o.gait || marcha(m, ph, G);
     const yb = E.yb + g.bob, pitch = (o.pitch || 0) + g.pitch, cabR = (o.cab == null ? 0 : o.cab) + g.cab, colaR = (o.cola || 0) + g.cola;
     // pata de dos tramos: musculo del hombro/muslo, canilla y pie
     const pataN = (x, z, ang, del) => {
@@ -339,8 +353,36 @@
       eje(T.a * 0.8, T.b * 0.5, T.c * 0.9, [T.b * 0.78, T.a * 0.12, 0], M.cuerpo),               // base del cuello (se funde con el pecho)
       pataN(P.dx, P.z, g.fl, true), pataN(P.dx, -P.z, g.fr, true), pataN(P.tx, P.z, g.hl, false), pataN(P.tx, -P.z, g.hr, false),
       V.nodo({ pos: [-T.b * 1.2 * 0.95, T.a * 0.35, 0], hijos: [COLA[E.cola](E, M, colaR)] }), cuello, ...lomo] });
-    return V.nodo({ nombre: 'cuad_' + nom, pos: o.pos, rot: o.rot, esc: o.esc, hijos: [tronco] });
+    const tubo = o.trompaTubo ? trompaNodo(o.trompaTubo, M, o.trompaId || 'ele') : null;
+    return V.nodo({ nombre: 'cuad_' + nom, pos: o.pos, rot: o.rot, esc: o.esc, hijos: tubo ? [tronco, tubo] : [tronco] });
   };
+  /* Marcha con apoyo real: cada pie queda quieto en el suelo durante el apoyo; la fase sale de la DISTANCIA recorrida (dist, m).
+       MO.cuadrupedo.pasos(especie, { dist, zancada, duty, alza, bajar, cab }) -> objeto para la opcion `gait` de MO.cuadrupedo
+       zancada: m por ciclo · duty: fraccion de apoyo (0,6-0,75) · alza: altura del pie al avanzar · bajar: cuanto baja el cuerpo (m, flexiona las patas)
+       Con dist multiplo de zancada/4 las cuatro patas acaban en el suelo (para frenar sin dejar un pie en el aire). */
+  MO.cuadrupedo.pasos = function (esp, o = {}) {
+    const E = Q[esp], P = E.pata, S = o.zancada || 2.4, duty = o.duty || 0.65, alza = o.alza == null ? 0.2 : o.alza, dist = o.dist || 0, bajar = o.bajar || 0;
+    const OFF = { hl: 0, fl: 0.25, hr: 0.5, fr: 0.75 }, A = duty * S / 2, suelo = o.suelo == null ? 0.17 : o.suelo;
+    const bob = -bajar - 0.03 + (o.quieto ? 0.006 * Math.sin((o.t || 0) * 1.6) : 0.035 * Math.abs(Math.sin(Math.PI * dist / S * 2)) * (o.movil == null ? 1 : o.movil));
+    const hipY = E.yb + bob - 0.12, g = { bob, pitch: 0, cab: o.cab || 0, cola: 0.12 * Math.sin(dist / S * TAU), pies: {} };
+    for (const k of ['fl', 'fr', 'hl', 'hr']) {
+      const front = k[0] === 'f', u = o.quieto ? duty * 0.5 : (((dist / S + OFF[k]) % 1) + 1) % 1, fbx = u < duty ? A - 2 * A * (u / duty) : -A + 2 * A * (0.5 - 0.5 * Math.cos(Math.PI * (u - duty) / (1 - duty)));
+      const fy = suelo + (u >= duty ? alza * Math.sin(Math.PI * (u - duty) / (1 - duty)) : 0), hx = front ? P.dx : P.tx;
+      const L1 = P.L1, L2 = P.L2, vx = fbx * 0.85, vy = fy - hipY, D = Math.min(Math.hypot(vx, vy), L1 + L2 - 0.01), psi = Math.atan2(vx, -vy);
+      const al = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D)))), s = front ? 1 : -1, t1 = psi + s * al;
+      const kx = L1 * Math.sin(t1), ky = -L1 * Math.cos(t1), sx = vx - kx, sy = vy - ky, t2 = Math.atan2(sx, -sy);
+      g[k] = [t1, t2 - t1, -t2 + (u >= duty ? 0.25 * Math.sin(Math.PI * (u - duty) / (1 - duty)) : 0)];
+      g.pies[k] = [hx + vx, fy];
+    }
+    return g;
+  };
+  /* Origen de la trompa (modelo, y = altura sobre el suelo) para una pose: MO.cuadrupedo.trompaBase(especie, { gait, cab }) -> [x, y] */
+  MO.cuadrupedo.cabezaPt = function (esp, o = {}, lx = 0, ly = 0) {
+    const E = Q[esp], Cu = E.cuello, g = o.gait || { bob: 0, pitch: 0, cab: 0 }, cabR = (o.cab || 0) + (g.cab || 0), elev = Cu.elev + cabR * 0.6, ph = cabR * 0.4;
+    const hx = Cu.x + Cu.ln * Math.cos(elev), hy = Cu.y + Cu.ln * Math.sin(elev);
+    return [hx + lx * Math.cos(ph) - ly * Math.sin(ph), hy + lx * Math.sin(ph) + ly * Math.cos(ph) + E.yb + (g.bob || 0)];
+  };
+  MO.cuadrupedo.trompaBase = (esp, o = {}) => MO.cuadrupedo.cabezaPt(esp, o, 0.95, -0.12);
   MO.cuadrupedo.cabeza = function (esp, o = {}) { const E = Q[esp] || Q.caballo, p = o.pos || [0, 0, 0], e = o.esc == null ? 1 : o.esc, ry = (o.rot && o.rot[1]) || 0, dx = (E.cuello.x + E.cuello.ln * 0.6) * e;
     return [p[0] + Math.cos(ry) * dx, p[1] + (E.yb + E.cuello.y + E.cuello.ln * 0.7) * e, p[2] - Math.sin(ry) * dx]; };
 })(window.VE);

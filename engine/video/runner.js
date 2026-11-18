@@ -129,6 +129,7 @@
       ox.drawImage(esc.canvas, 0, 0, out.width, out.height);
       return out.toDataURL('image/jpeg', q).slice(23);
     };
+    if (CFG.precarga) await CFG.precarga(esc);                  // p. ej. VE.clip.cargar(...) de fotogramas de un clip SDF
     await document.fonts.load('700 50px Fredoka'); await document.fonts.load('500 50px Fredoka');
     await document.fonts.ready;
   };

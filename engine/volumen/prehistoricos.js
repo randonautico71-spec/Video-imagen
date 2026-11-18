@@ -199,10 +199,10 @@
     const tex = V.textura('cerebro|tinte', 512, 256, (x, W, H) => { x.fillStyle = '#dca19b'; x.fillRect(0, 0, W, H); const r = VE.rng('cerebrotinte');
       for (let i = 0; i < 260; i++) { const cx = r() * W, cy = r() * H, rr = 10 + r() * 40, g = x.createRadialGradient(cx, cy, 0, cx, cy, rr); const c = r() < 0.5 ? '240,200,194' : '176,104,108'; g.addColorStop(0, `rgba(${c},${0.1 + r() * 0.14})`); g.addColorStop(1, `rgba(${c},0)`); x.fillStyle = g; x.fillRect(cx - rr, cy - rr, rr * 2, rr * 2); }
       x.lineCap = 'round'; for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(160,40,52,${0.25 + r() * 0.3})`; x.lineWidth = 1 + r() * 1.6; const x0 = r() * W, y0 = r() * H; x.beginPath(); x.moveTo(x0, y0); x.bezierCurveTo(x0 + 30, y0 - 20, x0 + 50, y0 + 20, x0 + 90, y0 + (r() - 0.5) * 40); x.stroke(); } });   // vasos finos
-    const mC = { color: '#ffffff', mapa: tex, esp: 0.6, dureza: 42, envolver: 0.4, borde: 0.35 }, mCb = { color: '#c9908c', esp: 0.4, dureza: 30, envolver: 0.4, borde: 0.3 };
+    const mC = { color: '#ffffff', mapa: tex, esp: 0.6, dureza: 42, envolver: 0.4, borde: 0.35 }, mCb = { color: o.resalta ? '#4fd0ec' : '#c9908c', esp: 0.4, dureza: 30, envolver: 0.4, borde: o.resalta ? 0.9 : 0.3 };
     const pu = 1 + (o.pulso || 0);
     return V.nodo({ nombre: 'cerebro', pos: o.pos, rot: o.rot, esc: (o.esc == null ? 1 : o.esc) * pu, hijos: [
-      V.nodo({ malla: cerebro, mat: mC }), V.nodo({ malla: cerebelo, mat: mCb, pos: [-0.05, -0.04, 0] }),
+      V.nodo({ malla: cerebro, mat: mC }), V.nodo({ malla: cerebelo, mat: mCb, pos: [-0.05, -0.04, 0], esc: o.cb || 1 }),
       V.nodo({ malla: MA.capsula(0.011, 0.009, 0.04, 14), pos: [-0.012, -0.034, 0], rot: [0, 0, 0.35], mat: liso('#d9ada4', { esp: 0.4 }) }) ] });
   };
   MO.hacha = function (o = {}) {
