@@ -3,7 +3,8 @@
      meta.json   formato, perfil de voz, estilo de musica
      guion.md    la locucion; cada PARRAFO (separado por linea en blanco) es una ESCENA
      escenas.js  el diseno visual de ESE video (lo escribe Claude a partir de lo que pide el usuario)
-Subcomandos:  nuevo | voz | musica | mezcla | qa | render | todo | plan | sdf
+Subcomandos:  nuevo | voz | musica | efectos | mezcla | qa | render | todo | plan | sdf
+  musica "ninguna" en meta.json: solo voz (y efectos). efectos: sonidos de lo que se ve (meta.efectos, pipeline/efectos.py).
   sdf <escena>: video vertical de animales en 3D por ray marching (engine/sdf/escenas/<escena>.js), sin voz;
                ver docs/SDF_ANIMALES.md"""
 import argparse, json, math, os, re, shutil, subprocess, sys, time
@@ -179,9 +180,15 @@ def cmd_voz_importar(a):
 
 
 # ------------------------------------------------------------------ musica + mezcla
+SIN_MUSICA = (None, '', 'ninguna', False)
+
+
 def cmd_musica(a):
     import musica, numpy as np
     d = dir_proyecto(a.tema); meta = leer_meta(d); s = d / 'salida'
+    if meta.get('musica') in SIN_MUSICA:
+        (s / 'musica.wav').unlink(missing_ok=True)
+        print('Sin musica (meta.musica = "ninguna"): la mezcla lleva solo voz y efectos.'); return
     tl = json.loads((s / 'timeline.json').read_text()); palabras = json.loads((s / 'palabras.json').read_text())
     dings = [float(x) for x in meta.get('dings_s', [])]
     objetivo = {re.sub(r'[^a-z0-9ñ]', '', w.lower()) for w in meta.get('dings_en_palabras', [])}
@@ -200,16 +207,45 @@ def cmd_musica(a):
     print(f'Musica "{meta["musica"]}": {len(audio) / musica.SR:.1f} s, {len(cues["dings"])} dings, {len(cues["escenas"]) - 1} cortes')
 
 
+def cmd_efectos(a):
+    """Pista de efectos de sonido (meta.efectos) -> salida/efectos.wav, a nivel relativo a la voz. Sin efectos, la borra."""
+    import efectos
+    d = dir_proyecto(a.tema); meta = leer_meta(d); s = d / 'salida'
+    if not meta.get('efectos'):
+        (s / 'efectos.wav').unlink(missing_ok=True); print('Sin efectos de sonido (meta.efectos vacio).'); return
+    from scipy.io import wavfile
+    tl = json.loads((s / 'timeline.json').read_text()); palabras = json.loads((s / 'palabras.json').read_text())
+    sr, voz = wavfile.read(s / 'locucion.wav'); voz = voz.astype('float32') / (32768.0 if voz.dtype.kind == 'i' else 1.0)
+    if sr != efectos.SR: print(f'  ! locucion a {sr} Hz: el nivel de referencia es aproximado')
+    pista, informe = efectos.pista(meta['efectos'], palabras, tl['duracion_total'] + 0.5, efectos.nivel_voz(voz), meta.get('semilla', 1))
+    efectos.guardar(pista, s / 'efectos.wav')
+    print(f'Efectos: {len(informe)}'); [print('  ' + x) for x in informe]
+
+
 def cmd_mezcla(a):
     d = dir_proyecto(a.tema); meta = leer_meta(d); s = d / 'salida'
     tl = json.loads((s / 'timeline.json').read_text()); end = tl['duracion_total'] + 0.1
     vol = meta.get('volumen_musica', 0.55); lufs = meta.get('lufs', -16); du = meta.get('ducking', {})
-    filtro = (f"[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,apad,asplit=2[v1][v2];[1:a]volume={vol}[m];"
-              f"[m][v2]sidechaincompress=threshold={du.get('umbral', 0.03)}:ratio={du.get('ratio', 8)}:attack={du.get('ataque', 20)}:release={du.get('relajacion', 400)}[md];"
-              f"[v1][md]amix=inputs=2:normalize=0:duration=longest,loudnorm=I={lufs}:TP=-1.5,atrim=0:{end:.2f}[a]")
-    sh(['ffmpeg', '-v', 'error', '-y', '-i', str(s / 'locucion.wav'), '-i', str(s / 'musica.wav'), '-filter_complex', filtro,
-        '-map', '[a]', '-ac', '2', '-ar', '44100', str(s / 'mezcla.wav')])
-    print(f'Mezcla: {duracion(s / "mezcla.wav"):.1f} s (video {tl["duracion_total"]:.1f} s)')
+    cmd_efectos(a)                                         # rehace (o borra) salida/efectos.wav segun meta.efectos
+    con_musica = meta.get('musica') not in SIN_MUSICA and vol > 0
+    if con_musica and not (s / 'musica.wav').exists(): raise SystemExit('Falta salida/musica.wav: ejecuta "musica" antes (o pon "musica": "ninguna").')
+    con_efectos = bool(meta.get('efectos')) and (s / 'efectos.wav').exists()
+    n_sc = 1 + con_musica + con_efectos                    # la voz se reparte: una copia suena y las demas controlan el ducking
+    filtro = "[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,apad" + (f",asplit={n_sc}" + ''.join(f'[v{i}]' for i in range(1, n_sc + 1)) if n_sc > 1 else '[v1]') + ';'
+    entradas, ramas = ['-i', str(s / 'locucion.wav')], ['[v1]']
+    if con_musica:
+        n = len(ramas) + 1; entradas += ['-i', str(s / 'musica.wav')]
+        filtro += (f"[{n - 1}:a]volume={vol}[m];[m][v{n}]sidechaincompress=threshold={du.get('umbral', 0.03)}:ratio={du.get('ratio', 8)}"
+                   f":attack={du.get('ataque', 20)}:release={du.get('relajacion', 400)}[md];"); ramas.append('[md]')
+    if con_efectos:                                        # los efectos ya vienen a su nivel; bajan un poco solo mientras se habla
+        n = len(ramas) + 1; entradas += ['-i', str(s / 'efectos.wav')]
+        filtro += (f"[{n - 1}:a]volume={meta.get('volumen_efectos', 1.0)}[e];"
+                   f"[e][v{n}]sidechaincompress=threshold=0.03:ratio=3:attack=15:release=300[ed];"); ramas.append('[ed]')
+    mezcla = f"amix=inputs={len(ramas)}:normalize=0:duration=longest," if len(ramas) > 1 else 'anull,'
+    filtro += ''.join(ramas) + mezcla + f"loudnorm=I={lufs}:TP=-1.5,atrim=0:{end:.2f}[a]"
+    sh(['ffmpeg', '-v', 'error', '-y', *entradas, '-filter_complex', filtro, '-map', '[a]', '-ac', '2', '-ar', '44100', str(s / 'mezcla.wav')])
+    print(f'Mezcla: {duracion(s / "mezcla.wav"):.1f} s (video {tl["duracion_total"]:.1f} s) · '
+          f'{"musica " + meta["musica"] if con_musica else "sin musica"} · {len(meta.get("efectos", [])) if con_efectos else 0} efectos')
 
 
 # ------------------------------------------------------------------ estimar / estado
@@ -253,7 +289,7 @@ def cmd_estado(a):
     paso('guion.md', (d / 'guion.md').exists()); paso('escenas.js', (d / 'escenas.js').exists())
     cache = len(list((s / 'voz_cache').glob('*.npz'))) if (s / 'voz_cache').exists() else 0
     paso('voz (locucion.wav)', (s / 'locucion.wav').exists(), f'{cache} frases en cache')
-    paso('linea de tiempo', (s / 'timeline.json').exists()); paso('musica.wav', (s / 'musica.wav').exists()); paso('mezcla.wav', (s / 'mezcla.wav').exists())
+    paso('linea de tiempo', (s / 'timeline.json').exists()); paso('musica.wav', (s / 'musica.wav').exists() or leer_meta(d).get('musica') in SIN_MUSICA, 'sin musica' if leer_meta(d).get('musica') in SIN_MUSICA else ''); paso('mezcla.wav', (s / 'mezcla.wav').exists())
     for v in sorted(s.glob('v_*')):
         hechos = len(list((v / 'seg').glob('seg????.mp4'))) if (v / 'seg').exists() else 0
         pr = json.loads((v / 'progreso.json').read_text()) if (v / 'progreso.json').exists() else None
@@ -421,9 +457,9 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
     p = sp.add_parser('nuevo'); p.add_argument('tema'); p.add_argument('--tipo', choices=[k for k in TIPOS if not k.startswith('_') and k != 'marca'], help='largo | short: rellena formato, voz, musica y calidad')
-    p.add_argument('--formato', choices=['short', 'youtube', 'instagram']); p.add_argument('--voz'); p.add_argument('--musica', choices=['curiosos', 'aprender', 'meditacion', 'mistico', 'natural', 'intriga']); p.set_defaults(f=cmd_nuevo)
+    p.add_argument('--formato', choices=['short', 'youtube', 'instagram']); p.add_argument('--voz'); p.add_argument('--musica', choices=['curiosos', 'aprender', 'meditacion', 'mistico', 'natural', 'intriga', 'ninguna']); p.set_defaults(f=cmd_nuevo)
     p = sp.add_parser('voz-importar'); p.add_argument('tema'); p.add_argument('audio'); p.add_argument('--whisper', default='small'); p.set_defaults(f=cmd_voz_importar)
-    for nombre, f in (('voz', cmd_voz), ('musica', cmd_musica), ('mezcla', cmd_mezcla)):
+    for nombre, f in (('voz', cmd_voz), ('musica', cmd_musica), ('efectos', cmd_efectos), ('mezcla', cmd_mezcla)):
         p = sp.add_parser(nombre); p.add_argument('tema'); p.add_argument('--whisper', default='small'); p.set_defaults(f=f)
     p = sp.add_parser('qa'); p.add_argument('tema'); p.add_argument('--paso', type=float, default=0.5); p.add_argument('--stills'); p.set_defaults(f=cmd_qa)
     for nombre, f in (('render', cmd_render), ('todo', cmd_todo)):
