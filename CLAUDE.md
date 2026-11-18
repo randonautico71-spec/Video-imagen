@@ -32,7 +32,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - Visual: objetos y paisajes reales bien dibujados (no iconos esquemáticos). Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 - No renderizar ni enviar vídeos de prueba salvo que lo pida; validar con linter, medidas y fotogramas. Los entregables que pide sí se renderizan.
 - Voces: **Serena** (Qwen, largos), **Carmen** (ElevenLabs, shorts), **Aiden** (Qwen, voz masculina: `meta.voz = 'aiden'` o `'aiden_meditacion'`, cualquier tipo), **Vivian** (`vivian`, Qwen), `sharvard_1` (Piper, CC BY 3.0: atribuir) y `melo_es` (tal cual), **Carmelot** (`carmelot`: Serena ajustada al estilo de Carmen, sin oír por el usuario), MeloTTS (meditación antigua) y Piper (pendiente de ajuste). Los perfiles de `config/perfiles_voz.json` no se tocan sin que lo pida.
-- Música: un estilo por perfil en `pipeline/musica.py`. **Shorts: música suave de acompañamiento (`natural`), nunca la `curiosos` chirriante** (orden del usuario). No cambiarla sin que lo pida.
+- Música: un estilo por perfil en `pipeline/musica.py`. **Shorts: música suave de acompañamiento (`natural`), nunca la `curiosos` chirriante** (orden del usuario). No cambiarla sin que lo pida. Sin música: `"musica": "ninguna"` en `meta.json`. Efectos de sonido de lo que se ve (motor, claxon, puerta…): `meta.efectos`, ver `docs/GUIA_AUDIO.md` §5 bis.
 - ElevenLabs gasta créditos: `estimate_only` primero y `generations_count = 1`.
 - Entrega doble: YouTube de 3–5 min ⇒ también versión Instagram vertical.
 - MP4 ligero: < 10 MB en shorts (la app no reproduce > ~12 MB); en largos el objetivo va en `meta.ligero_MB`.
