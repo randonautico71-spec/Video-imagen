@@ -26,6 +26,15 @@ python3 pipeline/vid.py nuevo _autotest --tipo short >/dev/null 2>&1 && printf "
   python3 pipeline/vid.py estimar _autotest 2>&1 | grep -q "fuera del rango" && ok "nuevo --tipo short + aviso de duracion fuera de rango" || mal "nuevo/estimar"
 rm -rf proyectos/_autotest
 
+echo "== Efectos de sonido (sintesis de todos los tipos)"
+python3 - <<'PY' && ok "efectos.py: todos los tipos se sintetizan sin errores" || mal "efectos.py"
+import sys, numpy as np; sys.path.insert(0, 'pipeline'); import efectos as E
+for k in E.TIPOS:
+    x = E.sintetizar(k, np.random.default_rng(1)); assert x.ndim == 2 and x.shape[1] == 2 and np.isfinite(x).all() and np.abs(x).max() > 0, k
+p, inf = E.pista([{'tipo': 'claxon', 'palabra': 'Claxon'}, {'tipo': 'motor', 't': 0.5, 'modo': 'paso'}], [{'t': 'el', 'ini': 0.2}, {'t': 'claxon,', 'ini': 1.0}], 6, 0.1)
+assert len(inf) == 2 and abs(p[int(1.05 * E.SR):int(1.5 * E.SR)]).max() > 0
+PY
+
 echo "== Navegador y motor visual (sin errores en pagina)"
 if node -e "const n=require('./render/navegador.cjs');process.exit(n.EXE&&n.PW?0:1)" 2>/dev/null; then
   ok "Playwright + Chromium localizados"
