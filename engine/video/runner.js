@@ -77,7 +77,7 @@
     VE.__esc = esc; VE.lintCfg = CFG.lint || {};
     const editorial = CFG.subtitulos && CFG.subtitulos.estilo === 'editorial';      // subtitulos arriba (VE.ed): el cuerpo empieza debajo
     const zonas = VE.zonas(esc, CFG.subtitulos !== false && !editorial);
-    if (editorial) { const d = Math.round((esc.vertical ? 190 : 130) * esc.k); zonas.cuerpo.y += d; zonas.cuerpo.h -= d; zonas.cuerpo.cy = zonas.cuerpo.y + zonas.cuerpo.h / 2; }
+    if (editorial) { const d = Math.round((esc.vertical ? (CFG.subtitulos.franja ? 260 : 190) : 130) * esc.k); zonas.cuerpo.y += d; zonas.cuerpo.h -= d; zonas.cuerpo.cy = zonas.cuerpo.y + zonas.cuerpo.h / 2; }
     const x = esc.ctx, W = esc.W, H = esc.H;
 
     const so = parseFloat(Q.get('so') || '1');                                          // escala de SALIDA: 0.5 = 960x540 para calidad baja

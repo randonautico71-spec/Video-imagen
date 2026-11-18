@@ -1,6 +1,6 @@
 # TIPO SHORT — guía de diseño (se lee al hacer `vid.py nuevo <tema> --tipo short`)
 
-**Ficha** (de `config/tipos.json`): vertical 1080×1920 · 30 fps · 60–90 s · voz **Carmen** (ElevenLabs, peninsular) · música `curiosos` · −14 LUFS · subtítulos con palabra resaltada · letrero final «SIGUE A @randonautico».
+**Ficha** (de `config/tipos.json`): lienzo vertical 1080×1920 (salida **720×1280**, `salida_escala` 0,6667) · 30 fps · 60–90 s · voz **Carmen** (ElevenLabs o GenAIPro, peninsular) · **sin música** (`"musica": "ninguna"`; solo voz y efectos de sonido, `docs/GUIA_AUDIO.md` §5 bis) · −14 LUFS · subtítulos **arriba** sobre franja oscura · cierre «Envíaselo a…» (sin letrero de seguir el canal).
 El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de YouTube; los de Instagram/TikTok **no** (comprobar en la app).
 
 ## Flujo de producción
@@ -12,9 +12,9 @@ El límite de 3 min de YouTube Shorts está verificado en la ayuda oficial de Yo
    - `creative_generate_speech` con `voice_id = iHGx33VgO2KQ1Fdw6noG` (Carmen - Bold and Magnetic), `model_id = eleven_v4`, **`generations_count = 1`** (por defecto serían 2 y se cobran las dos) y primero `estimate_only = true`.
    - Esperar con `creative_get_flow_run_status`, descargar el audio y guardarlo como `proyectos/<tema>/salida/locucion_eleven.mp3`.
    - `python3 pipeline/vid.py voz <tema>` (o `voz-importar <tema> <audio>`): transcribe con faster-whisper local, casa con el guion y saca los tiempos de frase y de palabra. No hace falta Scribe.
-5. Escribir `escenas.js` (ver «Diseño visual»). `python3 pipeline/vid.py musica <tema>` y `mezcla <tema>`.
+5. Escribir `escenas.js` (ver «Diseño visual») y declarar los `efectos` en `meta.json`. `python3 pipeline/vid.py musica <tema>` (con «ninguna» no compone nada) y `mezcla <tema>` (voz + efectos; imprime dónde cae cada uno).
 6. `python3 pipeline/vid.py qa <tema> --stills t1,t2,...` (uno por escena, en el momento en que aparece cada gráfico) y **mirar las imágenes**: el linter no ve todo.
-7. `python3 pipeline/vid.py render <tema>` → pesado (1080×1920) + ligero (<10 MB). Si se corta, repetir el mismo comando: continúa por trozos.
+7. `python3 pipeline/vid.py render <tema>` → pesado (720×1280) + ligero (<10 MB). Si se corta, repetir el mismo comando: continúa por trozos.
 
 ## Estructura del guion (retención) — fórmula completa en `docs/GUION_RETENCION.md`
 Sacada de 4 cortos de referencia del usuario (44–88 s, ~180 pal/min, frases de 8–14 palabras, siempre en 2.ª persona):
@@ -22,12 +22,13 @@ Sacada de 4 cortos de referencia del usuario (44–88 s, ~180 pal/min, frases de
 - **Giro antes de 8 s** («Lo has oído mil veces, pero…», «Y no te libras»), **mecanismo en pasos diminutos** (una causa por frase, comparaciones caseras, pocas cifras), **reenganche cada ~15–20 s** («Pero mientras…, hace algo más», «Y lo peor…»), **giro final** que cambia el punto de vista, **vuelta al gancho** («Así que…») y cierre con el letrero «SIGUE A @randonautico» (**sin** «Envíaselo a alguien que…»: el usuario lo ha quitado).
 - Comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md` (sale con 1 si hay fallos graves).
 - Duración: **60–90 s** (decisión del usuario; las referencias duran 44–88 s). Lo que se cuente como hecho, con fuente en `datos.md`; un mito, suposición o creencia puede entrar si la narración lo dice («se dice que…», «es un mito»). La fuente nunca en pantalla.
-- Cierre (últimos ~5 s): `VE.ed.cierre(esc, t, t0)` = el **letrero** «SIGUE A @randonautico» (sin móvil «Envíaselo»; solo con `{movil:true, captura}` entra antes el móvil). También `VE.short.letrero(esc, t, tInicio)`.
+- **ENVÍO** (últimos 4–6 s): una frase «Envíaselo a esa persona que…» + una descripción concreta ligada al tema. Sin pedir que te sigan, sin `@randonautico`, sin letrero, sin logotipo y sin móvil: no llamar a `VE.ed.cierre`; último plano en movimiento del tema (o el del hook). Palabra clave de los subtítulos en «Envíaselo» o en la persona.
 
 ## Diseño visual (herramientas del motor)
 - **Fondo**: un paisaje real por escena con `VE.real.paisaje(...)` (hora del día acorde al tema) y objetos con `VE.real.objeto(...)`.
 - **Encima**: rótulo grande arriba (`VE.short.rotulo`), gráfico explicativo en el centro, pastillas (`VE.short.pastilla`) para etiquetar, flechas. Todo aparece **al decir su palabra** (`VE.short.en(ctx, 'palabra', respaldo)`).
-- **Subtítulos**: los pone el motor en la banda inferior de la zona segura; el contenido no debe invadirla (`ctx.zonas.cuerpo`).
+- **Subtítulos**: ARRIBA sobre una franja oscura de lado a lado: `subtitulos: { estilo: 'editorial', clave: [...], tam: 62, y: 250, palabras: 5, franja: true }` (sin `marca`). El cuerpo de la escena empieza por debajo de y ≈ 450 (`ctx.zonas.cuerpo`).
+- **Planos**: plano nuevo cada 3–6 s (ninguno > 6 s), cámara siempre en movimiento; rótulos de cifra solo para 3–4 cifras importantes en todo el vídeo (sin pastillas de categoría).
 - Zonas seguras verticales (estimación, no especificación): arriba 10 %, abajo 21 %, derecha 14 %.
 - Un cambio visual como máximo cada ~5–8 s; movimiento constante (nubes, parpadeo, rebotes) para que nada esté quieto.
 - Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.

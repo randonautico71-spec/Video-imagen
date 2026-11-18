@@ -62,7 +62,12 @@ def revisar(texto, wpm=180, rango=(60, 90), datos=None):
     cola = ' '.join(F[-4:]).lower(); clave0 = {w.lower().strip('.,¿?¡!') for w in palabras(f0) if len(w) > 4}
     vuelve = len(F) > 5 and (re.search(r'\bas[ií] que\b', cola) or len(clave0 & {w.lower().strip('.,¿?¡!') for w in palabras(cola)}) >= 2)
     (ok if vuelve else avisos).append('El cierre vuelve al gancho.' if vuelve else 'El cierre no vuelve al gancho (usar "Asi que..." y repetir palabras de la primera frase).')
-    # el cierre lo pone el letrero «SIGUE A @randonautico» (VE.ed.cierre); ya no se exige «Envíaselo a alguien que...» en el guion
+    # ENVIO: el cierre pide enviarlo a una persona concreta; no se pide seguir el canal ni se nombra @randonautico
+    ultimo = ' '.join(F[-2:]).lower(); ENV = r'env[ií]a(selo|sela|le)|m[aá]ndaselo|comp[aá]rtelo'
+    if re.search(ENV, ultimo): ok.append('El final pide enviarlo a alguien concreto.')
+    else: fallos.append('Falta el ENVIO final: «Envíaselo a esa persona que…» (con una persona concreta ligada al tema).')
+    if re.search(r'sigue a|s[ií]gueme|suscr[ií]b|@randonautico|sigue el canal', todo, re.I): fallos.append('El guion pide seguir el canal o nombra @randonautico: el cierre es solo «Envíaselo a…».')
+    if re.match(r'\s*(no|ni|nunca|nadie)\b', f0, re.I): avisos.append('El gancho empieza con una negacion: mejor una situacion concreta, un reto o una pregunta en 2.a persona.')
     # duracion del tipo (SHORT 60-90 s)
     if rango and not (rango[0] <= seg <= rango[1]): avisos.append(f'Duracion estimada {seg:.0f} s fuera de {rango[0]}-{rango[1]} s ({rango[0] * wpm / 60:.0f}-{rango[1] * wpm / 60:.0f} palabras a {wpm:.0f} pal/min).')
     elif rango: ok.append(f'Duracion estimada {seg:.0f} s (rango {rango[0]}-{rango[1]} s).')

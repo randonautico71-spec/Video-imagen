@@ -14,7 +14,7 @@ sys.path.insert(0, str(RAIZ / 'pipeline'))
 import entrega  # noqa: E402
 
 TIPOS = json.loads((RAIZ / 'config/tipos.json').read_text())
-COLA_S = {'meditacion': 3.5, 'mistico': 3.5, 'natural': 3.5, 'intriga': 3.5}          # segundos tras la ultima palabra (la musica de meditacion se apaga lenta)
+COLA_S = {'ninguna': 1.5, 'meditacion': 3.5, 'mistico': 3.5, 'natural': 3.5, 'intriga': 3.5}          # segundos tras la ultima palabra (la musica de meditacion se apaga lenta)
 
 
 def workers_auto():
@@ -195,21 +195,40 @@ def cmd_musica(a):
     cues = {'duracion': tl['duracion_total'], 'semilla': meta.get('semilla', 1),
             'escenas': [{'ini': e['ini']} for e in escenas], 'dings': sorted(dings)}
     (s / 'cues.json').write_text(json.dumps(cues))
-    audio = musica.componer(cues, meta['musica'])
+    if meta['musica'] in ('ninguna', 'none', None):                 # sin musica: pista silenciosa (la mezcla lleva solo voz y efectos)
+        audio = np.zeros((int(cues['duracion'] * musica.SR) + 1, 2), dtype=np.float32)
+    else:
+        audio = musica.componer(cues, meta['musica'])
     musica.guardar(audio, s / 'musica.wav')
     print(f'Musica "{meta["musica"]}": {len(audio) / musica.SR:.1f} s, {len(cues["dings"])} dings, {len(cues["escenas"]) - 1} cortes')
 
 
 def cmd_mezcla(a):
+    """Voz (+ musica si la hay) + efectos de sonido (meta.efectos, pipeline/efectos.py) -> mezcla.wav a meta.lufs. Imprime donde cae cada efecto."""
     d = dir_proyecto(a.tema); meta = leer_meta(d); s = d / 'salida'
     tl = json.loads((s / 'timeline.json').read_text()); end = tl['duracion_total'] + 0.1
-    vol = meta.get('volumen_musica', 0.55); lufs = meta.get('lufs', -16); du = meta.get('ducking', {})
-    filtro = (f"[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,apad,asplit=2[v1][v2];[1:a]volume={vol}[m];"
-              f"[m][v2]sidechaincompress=threshold={du.get('umbral', 0.03)}:ratio={du.get('ratio', 8)}:attack={du.get('ataque', 20)}:release={du.get('relajacion', 400)}[md];"
-              f"[v1][md]amix=inputs=2:normalize=0:duration=longest,loudnorm=I={lufs}:TP=-1.5,atrim=0:{end:.2f}[a]")
-    sh(['ffmpeg', '-v', 'error', '-y', '-i', str(s / 'locucion.wav'), '-i', str(s / 'musica.wav'), '-filter_complex', filtro,
-        '-map', '[a]', '-ac', '2', '-ar', '44100', str(s / 'mezcla.wav')])
-    print(f'Mezcla: {duracion(s / "mezcla.wav"):.1f} s (video {tl["duracion_total"]:.1f} s)')
+    lufs = meta.get('lufs', -16); du = meta.get('ducking', {}); sin_musica = meta.get('musica') in ('ninguna', 'none', None)
+    entradas = ['-i', str(s / 'locucion.wav')]; partes = []
+    if meta.get('efectos'):
+        import efectos
+        palabras = json.loads((s / 'palabras.json').read_text())
+        pista, cola = efectos.pista(meta['efectos'], palabras, tl['duracion_total'], efectos.nivel_voz(s / 'locucion.wav'))
+        efectos.guardar(pista, s / 'efectos.wav'); entradas += ['-i', str(s / 'efectos.wav')]
+        for l in cola: print('  efecto: ' + l)
+    n_ef = 1 if meta.get('efectos') else 0
+    ie = 1 if n_ef else None
+    if sin_musica:
+        filtro = "[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,apad[v1];"
+        filtro = filtro + (f"[{ie}:a]aresample=44100[fx];[v1][fx]amix=inputs=2:normalize=0:duration=longest," if n_ef else "[v1]") + f"loudnorm=I={lufs}:TP=-1.5,atrim=0:{end:.2f}[a]"
+    else:
+        im = 1 + n_ef; entradas += ['-i', str(s / 'musica.wav')]; vol = meta.get('volumen_musica', 0.55)
+        filtro = (f"[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0,apad,asplit=2[v1][v2];[{im}:a]volume={vol}[m];"
+                  f"[m][v2]sidechaincompress=threshold={du.get('umbral', 0.03)}:ratio={du.get('ratio', 8)}:attack={du.get('ataque', 20)}:release={du.get('relajacion', 400)}[md];")
+        if n_ef: filtro += f"[{ie}:a]aresample=44100[fx];[v1][md][fx]amix=inputs=3:normalize=0:duration=longest,"
+        else: filtro += "[v1][md]amix=inputs=2:normalize=0:duration=longest,"
+        filtro += f"loudnorm=I={lufs}:TP=-1.5,atrim=0:{end:.2f}[a]"
+    sh(['ffmpeg', '-v', 'error', '-y', *entradas, '-filter_complex', filtro, '-map', '[a]', '-ac', '2', '-ar', '44100', str(s / 'mezcla.wav')])
+    print(f'Mezcla: {duracion(s / "mezcla.wav"):.1f} s (video {tl["duracion_total"]:.1f} s){" · sin musica" if sin_musica else ""}')
 
 
 # ------------------------------------------------------------------ estimar / estado

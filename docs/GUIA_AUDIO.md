@@ -52,6 +52,20 @@ Para repetir con otra referencia: `python3 pipeline/analizar_voz.py ref.mp3 --js
 - Entradas (`cues.json`): inicio de cada escena (los cortes), *dings* en palabras concretas (`dings_en_palabras` en `meta.json`) y duración. En vídeos largos `meta.capitulos` hace que la música solo marque los cambios de **capítulo**.
 - **Recursos:** 45 min de meditación = 221 s de cálculo y **pico de 8 GB de RAM** (medido una vez): nunca a la vez que la voz o el render.
 
+## 5 bis. Efectos de sonido (`pipeline/efectos.py`) — shorts sin música
+
+Los shorts ya **no llevan música** (`"musica": "ninguna"`): solo voz y efectos de sonido de lo que se ve, a −14 LUFS y pico ≤ −1,5 dBTP. Los efectos se sintetizan por código (sin ficheros, créditos ni licencias) y `vid.py mezcla` los coloca sobre la voz.
+
+```json
+"efectos": [{"tipo": "motor", "t": 0, "dur": 5, "modo": "paso"}, {"tipo": "claxon", "palabra": "claxon", "dur": 2.5}]
+```
+- Ligados a una palabra (`palabra`, con `ocurrencia` si se repite) o a un segundo (`t`); `desfase` (s), `pan` (−1…1) y `vol` (dB respecto a la RMS de la voz; cada tipo trae el suyo, siempre por debajo).
+- Tipos: `motor` (modos `paso`, `arranque`, `ralenti`, `interior`), `claxon`, `frenazo`, `intermitente`, `seguros`, `puerta`, `pasos`, `golpe`, `mar`, `viento`, `lluvia`, `sirena`, `latido`, `tono_llamada`, `click`.
+- Pocos y discretos (3–8 por short), nunca encima de una palabra; sin whoosh/risers, sin sonidos de interfaz, sin ambiente continuo que haga de música.
+- Prueba: `python3 pipeline/efectos.py --tipo motor --modo arranque prueba.wav` · todos: `python3 pipeline/efectos.py --demo todos.wav`. `vid.py mezcla` imprime dónde cae cada efecto. **El motor no oye**: el realismo lo juzga el usuario.
+- Efecto nuevo: añadir su función en `efectos.py` y registrarla en `TIPOS` (función, duración y nivel por defecto), probarla con `bash pipeline/autotest.sh`, que el usuario la escuche y, si la aprueba, subirla al repo y listarla aquí.
+- Comprobar que no hay música: en una pausa sin efectos el nivel de `mezcla.wav` debe quedar por debajo de −50 dB (`ffmpeg … volumedetect`).
+
 ## 6. Mezcla y masterización (`vid.py mezcla`)
 `voz (mono→estéreo) + música×0,55` con **ducking** (`sidechaincompress` umbral 0,03, ratio 8, ataque 20 ms, relajación 400 ms: la música baja cuando habla la voz) → `loudnorm` → recorte a la duración del vídeo.
 - Objetivos (`meta.lufs`): **shorts −14 LUFS**, largos −16, meditación −19; pico real −1,5 dBTP. `cola_s` deja sonar la música tras la última palabra (meditación 3,5 s, short 2 s).

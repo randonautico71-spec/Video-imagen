@@ -13,7 +13,7 @@ python3 - <<'PY' && ok "tipos.json / perfiles_voz.json / calibracion.json cohere
 import json,sys
 t=json.load(open('config/tipos.json')); p=json.load(open('config/perfiles_voz.json')); c=json.load(open('config/calibracion.json')); f=json.load(open('config/formatos.json'))
 for n in ('largo','short'):
-    x=t[n]; assert x['voz'] in p, (n,'voz sin perfil'); assert x['formato'] in f, (n,'formato'); assert x['musica'] in ('curiosos','aprender','meditacion')
+    x=t[n]; assert x['voz'] in p, (n,'voz sin perfil'); assert x['formato'] in f, (n,'formato'); assert x['musica'] in ('curiosos','aprender','meditacion','ninguna')
     assert x['voz'] in c['voz']['palabras_por_min_habla'], (n,'sin wpm en calibracion'); m=p[x['voz']]['motor']
     assert m in c['voz']['carga_modelo_s'] and m in c['voz']['calculo_s_por_s_de_habla'], (n,'motor sin calibrar')
     assert x['duracion_s'][0]<x['duracion_s'][1] and x['guia'] and __import__('os').path.exists(x['guia']), (n,'guia')
@@ -21,8 +21,17 @@ assert t['short']['voz']=='carmen' and p['carmen']['voice_id'] and t['largo']['v
 PY
 python3 pipeline/entrega.py >/dev/null && ok "entrega.py (plan de versiones)" || mal "entrega.py"
 
+echo "== Efectos de sonido (pipeline/efectos.py)"
+python3 - <<'PYX' && ok "efectos: todos los tipos se generan (finitos, sin silencio)" || mal "efectos"
+import sys; sys.path.insert(0,'pipeline'); import efectos, numpy as np
+for t in efectos.TIPOS:
+    for m in (['paso','arranque','ralenti','interior'] if t=='motor' else [None]):
+        x=efectos.generar(t,None,m); assert np.all(np.isfinite(x)) and np.abs(x).max()>0 and len(x)>500,(t,m)
+st,inf=efectos.pista([{'tipo':'claxon','palabra':'hola','dur':1}],[{'t':'Hola','ini':1.0,'fin':1.3}],4); assert len(inf)==1 and st.shape[1]==2
+PYX
+
 echo "== Revisor de guiones (docs/GUION_RETENCION.md)"
-printf "Tu nariz huele mejor de lo que crees, y te lo voy a demostrar.\n\nLo has oído mil veces: que los perros nos ganan. Pero tú también rastreas.\n\nCada vez que respiras, el aire pasa por un techo de células que detectan olores.\n\nY lo peor: casi nunca les prestas atención.\n\nO sea, no es que huelas poco, es que no te fijas.\n\nAsí que tu nariz no es mala. Y eso es todo.\n" > /tmp/autotest_bueno.md
+printf "Tu nariz huele mejor de lo que crees, y te lo voy a demostrar.\n\nLo has oído mil veces: que los perros nos ganan. Pero tú también rastreas.\n\nCada vez que respiras, el aire pasa por un techo de células que detectan olores.\n\nY lo peor: casi nunca les prestas atención.\n\nO sea, no es que huelas poco, es que no te fijas.\n\nAsí que tu nariz no es mala. Y eso es todo.\n\nEnvíaselo a ese amigo que cree que huele peor que un perro.\n" > /tmp/autotest_bueno.md
 printf "Hola a todos, hoy en este vídeo vamos a hablar de la nariz humana y de todas las cosas que hace cada día sin parar.\n\nGracias por ver.\n" > /tmp/autotest_malo.md
 python3 pipeline/revisar_guion.py /tmp/autotest_bueno.md >/dev/null && ! python3 pipeline/revisar_guion.py /tmp/autotest_malo.md >/dev/null && ok "revisar_guion.py (aprueba el bueno, suspende el malo)" || mal "revisar_guion.py"
 rm -f /tmp/autotest_bueno.md /tmp/autotest_malo.md

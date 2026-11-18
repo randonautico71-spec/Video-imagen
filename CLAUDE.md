@@ -4,16 +4,16 @@ El usuario dice **LARGO** o **SHORT** + tema (+ descripción visual); tú ya sab
 
 | | SHORT | LARGO |
 |---|---|---|
-| Qué es | vertical 1080×1920, 30 fps, **60–90 s**, subtítulos, letrero final «SIGUE A @randonautico» | YouTube 16:9, 24 fps, **30–60 min**, capítulos de 3–5 min |
+| Qué es | vertical (lienzo 1080×1920, salida **720×1280**), 30 fps, **60–90 s**, subtítulos arriba con franja, cierre «Envíaselo a…» | YouTube 16:9, 24 fps, **30–60 min**, capítulos de 3–5 min |
 | Voz | **Carmen** (ElevenLabs, peninsular; se genera con la herramienta del conector y se importa) | **Serena** (Qwen3-TTS local, `.venv-qwen`) |
-| Música | `curiosos` · −14 LUFS | `meditacion` · −16/−19 LUFS |
+| Música | **ninguna**: solo voz y efectos de sonido (`pipeline/efectos.py`) · −14 LUFS | `meditacion` · −16/−19 LUFS |
 
 ## Arranque
 1. Sesión nueva: `bash pipeline/instalar.sh` (voces, MeloTTS, Qwen; requisitos de red en su cabecera). Contenedor de un chat de Project: `bash chat/bootstrap.sh`.
 2. `python3 pipeline/vid.py nuevo <tema> --tipo short|largo` → `guion.md` (1 párrafo = 1 escena) y `escenas.js` (1 función por párrafo) en `proyectos/<tema>/`.
 3. `estimar` → `voz` (short: ver docs/TIPO_SHORT.md; largo: Serena, reanudable) → `musica` → `mezcla` → `qa --stills t1,t2,…` (**mirar las imágenes**) → `render` (pesado + ligero) · `todo` hace la cadena. `estado` para retomar. Otros: `voz-importar <tema> <audio>`, `plan`.
 
-**Guion**: fórmula de retención de las referencias del usuario en `docs/GUION_RETENCION.md` (gancho sobre TU cuerpo/vida en 0–3 s, giro antes de 8 s, mecanismo en pasos, reenganche cada ~15–20 s, giro final, vuelta al gancho «Así que…»; sin «Envíaselo a un amigo»: el cierre es el letrero «SIGUE A @randonautico»); comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
+**Guion**: fórmula de retención de las referencias del usuario en `docs/GUION_RETENCION.md` (gancho sobre TU cuerpo/vida en 0–3 s, giro antes de 8 s, mecanismo en pasos, reenganche cada ~15–20 s, giro final, vuelta al gancho «Así que…»; el cierre es el ENVÍO: «Envíaselo a esa persona que…», sin pedir seguir el canal ni @randonautico); comprobar con `python3 pipeline/revisar_guion.py proyectos/<tema>/guion.md`.
 
 Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, demo de realismo; sin render ni voz).
 
@@ -21,7 +21,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - **`VE.real`** (`engine/realismo/`): paisajes y objetos pintados con volumen y luz por hora del día. **Estilo general** (shorts, largos de divulgación).
 - **`VE.short`** (`engine/estilos/shorts.js`): rótulos, pastillas, flechas, iconos y el letrero final.
 - **`VE.vol`** (`engine/volumen/`): **3D de verdad** (WebGL2 por CPU): objetos con volumen, luz suave, sombras, cámara que se mueve y modo **rayos X** (plano técnico). Modelos: Tierra con costas reales, avión, maniquí articulado con poses (vestible: vikingo), barco vikingo, castillo, terreno costero y mar con olas, silla, nube, árbol, sala; se añaden más montando piezas (esfera, cápsula, caja redondeada, torno, loft, tubo). Grafismos 2D anclados a puntos 3D (`V.proyectar`, `V.linea`, `V.marcador`). Revisión: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra`.
-- **`VE.ed`** (`engine/estilos/edicion.js`): **montaje editorial** de las referencias del usuario: subtítulos arriba con palabra clave enmarcada, etiquetas con línea guía, ondas, tarjetas de dato (con tachado), regla de medida, lupa, partículas, grano, viñeta, zoom «a través» y cierre (`VE.ed.cierre`: letrero «SIGUE A @randonautico»; el móvil «Envíaselo» ya NO se usa, solo con `{movil:true}`). Tarjetas de dato **sin fuente en pantalla**. Rasgos de personas (planos cercanos) y bichos se recrean solo si el tema lo pide. Análisis en `docs/GUIA_IMAGEN.md` §3 ter; revisión `demo/edicion.html`.
+- **`VE.ed`** (`engine/estilos/edicion.js`): **montaje editorial** de las referencias del usuario: subtítulos arriba con palabra clave enmarcada, etiquetas con línea guía, ondas, tarjetas de dato (con tachado), regla de medida, lupa, partículas, grano, viñeta, zoom «a través» y cierre (`VE.ed.cierre`: letrero «SIGUE A @randonautico»; en shorts ya NO se usa: el cierre es la voz «Envíaselo…» sobre un último plano; `subtitulos.franja:true` pone la franja oscura). Tarjetas de dato **sin fuente en pantalla**; en shorts solo 3–4 cifras rotuladas y sin pastillas de categoría (HIPÓTESIS, MASA…). Rasgos de personas (planos cercanos) y bichos se recrean solo si el tema lo pide. Análisis en `docs/GUIA_IMAGEN.md` §3 ter; revisión `demo/edicion.html`.
 - **`VE.trazo` / `VE.med` / `VE.paisaje`**: estilo LUZ (contornos sin relleno) para meditación.
 - **Animales 3D por SDF / ray marching** (`engine/sdf/`, `vid.py sdf <escena>`): clips verticales sin voz, en CPU (~15–20 min por 10 s), con música `curiosos` y letrero final. Escenas `bosque` y `sabana`; guía en `docs/SDF_ANIMALES.md`. Kit de 13 estilos y temas en `kit-animaciones-3d/` (skill `animaciones-3d`).
 - **Cómo se programa la imagen y el audio (resúmenes con mediciones): `docs/GUIA_IMAGEN.md` y `docs/GUIA_AUDIO.md`.** Contrato de escenas y API: `docs/REFERENCIA_TECNICA.md`.
@@ -32,7 +32,7 @@ Antes de subir cambios: `bash pipeline/autotest.sh` (sintaxis, configuración, d
 - Visual: objetos y paisajes reales bien dibujados (no iconos esquemáticos). Sin fuentes a pie de imagen, sin chips HOOK/PUPA/QUIZ, sin estilos Pollín ni pizarra.
 - No renderizar ni enviar vídeos de prueba salvo que lo pida; validar con linter, medidas y fotogramas. Los entregables que pide sí se renderizan.
 - Voces: **Serena** (Qwen, largos), **Carmen** (ElevenLabs, shorts), **Aiden** (Qwen, voz masculina: `meta.voz = 'aiden'` o `'aiden_meditacion'`, cualquier tipo), **Vivian** (`vivian`, Qwen), `sharvard_1` (Piper, CC BY 3.0: atribuir) y `melo_es` (tal cual), **Carmelot** (`carmelot`: Serena ajustada al estilo de Carmen, sin oír por el usuario), MeloTTS (meditación antigua) y Piper (pendiente de ajuste). Los perfiles de `config/perfiles_voz.json` no se tocan sin que lo pida.
-- Música: un estilo por perfil en `pipeline/musica.py`; no cambiarla sin que lo pida.
+- Shorts: **sin música** (`"musica": "ninguna"`); efectos de sonido solo de lo que se ve (`meta.efectos`, `docs/GUIA_AUDIO.md` §5 bis; los nuevos se crean en `pipeline/efectos.py` y los aprueba el usuario al oírlos). Largos: un estilo de música por perfil en `pipeline/musica.py`; no cambiarla sin que lo pida.
 - ElevenLabs gasta créditos: `estimate_only` primero y `generations_count = 1`.
 - Entrega doble: YouTube de 3–5 min ⇒ también versión Instagram vertical.
 - MP4 ligero: < 10 MB en shorts (la app no reproduce > ~12 MB); en largos el objetivo va en `meta.ligero_MB`.
