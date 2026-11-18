@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}canvas{display:block}</style></head><body><canvas id="c" width="1080" height="1920"></canvas>
+<script>
+const W = 1080, H = 1920, cv = document.getElementById('c'), ctx = cv.getContext('2d'), FONT = 'Poppins, sans-serif';
+const AMB = '#F7C531', RED = '#E5503F', BLUE = '#3B82F6', INK = '#0b1020';
+let MARKS = {}, WORDS = [];
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const ease = (a, b, t) => { const x = clamp((t - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const win = (t, a, b, fi = .25, fo = .3) => Math.min(ease(a, a + fi, t), 1 - ease(b - fo, b, t));
+const pop = (t, a) => { const x = clamp((t - a) / .45, 0, 1); return x <= 0 ? 0 : 1 + Math.sin(x * Math.PI) * .1 * (1 - x) * 3; };
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function txt(s, x, y, size, o = {}) { ctx.save(); ctx.font = `${o.w || 700} ${size}px ${FONT}`; ctx.textAlign = o.al || 'center'; ctx.textBaseline = 'middle'; ctx.globalAlpha *= o.a == null ? 1 : o.a;
+  if (o.sombra !== false) { ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillText(s, x + 2, y + 4); } ctx.fillStyle = o.c || '#fff'; ctx.fillText(s, x, y); ctx.restore(); }
+function chip(s, cx, cy, col, a) { ctx.save(); ctx.globalAlpha *= a; ctx.font = `800 36px ${FONT}`; const w = ctx.measureText(s).width + 64; rr(cx - w / 2, cy - 33, w, 66, 33); ctx.fillStyle = 'rgba(8,12,24,.72)'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = col; ctx.stroke(); ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, cx, cy + 2); ctx.restore(); return w; }
+function card(cy, h, col) { rr(90, cy - h / 2, 900, h, 36); ctx.fillStyle = 'rgba(8,12,24,.74)'; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = col; ctx.stroke(); }
+function dato(t, t0, t1, big, small, col, o = {}) { const a = win(t, t0, t1, .25, .3); if (a <= 0) return; const s = pop(t, t0), cy = o.cy || 1190, h = o.h || 200; ctx.save(); ctx.globalAlpha = a; ctx.translate(540, cy); ctx.scale(s, s); ctx.translate(-540, -cy);
+  card(cy, h, col); txt(big, 540, cy - 24, o.size || 104, { c: col, w: 800, sombra: false }); txt(small, 540, cy + h / 2 - 42, 29, { c: '#cfd6e6', w: 600, sombra: false }); ctx.restore(); }
+// ---------- secciones ----------
+const SECC = [[2.7, 12.6, 'HIPÓTESIS', AMB], [12.7, 22.6, 'ÓRBITA · EN TEORÍA', AMB], [25.7, 31.0, 'MAREA · HOY', '#8FB8E8'], [31.2, 45.6, 'ESTIMACIÓN', AMB], [45.9, 62.6, 'ESTIMACIÓN', AMB], [63.0, 70.8, 'HIPÓTESIS', AMB]];
+const SEC2 = [[18.4, 22.5, 'TIEMPO ACELERADO', '#7fd0ff'], [25.7, 45.6, 'MAREA EXAGERADA EN EL DIBUJO', '#F2A0A0']];
+// ---------- subtítulos editoriales ----------
+const CLAVE = new Set(['lunas','idéntica','mar','órbita,','sesenta','sol','crees','juntarían,','veinticinco','eclipse.','claras,','sola','subiría','@chispaindiscreta.','dos','júpiter', 'notarías', 'enorme', 'pesaría', 'veinticinco', 'tierra', 'medio', 'kilómetros', 'io', 'volcanes', 'noche', 'miles', 'dormir', 'pesa', '@chispaindiscreta', 'mar', 'agua', 'roca']);
+const norm = s => s.toLowerCase().replace(/[.,:;¿?¡!]/g, '');
+let GRUPOS = null;
+function grupos() { const g = []; let cur = []; for (const w of WORDS) { cur.push(w); const fin = /[.?!:]$/.test(w.t) || cur.length >= 5 || (/,$/.test(w.t) && cur.length >= 3); if (fin) { g.push(cur); cur = []; } } if (cur.length) g.push(cur); return g; }
+function subs(t) { if (!GRUPOS) GRUPOS = grupos(); const SZ = 62, Y = 1370, MAXW = W * .78;
+  for (let gi = 0; gi < GRUPOS.length; gi++) { const g = GRUPOS[gi], t0 = g[0].ini, nxt = GRUPOS[gi + 1], t1 = Math.min(g[g.length - 1].fin + .25, nxt ? nxt[0].ini : 1e9); if (t < t0 || t >= t1) continue;
+    ctx.save(); ctx.font = `800 ${SZ}px ${FONT}`; const sp = ctx.measureText(' ').width, vis = g.filter(w => t >= w.ini - .02); let lines = [[]], lw = 0;
+    for (const w of g) { const ww = ctx.measureText(w.t).width; if (lw + ww > MAXW && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push({ w, ww }); lw += ww + sp; }
+    lines.forEach((ln, li) => { const tot = ln.reduce((s, x) => s + x.ww, 0) + sp * (ln.length - 1); let x = 540 - tot / 2; for (const { w, ww } of ln) { const on = t >= w.ini - .02; if (on) { const act = t < w.fin + .02 || (w === g[g.length - 1]), y = Y + li * 78;
+          ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(0,0,0,.65)'; ctx.fillText(w.t, x + 2, y + 4); ctx.fillStyle = (t >= w.ini && t < w.fin + .04) ? '#fff' : '#b9bfcc'; ctx.fillText(w.t, x, y);
+          if (CLAVE.has(norm(w.t)) && t >= w.ini) { const k = ease(w.ini, w.ini + .15, t); ctx.strokeStyle = '#3B82F6'; ctx.lineWidth = 5; ctx.setLineDash([]); rr(x - 10, y - 44, ww + 20, 88, 10); ctx.globalAlpha = k; ctx.stroke(); ctx.fillStyle = '#3B82F6'; for (const [cx, cy] of [[x - 10, y - 44], [x + ww + 10, y - 44], [x - 10, y + 44], [x + ww + 10, y + 44]]) ctx.fillRect(cx - 6, cy - 6, 12, 12); ctx.globalAlpha = 1; } } x += ww + sp; } });
+    ctx.restore(); } }
+window.capa = (t) => { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H);
+  for (const [t0, t1, s, c] of SECC) { const a = win(t, t0, t1, .3, .3); if (a > 0) chip(s, 540, 235 + (1 - ease(t0, t0 + .35, t)) * -30, c, a); }
+  for (const [t0, t1, s, c] of SEC2) { const a = win(t, t0, t1, .3, .3); if (a > 0) chip(s, 540, 315, c, a); }
+  dato(t, 50.6, 53.0, '2 LUNAS NUEVAS', 'CADA MES (EST.)', AMB, { cy: 1110, h: 190, size: 86 });
+  dato(t, 53.3, 55.0, '2 × ECLIPSES', 'OCASIONES POSIBLES (EST.)', AMB, { cy: 1110, h: 190, size: 86 });
+  dato(t, 57.4, 62.4, 'MÁS CLARAS, NO ×2', 'NUNCA LLENAS A LA VEZ (EST.)', '#cfd6e6', { cy: 1110, h: 190, size: 70 });
+  subs(t); };
+window.init = (m, w) => { MARKS = m; WORDS = w; };
+</script></body></html>
