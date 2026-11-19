@@ -85,7 +85,7 @@ function persona(x, y, z, t = 0, o = {}) {
   { const s1 = cap(x, y, z, .2, hy - .085, -.065, .218, hy - .108, 0, .009), s2 = cap(x, y, z, .218, hy - .108, 0, .2, hy - .085, .065, .009), sonr = Math.min(s1, s2); d = smax(d, -sonr, .006); if (sonr < d + .003) p = 'boca'; }   // sonrisa
   for (const sd of [1, -1]) { const ojo = sph(x, y, z, .165, hy + .055, sd * .08, .05), pup = sph(x, y, z, .208, hy + .06, sd * .084, .024); if (ojo < d) { d = ojo; p = 'ojo'; } if (pup < d) { d = pup; p = 'pupila'; }
     pega(cap(x, y, z, .19, hy + .135, sd * .04, .18, hy + .145, sd * .13, .014), 'pelo', .005); }
-  let pelo = sdEll(x + .02, y - hy - .03, z, .225, .18, .23); pelo = smax(pelo, -(x - .14 + (y - hy - .03) * .5), .03); pelo = smax(pelo, -(y - hy + .02 - Math.max(0, -x) * .4), .04);
+  let pelo = sdEll(x + .02, y - hy - .03, z, .225, .18, .23); pelo = smax(pelo, x - .14 + (y - hy - .03) * .5, .03); pelo = smax(pelo, -(y - hy + .02 - Math.max(0, -x) * .4), .04);
   for (let k = 0; k < 6; k++) pelo = smin(pelo, sph(x, y, z, .13, hy + .14, (k - 2.5) * .055, .045), .03);                       // flequillo
   if (pelo < d + .005) p = 'pelo'; d = smin(d, pelo, .015);
   return [d + bulto(x, y, z, .012), p];
