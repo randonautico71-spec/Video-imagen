@@ -5,7 +5,8 @@
      V.modelos.volante({ giro, pos, rot, esc })                            volante + salpicadero + retrovisor para la vista en primera persona (ojos en el origen, mira a +Z)
      V.modelos.semaforo({ estado: 'verde'|'ambar'|'rojo', pos, rot, esc }) semaforo de poste (3,2 m) con la luz activa encendida
      V.modelos.farola({ enc 0..1, pos, rot, esc })                         farola de 5 m con foco calido
-     V.modelos.calle({ z0, largo, ancho, semaforos: [z...], seed, pisos, noche, pos })
+     V.modelos.casa({ color, techo, luz 0..1, ancho, fondo, pos, rot, esc })   casa con tejado a dos aguas, ventanas encendidas (luz), puerta, camino y jardín; fachada hacia +Z local
+     V.modelos.calle({ z0, largo, ancho, semaforos: [z...], seed, pisos, noche, pos, hueco: [za, zb] })   (hueco: sin bloques en el lado izquierdo entre za y zb, para poner casas)
           calzada de 2 carriles (ancho 7 m) con rayas discontinuas, aceras, farolas cada 16 m y fachadas a ambos lados; sin coche.
    Revision: `vid.py qa <tema> --stills t`. */
 (function () {
@@ -85,6 +86,24 @@
       nodo({ malla: MA.plano(W, H, 1), rot: [PI / 2, 0, 0], pos: [0, H / 2, D / 2 + 0.02], mat: { color: '#ffffff', mapa, esp: 0.05, envolver: 0.4, borde: 0 }, sinSombra: true }) ] });
   };
 
+
+  /* ---------------------------------------------------------------- casa (fachada +Z local) */
+  MO.casa = (o = {}) => {
+    const col = o.color || '#e9dcc6', teja = o.techo || '#8c3b2e', L = o.luz == null ? 0.3 : o.luz, W = o.ancho || 7, D = o.fondo || 6, H = 3.0;
+    const vent = (x, y, w, h) => nodo({ malla: MA.caja(w, h, 0.1, 0.02, 2), pos: [x, y, D / 2 + 0.03], mat: { color: '#ffd89a', esp: 0.1, emision: 0.15 + 0.85 * L, envolver: 0.5 } });
+    const marco = (x, y, w, h) => nodo({ malla: MA.caja(w + 0.22, h + 0.22, 0.08, 0.02, 2), pos: [x, y, D / 2 + 0.01], mat: m('#f4efe6') });
+    return nodo({ pos: o.pos, rot: o.rot, esc: o.esc, hijos: [
+      nodo({ malla: MA.caja(W, H, D, 0.05, 2), pos: [0, H / 2, 0], mat: m(col) }),
+      nodo({ malla: MA.extrusion([[-D / 2 - 0.5, 0], [D / 2 + 0.5, 0], [0, 2.3]], W + 1.0), rot: [0, PI / 2, 0], pos: [0, H, 0], mat: m(teja, { esp: 0.06 }) }),
+      nodo({ malla: MA.caja(0.7, 1.6, 0.7, 0.04, 2), pos: [W / 2 - 1.2, H + 1.7, -D / 4], mat: m('#8a6a5a') }),                                  // chimenea
+      marco(-W / 2 + 1.5, 1.7, 1.3, 1.1), vent(-W / 2 + 1.5, 1.7, 1.3, 1.1), marco(W / 2 - 1.5, 1.7, 1.3, 1.1), vent(W / 2 - 1.5, 1.7, 1.3, 1.1),
+      nodo({ malla: MA.caja(1.15, 2.1, 0.12, 0.02, 2), pos: [0, 1.05, D / 2 + 0.04], mat: m('#5b3a24') }),                                         // puerta
+      nodo({ malla: MA.caja(0.3, 0.3, 0.14, 0.03, 2), pos: [0.95, 2.35, D / 2 + 0.08], mat: { color: '#ffe3b0', esp: 0.1, emision: 0.2 + 0.8 * L } }), // farol del porche
+      nodo({ malla: MA.caja(1.3, 0.05, 3.2, 0.01, 2), pos: [0, 0.03, D / 2 + 1.6], mat: m('#b8b4a8') }),                                          // camino
+      nodo({ malla: MA.caja(W + 1.4, 0.04, 3.4, 0.01, 2), pos: [0, 0.015, D / 2 + 1.7], mat: m('#2f4a2c', { envolver: 0.5 }) })                    // jardín
+    ] });
+  };
+
   /* ---------------------------------------------------------------- tramo de calle */
   const FACHADAS = ['#cdb89c', '#c9a98a', '#b8b4a8', '#d4c3a0', '#a9a39a', '#c7b0a0'];
   MO.calle = (o = {}) => {
@@ -99,8 +118,9 @@
     for (let z = Math.ceil(z0 / 16) * 16; z < z0 + L; z += 16) { hijos.push(MO.farola({ enc: noche ? 1 : 0, pos: [W / 2 + 0.5, 0, z + 4], rot: [0, -PI / 2, 0] })); hijos.push(MO.farola({ enc: noche ? 1 : 0, pos: [-W / 2 - 0.5, 0, z + 12], rot: [0, PI / 2, 0] })); }
     for (const z of sem) hijos.push(MO.semaforo({ estado: 'verde', pos: [W / 2 + 0.3, 0.1, z], rot: [0, PI, 0] }));
     for (const s of [-1, 1]) for (let z = Math.ceil(z0 / 11) * 11, k = 0; z < z0 + L; z += 11, k++) {
-      const pisos = (o.pisos || 5) + Math.floor(rng() * 5), cols = 3 + Math.floor(rng() * 2);
-      hijos.push(MO.bloque({ pisos, cols, fondo: 9, color: FACHADAS[Math.floor(rng() * FACHADAS.length)], seed: k + (s > 0 ? 50 : 0),
+      const pisos = (o.pisos || 5) + Math.floor(rng() * 5), cols = 3 + Math.floor(rng() * 2), color = FACHADAS[Math.floor(rng() * FACHADAS.length)];
+      if (o.hueco && s < 0 && z + 5.5 > o.hueco[0] - 5.5 && z + 5.5 < o.hueco[1] + 5.5) continue;                    // hueco para casas (lado izquierdo)
+      hijos.push(MO.bloque({ pisos, cols, fondo: 9, color, seed: k + (s > 0 ? 50 : 0),
         pos: [s * (W / 2 + 3.2 + 4.5), 0, z + 5.5], rot: [0, s > 0 ? -PI / 2 : PI / 2, 0] }));
     }
     return nodo({ pos: o.pos, hijos });
