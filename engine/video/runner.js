@@ -10,6 +10,7 @@
        fondo(esc, tg, ctx)  {...},                    // opcional: capa persistente bajo las escenas
        escenas: [ (esc, t, ctx) => {...}, ... ],      // UNA por parrafo del guion, en orden
        subtitulos: false | { palabras (por grupo), tam (letra maxima), resalte } | { estilo: 'editorial', clave: [...], marca, tam },  // editorial = arriba (VE.ed)
+       precarga: async () => {...},                   // opcional: se espera antes del primer fotograma (carga de recursos del proyecto)
        progreso: true|false, transicion: {entrada, salida}
      });
    ctx: { i, n, ini, fin, dur, t (local), tg (global), p (0-1), entra (0-1), sale (0-1), zonas, tp/dp (tiempo y duracion del PARRAFO actual), pars (limites de parrafos), pw(palabra,n)=segundos desde el inicio del parrafo,
@@ -54,6 +55,7 @@
       json(base + 'salida/palabras.json'), json(base + 'salida/envolvente.json')]);
     await cargarScript(base + 'escenas.js?v=' + Date.now());
     if (!CFG) throw new Error('escenas.js no llamo a VE.proyecto({...})');
+    if (CFG.precarga) await CFG.precarga();                                          // opcional: espera a recursos propios del proyecto (p. ej. fotogramas SDF ya renderizados)
     // Unidades de dibujo: una por parrafo (CFG.escenas) o una por CAPITULO que agrupa varios parrafos (CFG.capitulos),
     // pensado para videos largos: 45 min = decenas de parrafos pero unos pocos entornos.
     let unidades, fns;
