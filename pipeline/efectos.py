@@ -257,12 +257,33 @@ def despertador(rng, dur=1.6, **_):
     return _norm(x) * _env(len(t), 0.02, 0.15, sostener=max(0.1, dur - 0.2))
 
 
+def vibracion(rng, dur=1.4, **_):
+    """Movil vibrando (motor de masa excentrica): zumbido grave ~175 Hz con armonicos y traqueteo de la carcasa,
+    en dos rafagas (brr-brr) con arranque y parada suaves; suena amortiguado, como contra la tela o una mesa."""
+    t = _t(dur); n = len(t)
+    f = 175 + 6 * np.sin(2 * np.pi * 3.1 * t) + 10 * np.exp(-t * 14)          # arranca algo mas agudo y se asienta
+    ph = _fase(f)
+    x = np.sin(ph) + 0.55 * np.sin(2 * ph + 0.4) + 0.3 * np.sin(3 * ph + 1.1) + 0.12 * np.sin(5 * ph)
+    x *= 1 + 0.25 * np.sin(2 * np.pi * 29 * t)                                  # temblor de la masa
+    traq = _bp(_ruido(rng, dur), 900, 3200) * (0.5 + 0.5 * np.sin(2 * np.pi * 175 * t) ** 2) * 0.35   # traqueteo en cada vuelta
+    x = _lp(x + traq, 2600)
+    ciclo = 0.58 * dur / 1.4; on = 0.40 * dur / 1.4                              # rafaga 1 y 2: brr (on) .. silencio .. brr
+    puerta = np.zeros(n)
+    for i in range(2):
+        a = int((0.04 + i * ciclo) * SR); b = min(n, a + int(on * SR))
+        if a < n:
+            k = b - a; r = min(k // 4, int(0.03 * SR)); g = np.ones(k); g[:r] = np.linspace(0, 1, r); g[-r:] = np.linspace(1, 0, r)
+            puerta[a:b] = g
+    return _norm(x * puerta)
+
+
 TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por defecto)
     'motor': (motor, 4.0, -12), 'claxon': (claxon, 1.5, -6), 'frenazo': (frenazo, 1.4, -9), 'intermitente': (intermitente, 3.0, -14),
     'seguros': (seguros, 0.35, -10), 'puerta': (puerta, 0.6, -9), 'pasos': (pasos, 3.0, -14), 'golpe': (golpe, 1.8, -6),
     'mar': (mar, 8.0, -18), 'viento': (viento, 6.0, -20), 'lluvia': (lluvia, 6.0, -20), 'sirena': (sirena, 4.0, -12),
     'latido': (latido, 4.0, -10), 'tono_llamada': (tono_llamada, 4.5, -14), 'click': (click, 0.05, -12),
-    'taza': (taza, 0.9, -12), 'copa': (copa, 1.6, -13), 'despertador': (despertador, 1.6, -14)}
+    'taza': (taza, 0.9, -12), 'copa': (copa, 1.6, -13), 'despertador': (despertador, 1.6, -14),
+    'vibracion': (vibracion, 1.4, -11)}
 
 
 def sintetizar(tipo, rng, dur=None, **op):
