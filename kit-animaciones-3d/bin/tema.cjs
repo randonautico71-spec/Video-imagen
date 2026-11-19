@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* TEMAS DETALLADOS × 14 ESTILOS (fotograma o vídeo vertical 1080×1920)
    node bin/tema.cjs <tema> <estilo> <salida.png | salida.mp4> [opciones]
-   Temas:   leon · planeta · ciudad · persona · oceano
+   Temas:   leon · planeta · ciudad · persona · oceano · delfin
    Estilos: pixel voxel iso lowpoly wire toon paper galaxy dither ascii info realista clay (13 · claymotion: plastilina en stop-motion, 12 imágenes/s) fieltro (14 · fieltro: mismas escenas en fieltro, 12 imágenes/s)
    Opciones de vídeo: --seg 8 --fps 30 --hilos 4 --orbita 0.06 (giro de cámara en rad/s; 0 = fija) --audio musica.wav --letrero @handle --letrero-s 5
    Movimiento en vídeo: la cámara orbita despacio; el león camina, el cohete recorre la órbita y el planeta gira, la gente de la ciudad avanza, la ballena y el tiburón nadan.
@@ -9,16 +9,17 @@
 'use strict';
 const fs = require('fs'), path = require('path'), { spawn, spawnSync } = require('child_process');
 const { args, lanzar, finalizar } = require('./comun.cjs');
-const KIT = path.resolve(__dirname, '..'), TEMAS = ['leon', 'planeta', 'ciudad', 'persona', 'oceano'];
+const KIT = path.resolve(__dirname, '..'), TEMAS = ['leon', 'planeta', 'ciudad', 'persona', 'oceano', 'delfin'];
 const ESTILOS = ['pixel', 'voxel', 'iso', 'lowpoly', 'wire', 'toon', 'paper', 'galaxy', 'dither', 'ascii', 'info', 'realista', 'clay', 'fieltro'];
-const RENDER = { leon: 'renderHD', planeta: 'renderP', ciudad: 'renderC', persona: 'renderPx', oceano: 'renderMar' };
+const RENDER = { leon: 'renderHD', planeta: 'renderP', ciudad: 'renderC', persona: 'renderPx', oceano: 'renderMar', delfin: 'renderMar' };
 (async () => {
   const a = args(process.argv.slice(2)), [tema, estilo, sal] = a._;
   if (!TEMAS.includes(tema) || !ESTILOS.includes(estilo) || !sal) { console.error(fs.readFileSync(__filename, 'utf8').split('*/')[0]); process.exit(1); }
-  const video = /\.mp4$/i.test(sal), dir = path.join(KIT, 'temas', tema);
+  const video = /\.mp4$/i.test(sal), DEL = tema === 'delfin', dir = path.join(KIT, 'temas', DEL ? 'oceano' : tema);
+  if (DEL) process.env.MAR = 'delfin';   // las escenas SDF del océano ponen el delfín en vez de la ballena y el tiburón
   if (tema === 'persona' && estilo !== 'realista' && !fs.existsSync(path.join(dir, 'generado', 'persona_malla.js'))) {
     console.log('Generando la malla de la persona (una vez, ~15 s)...'); spawnSync('node', [path.join(dir, 'mallador.js')], { stdio: 'inherit' }); spawnSync('node', [path.join(dir, 'voxeles.js')], { stdio: 'inherit' }); }
-  if (tema === 'oceano' && !fs.existsSync(path.join(dir, 'generado', 'animales_malla.js'))) { console.log('Generando las mallas de la ballena y el tiburón (una vez, ~15 s)...'); spawnSync('node', [path.join(dir, 'mallador.js')], { stdio: 'inherit' }); }
+  if ((tema === 'oceano' || DEL) && (!fs.existsSync(path.join(dir, 'generado', 'animales_malla.js')) || !fs.readFileSync(path.join(dir, 'generado', 'vox_animales.js'), 'utf8').includes('"delfin"'))) { console.log('Generando las mallas de la ballena y el tiburón (una vez, ~15 s)...'); spawnSync('node', [path.join(dir, 'mallador.js')], { stdio: 'inherit' }); }
   if (estilo === 'clay' || estilo === 'fieltro') {   // CLAYMOTION y FIELTRO: escena SDF de plastilina; el vídeo se calcula a 12 imágenes/s (stop-motion) y se pasa a los fps pedidos
     const esc = path.join(dir, 'clay.js'), envM = { ...process.env, MATERIAL: estilo === 'fieltro' ? 'fieltro' : '' };
     if (!video) { const r = spawnSync('node', [path.join(__dirname, 'fotograma_sdf.cjs'), esc, path.resolve(sal), String(a.t || 0)], { stdio: 'inherit', env: envM }); process.exit(r.status); }
@@ -35,7 +36,7 @@ const RENDER = { leon: 'renderHD', planeta: 'renderP', ciudad: 'renderC', person
     const r = spawnSync('node', [path.join(__dirname, 'sdf.cjs'), esc, path.resolve(sal), '--seg', String(a.seg || 8), '--fps', String(a.fps || 30), ...(a.audio ? ['--audio', a.audio] : []), ...(a.letrero ? ['--letrero', a.letrero] : []), ...(a['letrero-s'] ? ['--letrero-s', a['letrero-s']] : []), ...(a.w ? ['--w', a.w, '--h', a.h] : [])], { stdio: 'inherit', env: { ...process.env, ORBITA: a.orbita ?? '0.06' } });
     process.exit(r.status);
   }
-  const scripts = [path.join(KIT, 'estilos/motor3d.js'), path.join(dir, 'modelo.js'), ...(tema === 'persona' ? [path.join(dir, 'malla.js'), path.join(dir, 'generado/persona_malla.js'), path.join(dir, 'generado/vox_persona.js')] : []), ...(tema === 'oceano' ? [path.join(dir, 'generado/animales_malla.js'), path.join(dir, 'generado/vox_animales.js')] : []), path.join(dir, 'estilos.js')];
+  const scripts = [path.join(KIT, 'estilos/motor3d.js'), path.join(dir, 'modelo.js'), ...(tema === 'persona' ? [path.join(dir, 'malla.js'), path.join(dir, 'generado/persona_malla.js'), path.join(dir, 'generado/vox_persona.js')] : []), ...((tema === 'oceano' || DEL) ? [path.join(dir, 'generado/animales_malla.js'), path.join(dir, 'generado/vox_animales.js')] : []), path.join(dir, 'estilos.js'), ...(DEL ? [path.join(KIT, 'temas/delfin/delfin.js')] : [])];
   const html = path.join(dir, '.pagina.html');
   fs.writeFileSync(html, '<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0">' + scripts.map(s => `<script src="file://${s}"></script>`).join('') +
     `<script>const _cam = camera; camera = (eye, target, o) => { const a = (globalThis.T_ANIM || 0) * (globalThis.ORBITA || 0); if (!a) return _cam(eye, target, o); return _cam(add(target, rotY(sub(eye, target), a)), target, o); };</script></body></html>`);

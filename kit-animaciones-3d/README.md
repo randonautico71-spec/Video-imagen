@@ -20,7 +20,7 @@ Con eso, cuando pidas una animación, Claude te preguntará primero la familia y
 
 ## Temas detallados (5 temas × 14 estilos)
 
-`leon`, `planeta`, `ciudad`, `persona` y `oceano` (ballena jorobada y tiburón blanco en el fondo marino), modelados con máximo detalle, en cualquiera de los estilos `pixel voxel iso lowpoly wire toon paper galaxy dither ascii info realista clay fieltro`:
+`leon`, `planeta`, `ciudad`, `persona`, `oceano` (ballena jorobada y tiburón blanco en el fondo marino) y `delfin` (delfín mular en el mismo fondo marino), modelados con máximo detalle, en cualquiera de los estilos `pixel voxel iso lowpoly wire toon paper galaxy dither ascii info realista clay fieltro`:
 
 ```bash
 node kit-animaciones-3d/bin/tema.cjs ciudad toon salida/ciudad.png
