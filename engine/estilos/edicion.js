@@ -88,11 +88,16 @@
   };
   D.etiqueta = function (esc, o) {
     const x = esc.ctx, a = o.a == null ? 1 : o.a; if (a <= 0) return; const k = esc.k, p = c01(a), col = o.color || '#fff';
-    const lx = o.x + (o.tx - o.x) * E.suaveSalida(p), ly = o.y + (o.ty - o.y) * E.suaveSalida(p);
+    let lx = o.x + (o.tx - o.x) * E.suaveSalida(p); const ly = o.y + (o.ty - o.y) * E.suaveSalida(p);
+    // el texto ENTERO queda dentro de la zona visible: margen a los lados y, en la mitad baja, hueco para los botones laterales de Shorts/Reels
+    const der = o.tx < o.x, dx = (der ? -1 : 1) * 6 * k; fuente(esc, o.tam || 28, 600);
+    const ancho = Math.max(x.measureText(o.texto).width, o.sub ? x.measureText(o.sub).width * 0.7 : 0), mI = 70 * k, mD = (ly > esc.H * 0.45 ? 200 : 70) * k;
+    const ini = der ? lx + dx - ancho : lx + dx, fin = ini + ancho;
+    if (ini < mI) lx += mI - ini; else if (fin > esc.W - mD) lx -= fin - (esc.W - mD);
     x.save(); x.strokeStyle = col; x.globalAlpha *= 0.85; x.lineWidth = 2 * k; x.beginPath(); x.moveTo(o.x, o.y); x.lineTo(lx, ly); x.stroke();
     x.fillStyle = col; x.beginPath(); x.arc(o.x, o.y, 5 * k, 0, 7); x.fill();
-    x.globalAlpha = c01((a - 0.5) * 2) * (o.a == null ? 1 : 1); x.textBaseline = 'bottom'; x.textAlign = o.tx < o.x ? 'right' : 'left';
-    const dx = (o.tx < o.x ? -1 : 1) * 6 * k; fuente(esc, o.tam || 28, 600); x.fillStyle = 'rgba(0,0,0,0.4)'; x.fillText(o.texto, lx + dx + 1.5 * k, ly - 4 * k + 2 * k); x.fillStyle = col; x.fillText(o.texto, lx + dx, ly - 4 * k);
+    x.globalAlpha = c01((a - 0.5) * 2) * (o.a == null ? 1 : 1); x.textBaseline = 'bottom'; x.textAlign = der ? 'right' : 'left';
+    fuente(esc, o.tam || 28, 600); x.fillStyle = 'rgba(0,0,0,0.4)'; x.fillText(o.texto, lx + dx + 1.5 * k, ly - 4 * k + 2 * k); x.fillStyle = col; x.fillText(o.texto, lx + dx, ly - 4 * k);
     if (o.sub) { x.textBaseline = 'top'; fuente(esc, (o.tam || 28) * 0.7, 500); x.fillStyle = 'rgba(255,255,255,0.6)'; x.fillText(o.sub, lx + dx, ly + 4 * k); }
     x.restore();
   };
