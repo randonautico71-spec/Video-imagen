@@ -33,7 +33,7 @@ function estado(t) {
   const ojos = tramo(t, 52.9, 0.6);
   // figura: esquina (-1.4,-2.0) → junto a la cama (-0.8,-1.0) → inclinada sobre el pecho → deshecha
   const ir = tramo(t, 31.4, 2.8), lean = tramo(t, 34.2, 1.5), dis = tramo(t, 35.7, 2.3);
-  const fig = { x: lerp(-1.4, -0.85, ir), z: lerp(-2.0, -1.0, ir), vis: t < 38.4 ? 1 : 0, dis, lean, sway: t };
+  const fig = { x: lerp(-1.4, -0.85, ir), z: lerp(-2.0, -1.0, ir), vis: t >= 28.6 && t < 38.4 ? 1 : 0, dis, lean, sway: t };
   const peso = tramo(t, 34.2, 1.4) * (1 - tramo(t, 36.0, 1.6));
   const dedos = t > 1.9 && t < 3.4 ? 1 : 0;
   return { t, alba, ojos, fig, peso, dedos, resp: Math.sin(t * 1.5) };
