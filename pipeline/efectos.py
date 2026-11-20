@@ -277,13 +277,24 @@ def vibracion(rng, dur=1.4, **_):
     return _norm(x * puerta)
 
 
+def respiracion(rng, dur=3.0, **_):
+    """Respiracion de una persona tumbada: inhalacion corta y exhalacion larga (ruido de aire filtrado, ~4 s por ciclo),
+    suave y cercana; el timbre se abre un poco en la inhalacion y se cierra al soltar el aire."""
+    t = _t(dur); n = len(t); ciclo = 3.6; ti = 1.3                       # 1,3 s inhala + 2,3 s exhala
+    fase = (t % ciclo)
+    env = np.where(fase < ti, np.sin(np.pi / 2 * fase / ti) ** 2, np.cos(np.pi / 2 * (fase - ti) / (ciclo - ti)) ** 2.2)
+    aire = _ruido(rng, dur)
+    x = _bp(aire, 250, 1700) * 0.8 + _bp(aire, 1700, 4200) * 0.25 * np.where(fase < ti, 1.0, 0.45)
+    return _norm(x * env) * _env(n, 0.08, 0.35)
+
+
 TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por defecto)
     'motor': (motor, 4.0, -12), 'claxon': (claxon, 1.5, -6), 'frenazo': (frenazo, 1.4, -9), 'intermitente': (intermitente, 3.0, -14),
     'seguros': (seguros, 0.35, -10), 'puerta': (puerta, 0.6, -9), 'pasos': (pasos, 3.0, -14), 'golpe': (golpe, 1.8, -6),
     'mar': (mar, 8.0, -18), 'viento': (viento, 6.0, -20), 'lluvia': (lluvia, 6.0, -20), 'sirena': (sirena, 4.0, -12),
     'latido': (latido, 4.0, -10), 'tono_llamada': (tono_llamada, 4.5, -14), 'click': (click, 0.05, -12),
     'taza': (taza, 0.9, -12), 'copa': (copa, 1.6, -13), 'despertador': (despertador, 1.6, -14),
-    'vibracion': (vibracion, 1.4, -11)}
+    'vibracion': (vibracion, 1.4, -11), 'respiracion': (respiracion, 3.0, -13)}
 
 
 def sintetizar(tipo, rng, dur=None, **op):
