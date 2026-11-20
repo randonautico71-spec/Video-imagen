@@ -8,7 +8,7 @@ TU = r"\b(tú|tu|tus|te|ti|contigo|tuyo|tuya|tuyos|tuyas)\b"
 SALUDO = r"\b(hola|hoy vamos|en este v[ií]deo|bienvenid|os voy a|te voy a contar)\b"
 GIRO = r"\b(pero|en realidad|y no te libras|int[ée]ntalo|resulta|lo has o[ií]do|aunque|sin embargo)\b"
 REENG = r"(\bpero\b|y lo peor|resulta que|hace algo m[aá]s|\?|¡|ahora\b|y adem[aá]s|lo m[aá]s raro|de hecho|o sea|as[ií] que|no era|^t[uú],|y ah[ií]|en realidad|y no )"
-ACLARA = r"(se dice|dicen que|se cree|es un mito|mito|nadie (lo )?ha (medido|demostrado|visto)|no se sabe|probablemente|quiz[aá]s?|seg[uú]n la leyenda|se supone|lo has o[ií]do|suponiendo|supongamos|ser[ií]a[n]? (unos|unas|aproximadamente|m[aá]s o menos)|aproximadamente|estimaci[oó]n|calcul|qu[eé] pasar[ií]a si)"
+ACLARA = r"(se dice|dicen que|se cree|es un mito|mito|nadie (lo )?ha (medido|demostrado|visto)|no se sabe|probablemente|quiz[aá]s?|seg[uú]n la leyenda|se supone|lo has o[ií]do|suponiendo|supongamos|ser[ií]a[n]? (unos|unas|aproximadamente|m[aá]s o menos)|aproximadamente|estimaci[oó]n|c[aá]lcul|qu[eé] pasar[ií]a si)"
 CTA = r"(env[ií]a(selo|lo)|comp[aá]rte|comenta|s[ií]gueme|sigue a)"
 
 
