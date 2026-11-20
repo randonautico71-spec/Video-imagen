@@ -13,7 +13,7 @@ python3 - <<'PY' && ok "tipos.json / perfiles_voz.json / calibracion.json cohere
 import json,sys
 t=json.load(open('config/tipos.json')); p=json.load(open('config/perfiles_voz.json')); c=json.load(open('config/calibracion.json')); f=json.load(open('config/formatos.json'))
 for n in ('largo','short'):
-    x=t[n]; assert x['voz'] in p, (n,'voz sin perfil'); assert x['formato'] in f, (n,'formato'); assert x['musica'] in ('curiosos','aprender','meditacion')
+    x=t[n]; assert x['voz'] in p, (n,'voz sin perfil'); assert x['formato'] in f, (n,'formato'); assert x['musica'] in ('curiosos','aprender','meditacion','natural')
     assert x['voz'] in c['voz']['palabras_por_min_habla'], (n,'sin wpm en calibracion'); m=p[x['voz']]['motor']
     assert m in c['voz']['carga_modelo_s'] and m in c['voz']['calculo_s_por_s_de_habla'], (n,'motor sin calibrar')
     assert x['duracion_s'][0]<x['duracion_s'][1] and x['guia'] and __import__('os').path.exists(x['guia']), (n,'guia')
