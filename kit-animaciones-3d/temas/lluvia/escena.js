@@ -8,7 +8,7 @@ const h1 = n => fract(Math.sin(n * 127.1 + 311.7) * 43758.5453);
 const smax = (a, b, k) => -smin(-a, -b, k);
 const sdBox = (x, y, z, bx, by, bz) => { const qx = Math.abs(x) - bx, qy = Math.abs(y) - by, qz = Math.abs(z) - bz; return len(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qy, qz), 0); };
 const cap = (px, py, pz, a, b, r) => { const bx = b[0] - a[0], by = b[1] - a[1], bz = b[2] - a[2], h = clamp(((px - a[0]) * bx + (py - a[1]) * by + (pz - a[2]) * bz) / (bx * bx + by * by + bz * bz), 0, 1); return len(px - a[0] - bx * h, py - a[1] - by * h, pz - a[2] - bz * h) - r; };
-M.ESPECIES.husky = { ...M.ESPECIES.zorro, gait: M.PASO, freq: 1.55, amp: .55, bob: .015, bl: .3, bh: .17, bw: .14, L1: .25, L2: .27, lr: .038, tx: -.16, ty: .24, tw: .03, tr: .07, colaBase: 1.1, colaPunta: .85, el: .1, er: .045, orejaPunta: .22, nr: .08, sl: .11, sd: .036, hl: .13, hh: .095, hw: .095 };
+M.ESPECIES.husky = { ...M.ESPECIES.zorro, gait: M.PASO, freq: 1.45, amp: .55, bob: .015, bl: .31, bh: .145, bw: .125, L1: .29, L2: .31, lr: .036, tx: -.04, ty: .3, tw: .03, tr: .075, colaBase: 1.05, colaPunta: .75, el: .13, er: .05, orejaPunta: .18, nr: .075, nx: .13, ny: .15, sl: .15, sd: .04, sr: .045, hl: .135, hh: .095, hw: .092, cruz: .3 };
 const V = .9;   // velocidad del paseo (m/s)
 let S = null;
 // ------------------------------------------------ persona estilizada (mira hacia +x)
@@ -63,14 +63,33 @@ function calle(x, y, z) { let d = y, m = 'suelo'; const c = (dd, mm) => { if (dd
   return [d, m]; }
 function escena(x, y, z, lejos) { let [d, m] = calle(x, y, z); const c = (dd, mm) => { if (dd < d) { d = dd; m = mm; } };
   { const db = len(x - S.px - .1, y - 1.2, z) - 1.4; c(db > .2 ? db : persona(x, y, z, S.t)[0] * .85, 'persona'); }
-  { const a = S.perro, db = len(x - a.bx, y - a.by, z - a.bz) - a.br; c(db > .2 ? db : M.sdAnimal(a, x, y, z), 'perro'); }
+  { const a = S.perro, db = len(x - a.bx, y - a.by, z - a.bz) - a.br; let dd = db > .2 ? db : M.sdAnimal(a, x, y, z); if (dd < .02) dd += .0045 * (n3(x * 70, y * 28, z * 70) - .5) + .0025 * (n3(x * 160, y * 60, z * 160) - .5); c(dd * .9, 'perro'); }
   c(len(len(x - S.collar[0] - .02, y - S.collar[1] - .03) - .1, z - S.collar[2]) - .02, 'correa');
   c(cap(x, y, z, S.mano, S.medio, .008), 'correa'); c(cap(x, y, z, S.medio, S.collar, .008), 'correa');
   return [d, m]; }
-function prepara(t) { const px = V * t - .2, perro = M.cuadrupedo('husky', px + 1.42, .42, t, .6, 1.08, { v: V });
-  const cabP = perro.P.find(q => q.m === 'cabeza'), collar = [cabP.cx - .2, cabP.cy - .14, .42], mano = [px + .32, .96, .2]; const medio = [(mano[0] + collar[0]) / 2, Math.min(mano[1], collar[1]) - .1, (mano[2] + collar[2]) / 2];
+/* Husky más orgánico: articulaciones suaves, muslos con músculo, patas finas con pies pequeños, gorguera de pelo en el cuello,
+   mejillas mullidas, boca entreabierta con la lengua fuera y cola peluda enroscada sobre el lomo (en lugar del tubo recto). */
+function huskyNatural(a, t) {
+  const s = a.s, E = (cx, cy, cz, rx, ry, rz, m, hard) => a.P.push({ t: 0, cx, cy, cz, rx: rx * s, ry: ry * s, rz: rz * s, m, hard }), RC = (A, B, r1, r2, m, hard) => a.P.push({ t: 2, ax: A[0], ay: A[1], az: A[2], bx: B[0], by: B[1], bz: B[2], r1: r1 * s, r2: r2 * s, m, hard });
+  a.k = .055 * s;
+  a.P = a.P.filter(q => q.m !== 'cola');
+  for (const q of a.P) { if (q.m === 'pata') { q.r1 *= 1.2; q.r2 *= 1.05; } else if (q.m === 'patab' && q.t === 0) { q.rx *= .78; q.ry *= .78; q.rz *= .78; } else if (q.m === 'zarpa') { q.rx *= .8; q.ry *= .85; q.rz *= .8; } }
+  const cu = a.P.find(q => q.m === 'cuello'), cb = a.P.find(q => q.m === 'cabeza'), ho = a.P.find(q => q.m === 'hocico');
+  E((cu.ax + cu.bx) / 2 - .01, (cu.ay + cu.by) / 2 - .015, cu.az, .075, .09, .09, 'cuello');                                   // gorguera
+  E(cb.cx - .015, cb.cy - .035, cb.cz + .045 * s, .065, .055, .045, 'mejilla'); E(cb.cx - .015, cb.cy - .035, cb.cz - .045 * s, .065, .055, .045, 'mejilla');
+  RC([ho.ax + .02, ho.ay - .035, ho.az], [ho.bx - .015, ho.by - .045, ho.bz], .03, .02, 'hocico');                           // mandíbula entreabierta
+  E(ho.bx - .03, ho.by - .062, ho.bz, .032, .009, .02, 'lengua', true);
+  // cola: arco que sube por detrás y se enrosca hacia delante sobre la grupa, con un leve meneo
+  const S0 = a.S, bx = a.ox - S0.bl * .95 * s, by = a.oy + S0.bh * .35 * s, R = .12 * s, n = 9, men = .035 * Math.sin(t * 7);
+  let pr = [bx, by, a.oz];
+  for (let i = 1; i <= n; i++) { const u = i / n, th = -Math.PI / 2 - u * Math.PI * 1.2, q = [bx + R * Math.cos(th) + R * .0, by + R + R * Math.sin(th), a.oz + men * u];
+    RC(pr, q, .05 - .012 * u + (i === 1 ? .01 : 0), .05 - .012 * (u + 1 / n), 'cola'); pr = q; }
+  a.br += .12; a.bx = a.ox; a.by = a.oy; a.bz = a.oz; a.br = Math.max(a.br, .75 * s);
+  return a; }
+function prepara(t) { const px = V * t - .2, perro = huskyNatural(M.cuadrupedo('husky', px + 1.22, .42, t, .6, 1.08, { v: V }), t);
+  const cabP = perro.P.find(q => q.m === 'cabeza'), collar = [cabP.cx - .17, cabP.cy - .12, .49], mano = [px + .32, .96, .2]; const medio = [(mano[0] + collar[0]) / 2, Math.min(mano[1], collar[1]) - .1, (mano[2] + collar[2]) / 2];
   S = { t, px, perro, collar, mano, medio };
-  return { t, eye: [px + .78, 1.25, 6.9], target: [px + .78, 1.0, 0], fov: 40, far: 40, pasos: 280 }; }
+  return { t, eye: [px + .85, 1.25, 6.9], target: [px + .85, 1.0, 0], fov: 40, far: 40, pasos: 280 }; }
 // ------------------------------------------------ luz, lluvia y ondas
 const FAROLES = t => { const r = []; const b = Math.round((S.px - 1.6) / 6.4); for (let k = b - 2; k <= b + 2; k++) r.push([1.6 + k * 6.4, 2.32, -1.75]); return r; };
 function lluvia(dx, dy, dz, t, T) { let s = 0; const az = Math.atan2(dx, -dz), el = Math.atan2(dy, len(dx, dz));
@@ -101,8 +120,9 @@ const E = {
       else if (p === 'mastil') { alb = [.25, .14, .07]; spec = .4; rough = 40; } }
     else if (m === 'perro') { const a = S.perro, q = M.primCercana(a, x, y, z), ly = y - a.oy, c = a.cab; const ss = (e0, e1, v) => { const u = clamp((v - e0) / (e1 - e0), 0, 1); return u * u * (3 - 2 * u); }; let wb = 0;
       if (q.m === 'hocico' || q.m === 'zarpa' || q.m === 'patab') wb = 1; else if (q.m === 'pata') wb = ss(a.oy * .75, a.oy * .5, y);
-      else if (q.m === 'cabeza') wb = Math.max(ss(q.cy + .01, q.cy - .03, y), ss(q.cx + .0, q.cx + .06, x) * ss(q.cy + .06, q.cy + .02, y)); else if (q.m === 'cuerpo' || q.m === 'cuello') wb = ss(-.02, -.08, ly); else if (q.m === 'cola') wb = ss(a.oy + .12, a.oy + .06, y);
-      alb = [0, 1, 2].map(i => [.18, .2, .25][i] + ([1, 1, 1][i] - [.18, .2, .25][i]) * wb); if (q.m === 'oreja') alb = [.25, .27, .31]; if (q.m === 'nariz') { alb = [.02, .02, .02]; spec = 1.5; rough = 100; } if (q.m === 'ojo') { alb = [.25, .6, .95]; spec = 3; rough = 300; }
+      else if (q.m === 'cabeza') wb = Math.max(ss(q.cy + .01, q.cy - .03, y), ss(q.cx + .0, q.cx + .06, x) * ss(q.cy + .06, q.cy + .02, y)); else if (q.m === 'cuerpo' || q.m === 'cuello') wb = ss(-.02, -.08, ly); else if (q.m === 'cola') wb = ss(-.05, -.5, ny); else if (q.m === 'mejilla') wb = 1;
+      alb = [0, 1, 2].map(i => [.18, .2, .25][i] + ([1, 1, 1][i] - [.18, .2, .25][i]) * wb); if (q.m === 'oreja') alb = [.25, .27, .31]; if (q.m === 'nariz') { alb = [.02, .02, .02]; spec = 1.5; rough = 100; } if (q.m === 'ojo') { alb = [.25, .6, .95]; spec = 3; rough = 300; } if (q.m === 'lengua') { alb = [.95, .38, .45]; spec = 1.2; rough = 60; }
+      if (q.m === 'cabeza') { const ex = x - (a.ox + c.ojx * a.s), ey = y - (a.oy + c.ojy * a.s); if (len(ex + .005, ey - .03, (Math.abs(z - a.oz) - .045) * 1.6) < .022) alb = [1, 1, 1]; }
       alb = alb.map(v => v * M.pelo(x - a.ox, y, z - a.oz)); }
     else if (m === 'correa') { alb = [.7, .06, .05]; spec = .4; }
     else if (m === 'suelo' || m === 'acera') { const piedra = m === 'acera', g = n3(x * 3, 0, z * 3); alb = piedra ? [.12, .12, .13] : [.06, .065, .075]; alb = alb.map(v => v * (.8 + .4 * g));
