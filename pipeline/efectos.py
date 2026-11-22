@@ -19,7 +19,7 @@ Se declaran en meta.json y se colocan por palabra (tiempos de voz-importar) o po
   pan        : -1 izquierda ... 1 derecha.
   modo       : variantes de algunos tipos (motor: paso | ralenti | arranque | interior).
 
-Tipos: motor, claxon, frenazo, intermitente, seguros, puerta, pasos, golpe, mar, viento, lluvia, sirena, latido, tono_llamada, click.
+Tipos: motor, claxon, frenazo, intermitente, seguros, puerta, pasos, golpe, mar, viento, lluvia, sirena, latido, tono_llamada, click, pitido.
 Prueba de oido de todos:  python3 pipeline/efectos.py --demo salida.wav"""
 import argparse, json, re, unicodedata
 from pathlib import Path
@@ -231,11 +231,19 @@ def tono_llamada(rng, dur=4.5, **_):
     return _norm(x) * _env(len(t), 0.01, 0.05)
 
 
+def pitido(rng, dur=2.4, f0=6000, **_):
+    """Pitido agudo de acufeno (tono ~6 kHz con batido leve y un parcial a la mitad), con subida y bajada suaves."""
+    t = _t(dur)
+    x = 0.55 * np.sin(2 * np.pi * f0 * t) + 0.25 * np.sin(2 * np.pi * (f0 + 10) * t) + 0.12 * np.sin(2 * np.pi * (f0 / 2) * t)
+    x = x * (1 + 0.04 * np.sin(2 * np.pi * 5 * t))
+    return _norm(x) * _env(len(t), 0.25, 0.9)
+
+
 TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por defecto)
     'motor': (motor, 4.0, -12), 'claxon': (claxon, 1.5, -6), 'frenazo': (frenazo, 1.4, -9), 'intermitente': (intermitente, 3.0, -14),
     'seguros': (seguros, 0.35, -10), 'puerta': (puerta, 0.6, -9), 'pasos': (pasos, 3.0, -14), 'golpe': (golpe, 1.8, -6),
     'mar': (mar, 8.0, -18), 'viento': (viento, 6.0, -20), 'lluvia': (lluvia, 6.0, -20), 'sirena': (sirena, 4.0, -12),
-    'latido': (latido, 4.0, -10), 'tono_llamada': (tono_llamada, 4.5, -14), 'click': (click, 0.05, -12)}
+    'latido': (latido, 4.0, -10), 'tono_llamada': (tono_llamada, 4.5, -14), 'click': (click, 0.05, -12), 'pitido': (pitido, 2.4, -12)}
 
 
 def sintetizar(tipo, rng, dur=None, **op):

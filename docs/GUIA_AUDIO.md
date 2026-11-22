@@ -54,7 +54,7 @@ Para repetir con otra referencia: `python3 pipeline/analizar_voz.py ref.mp3 --js
 
 ### 5 bis. Sin música y efectos de sonido (`pipeline/efectos.py`, `vid.py efectos`)
 - **`"musica": "ninguna"`** en `meta.json` (o `vid.py nuevo <tema> --tipo short --musica ninguna`): `vid.py musica` no compone nada y la mezcla lleva solo voz (y efectos). Medido en una prueba: pausas entre frases a −57 dB.
-- **Efectos de lo que se ve**, sintetizados (sin ficheros, deterministas): `motor` (modos `paso` con doppler y paneo, `arranque`, `ralenti`, `interior`), `claxon`, `frenazo`, `intermitente`, `seguros`, `puerta`, `pasos`, `golpe`, `mar`, `viento`, `lluvia`, `sirena`, `latido`, `tono_llamada`, `click`. Se declaran en `meta.efectos`:
+- **Efectos de lo que se ve**, sintetizados (sin ficheros, deterministas): `motor` (modos `paso` con doppler y paneo, `arranque`, `ralenti`, `interior`), `claxon`, `frenazo`, `intermitente`, `seguros`, `puerta`, `pasos`, `golpe`, `mar`, `viento`, `lluvia`, `sirena`, `latido`, `tono_llamada`, `click`, `pitido` (acúfeno, ~6 kHz). Se declaran en `meta.efectos`:
   `[{"tipo": "claxon", "palabra": "claxon", "dur": 2.5}, {"tipo": "motor", "t": 0, "dur": 5, "modo": "paso"}]`
   `palabra` se busca en `salida/palabras.json` sin tildes ni signos (`ocurrencia` = n-ésima); `t` es un segundo fijo; `desfase`, `dur`, `pan` (−1…1) y `vol` (dB respecto al nivel medio de la VOZ; cada tipo trae uno por defecto, entre −6 y −20) son opcionales.
 - `vid.py mezcla` rehace `salida/efectos.wav` (o lo borra si no hay efectos) y lo mezcla con un ducking suave (ratio 3) para que no tape la voz; `meta.volumen_efectos` lo escala todo. `vid.py efectos <tema>` lo genera aparte e imprime dónde cae cada uno.

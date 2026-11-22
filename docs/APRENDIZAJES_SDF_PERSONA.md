@@ -12,4 +12,4 @@ Lecciones:
 - Los tintes por zona (oreja, mejilla) con caja de coordenadas locales dejan bordes rectos sobre mano y mejilla: usa caída radial suave.
 - Coste medido con 2 CPU: ~5,4 s por fotograma a 540×960 en escenas de habitación; planos del oído más baratos. Un vídeo de 48 s a 15 fps tarda ~65 min.
 - Un render en segundo plano se corta si el shell termina: lánzalo con `setsid nohup` y comprueba los bloques con ffprobe (un bloque truncado se ve al concatenar).
-- Pendiente: el pitido de acúfeno (`efectos_sordera.py`) no está aprobado por el usuario y no se ha añadido a `pipeline/efectos.py`.
+- El pitido de acúfeno ya está en `pipeline/efectos.py` (tipo `pitido`); `efectos_sordera.py` queda solo como referencia.
