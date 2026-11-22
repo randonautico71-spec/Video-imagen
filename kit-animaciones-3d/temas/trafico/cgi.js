@@ -2,10 +2,11 @@
 // TRÁFICO · CGI REALISTA (SDF / ray marching en Node). Misma simulación de tráfico que temas/trafico/escena.js.
 // Pintura con capa de barniz que refleja el entorno, cristales oscuros reflectantes, asfalto (mojado de noche) que refleja
 // las luces, farolas como luces puntuales, faros y pilotos emisivos con halo, edificios con ventanas encendidas y oclusión ambiental.
-// node bin/fotograma_sdf.cjs temas/trafico/cgi.js salida.png <t>      (TRAF_DIA=1 para de día · TOMA=seguimiento|cabeza|aerea)
+// node bin/fotograma_sdf.cjs temas/trafico/cgi.js salida.png <t>      (TRAF_DIA=1 para de día · TOMA=plan (por defecto, los 6 planos) | seguimiento | cabeza | aerea)
+// Desde el kit: node bin/tema.cjs trafico realista salida.mp4 --exacto [--dia]   (muy lento: 3–8 min por fotograma a 720×1280 en 4 CPU)
 const vm = require('vm'), fs = require('fs'), path = require('path'), M = require('../../sdf/motor');
 const KIT = path.resolve(__dirname, '../..');
-const DIA = !!process.env.TRAF_DIA, TOMA = process.env.TOMA || 'seguimiento';
+const DIA = !!process.env.TRAF_DIA, TOMA = process.env.TOMA || 'plan';   // plan = los 6 planos del tema (como en low-poly)
 // cargar la simulación del tema (código de navegador) en un contexto aislado
 const ctxS = { console, Math, Float32Array }; ctxS.globalThis = ctxS; vm.createContext(ctxS);
 vm.runInContext('var document={createElement:()=>({getContext:()=>({})})};' + fs.readFileSync(path.join(KIT, 'estilos/motor3d.js'), 'utf8') + ';var ESC={};' + fs.readFileSync(path.join(KIT, 'temas/trafico/escena.js'), 'utf8'), ctxS);
@@ -20,10 +21,12 @@ let S = null;
 function prepara(t) {
   const coches = TRAF.coches.map(c => { const p = TRAF.pos(c, t); return { x: p[0], z: p[2], d: c.sent, col: c.heroe ? [.92, .93, .95] : PINT[c.col], heroe: !!c.heroe, frena: c.sent === 1 && (c.heroe ? TRAF.velHeroe(t) : 30) < 8 }; });
   const h = TRAF.heroe(t); let eye, target, fov = 46;
-  if (TOMA === 'cabeza') { eye = [6, 4.2, -362]; target = [4.5, 1.2, -300]; fov = 40; }
+  if (TOMA === 'plan') { const P = TRAF.planos; let a = 0, i = 0; while (i < P.length - 1 && t >= a + P[i].dur) { a += P[i].dur; i++; }
+    const r = P[i].cam(h, Math.min(1, (t - a) / P[i].dur)); eye = r[0]; target = r[1]; fov = r[2]; if (r[3]) eye = [eye[0], eye[1], eye[2] + eye[1] * .15]; }   // los planos cenitales se inclinan un poco
+  else if (TOMA === 'cabeza') { eye = [6, 4.2, -362]; target = [4.5, 1.2, -300]; fov = 40; }
   else if (TOMA === 'aerea') { eye = [h[0] - 22, 48, h[2] + 46]; target = [h[0], 0, h[2] - 40]; fov = 48; }
   else { eye = [h[0] - .6, 3.1, h[2] + 10.5]; target = [h[0] - .3, 1.1, h[2] - 16]; fov = 44; }
-  const cerca = coches.filter(c => Math.abs(c.z - eye[2]) < 220);
+  const cerca = coches.filter(c => Math.abs(c.z - eye[2]) < 220 + eye[1] * 2);
   const luces = [];
   for (let z = 485; z > -640; z -= 30) for (const s of [-1, 1]) if (Math.abs(z - eye[2]) < 260) luces.push({ p: [s * 10.6, 8.25, z], col: DIA ? [0, 0, 0] : [1.0, .78, .5], I: DIA ? 0 : 1, r: .25, tipo: 'farola' });
   if (!DIA || true) for (const c of cerca) for (const [u, col, I] of [[2.28, [1, .95, .85], DIA ? .35 : .9], [-2.24, [1, .08, .06], c.frena ? 1.1 : .55]]) for (const w of [-.62, .62]) luces.push({ p: [c.x + w, .6, c.z - c.d * u], col, I, r: .1, tipo: 'coche', dir: [0, 0, -c.d * Math.sign(u)] });
