@@ -74,6 +74,11 @@ function huskyNatural(a, t) {
   a.k = .055 * s;
   a.P = a.P.filter(q => q.m !== 'cola');
   for (const q of a.P) { if (q.m === 'pata') { q.r1 *= 1.6; q.r2 *= 1.0; } else if (q.m === 'patab' && q.t === 0) { q.rx *= .72; q.ry *= .72; q.rz *= .72; } else if (q.m === 'zarpa') { q.cx += .012 * s; q.rx = .043 * s; q.ry = .021 * s; q.rz = .034 * s; q.cy += q.ry + .002 - a.S.lr * .75 * s; } }   // pie ovalado y plano, apoyado en el suelo (no de puntillas)
+  // manos y pies de perro: muñeca sin bola, paleta (metacarpo) algo inclinada y pie redondo con cuatro dedos (nada de pezuña)
+  { let pata = -1, eb = 0; const extra = [];
+    for (const q of a.P) { if (q.m === 'pata') { pata++; eb = 0; } else if (q.m === 'patab' && q.t === 0) { eb++; if (eb === 2) { const k = pata < 2 ? .45 : .6; q.rx *= k; q.ry *= k; q.rz *= k; } } else if (q.m === 'patab' && q.t === 2 && eb === 2) { q.r1 *= pata < 2 ? .9 : 1; q.r2 *= .85; }
+      else if (q.m === 'zarpa') { q.rx = .027 * s; q.ry = .016 * s; q.rz = .026 * s; q.cx -= .004 * s; for (let j = 0; j < 4; j++) { const o = j - 1.5; extra.push({ t: 0, cx: q.cx + (.024 - Math.abs(o) * .005) * s, cy: q.cy - .004 * s, cz: q.cz + o * .0135 * s, rx: .0125 * s, ry: .011 * s, rz: .0095 * s, m: 'zarpa', hard: true }); } } }
+    a.P.push(...extra); }
   const cu = a.P.find(q => q.m === 'cuello'), cb = a.P.find(q => q.m === 'cabeza'), ho = a.P.find(q => q.m === 'hocico');
   E((cu.ax + cu.bx) / 2 - .01, (cu.ay + cu.by) / 2 - .015, cu.az, .075, .09, .09, 'cuello');                                   // gorguera
   E(cb.cx - .015, cb.cy - .035, cb.cz + .045 * s, .065, .055, .045, 'mejilla'); E(cb.cx - .015, cb.cy - .035, cb.cz - .045 * s, .065, .055, .045, 'mejilla');
