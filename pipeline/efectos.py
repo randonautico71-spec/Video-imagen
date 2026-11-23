@@ -231,7 +231,31 @@ def tono_llamada(rng, dur=4.5, **_):
     return _norm(x) * _env(len(t), 0.01, 0.05)
 
 
+def apagon(rng, dur=2.2, **_):
+    """Apagon: chasquido electrico seco y el zumbido de la red (50 Hz y armonicos) que cae de tono y se apaga."""
+    n = _n(dur); t = _t(dur)
+    f0 = 50 * (1 - 0.55 * np.clip((t - 0.15) / (dur * 0.8), 0, 1) ** 1.5)
+    fase = 2 * np.pi * np.cumsum(f0) / SR
+    zumbido = sum(np.sin(fase * k) * a for k, a in ((1, .5), (2, .8), (3, .45), (4, .35), (6, .2)))
+    zumbido *= np.clip(1 - (t - 0.15) / (dur * 0.85), 0, 1) ** 1.3 * (t > 0.02)
+    chasq = _bp(_ruido(rng, dur), 1200, 9000) * np.exp(-t / 0.04)
+    crep = _hp(_ruido(rng, dur), 3000) * (rng.random(n) < 0.004) * np.exp(-t / 0.5) * 3          # crepitar
+    golpe = np.sin(2 * np.pi * (60 + 80 * np.exp(-t / 0.03)) * t) * np.exp(-t / 0.12)
+    return _norm(0.55 * zumbido + chasq + 0.6 * crep + 0.7 * golpe) * _env(n, 0.001, 0.15)
+
+
+def explosion(rng, dur=2.6, **_):
+    """Transformador que revienta: arco electrico que chisporrotea, estallido grave y lluvia de chispas."""
+    n = _n(dur); t = _t(dur)
+    arco = _bp(_ruido(rng, dur), 800, 6000) * (0.6 + 0.4 * np.sin(2 * np.pi * 100 * t)) * np.exp(-t / 0.25)
+    boom = (np.sin(2 * np.pi * (38 + 70 * np.exp(-t / 0.06)) * t) * np.exp(-t / 0.45) + _lp(_ruido(rng, dur), 180) * np.exp(-t / 0.6) * 1.4)
+    rafaga = _bp(_ruido(rng, dur), 200, 4000) * np.exp(-t / 0.2)
+    chispas = _hp(_ruido(rng, dur), 2500) * (rng.random(n) < 0.012) * np.exp(-t / 0.9) * 4
+    return _norm(0.6 * arco + 1.4 * boom + 0.8 * rafaga + 0.7 * chispas) * _env(n, 0.002, 0.3)
+
+
 TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por defecto)
+    'apagon': (apagon, 2.2, -8), 'explosion': (explosion, 2.6, -5),
     'motor': (motor, 4.0, -12), 'claxon': (claxon, 1.5, -6), 'frenazo': (frenazo, 1.4, -9), 'intermitente': (intermitente, 3.0, -14),
     'seguros': (seguros, 0.35, -10), 'puerta': (puerta, 0.6, -9), 'pasos': (pasos, 3.0, -14), 'golpe': (golpe, 1.8, -6),
     'mar': (mar, 8.0, -18), 'viento': (viento, 6.0, -20), 'lluvia': (lluvia, 6.0, -20), 'sirena': (sirena, 4.0, -12),

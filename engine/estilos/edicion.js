@@ -38,6 +38,10 @@
     const lineas = [[]]; let ancho = 0; for (const q of pal) { if (ancho + q.w > w && lineas[lineas.length - 1].length) { lineas.push([]); ancho = 0; } lineas[lineas.length - 1].push(q); ancho += q.w + esp; }
     if (lineas.length > 2) { const todo = lineas.flat(), m = Math.ceil(todo.length / 2); lineas.length = 0; lineas.push(todo.slice(0, m), todo.slice(m)); }
     if (o.marca) { x.save(); fuente(esc, 20, 500); x.fillStyle = 'rgba(255,255,255,0.55)'; x.textAlign = 'center'; x.textBaseline = 'middle'; if ('letterSpacing' in x) x.letterSpacing = (6 * esc.k) + 'px'; x.fillText(o.marca, cx, y - 46 * esc.k); x.restore(); }
+    if (o.franja) {                                        // franja oscura semitransparente de lado a lado (alto fijo para 2 lineas)
+      const al = typeof o.franja === 'number' ? o.franja : 0.5, m = tam * esc.k * 0.55, y0 = y - tam * esc.k * 0.62 - m;
+      x.save(); x.fillStyle = `rgba(0,0,0,${al})`; x.fillRect(0, y0, esc.W, lh + tam * esc.k * 1.24 + 2 * m); x.restore();
+    }
     x.save(); x.textBaseline = 'middle'; x.textAlign = 'left';
     lineas.forEach((l, li) => {
       const lw = l.reduce((s, q) => s + q.w, 0) + esp * (l.length - 1); let px = cx - lw / 2; const py = y + li * lh;
