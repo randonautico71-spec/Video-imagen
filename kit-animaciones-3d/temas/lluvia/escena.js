@@ -63,7 +63,7 @@ function calle(x, y, z) { let d = y, m = 'suelo'; const c = (dd, mm) => { if (dd
   return [d, m]; }
 function escena(x, y, z, lejos) { let [d, m] = calle(x, y, z); const c = (dd, mm) => { if (dd < d) { d = dd; m = mm; } };
   { const db = len(x - S.px - .1, y - 1.2, z) - 1.4; c(db > .2 ? db : persona(x, y, z, S.t)[0] * .85, 'persona'); }
-  { const a = S.perro, db = len(x - a.bx, y - a.by, z - a.bz) - a.br; let dd = db > .2 ? db : M.sdAnimal(a, x, y, z); if (dd < .02) dd += .0045 * (n3(x * 70, y * 28, z * 70) - .5) + .0025 * (n3(x * 160, y * 60, z * 160) - .5); c(dd * .9, 'perro'); }
+  { const a = S.perro, db = len(x - a.bx, y - a.by, z - a.bz) - a.br; let dd = db > .2 ? db : M.sdAnimal(a, x, y, z); if (dd < .02) { const fp = clamp((y - .05) / .2, .15, 1); dd += fp * (.0045 * (n3(x * 70, y * 28, z * 70) - .5) + .0025 * (n3(x * 160, y * 60, z * 160) - .5)); } c(dd * .9, 'perro'); }   // pelo corto en las patas
   { const K = S.cuel, vx = x - K.c[0], vy = y - K.c[1], vz = z - K.c[2], al = vx * K.u[0] + vy * K.u[1] + vz * K.u[2], rad = len(vx - al * K.u[0], vy - al * K.u[1], vz - al * K.u[2]); c(len(rad - K.r, al) - .011, 'correa'); }   // collar ceñido al cuello
   c(cap(x, y, z, S.mano, S.medio, .008), 'correa'); c(cap(x, y, z, S.medio, S.collar, .008), 'correa');
   return [d, m]; }
@@ -76,8 +76,10 @@ function huskyNatural(a, t) {
   for (const q of a.P) { if (q.m === 'pata') { q.r1 *= 1.6; q.r2 *= 1.0; } else if (q.m === 'patab' && q.t === 0) { q.rx *= .72; q.ry *= .72; q.rz *= .72; } else if (q.m === 'zarpa') { q.cx += .012 * s; q.rx = .043 * s; q.ry = .021 * s; q.rz = .034 * s; q.cy += q.ry + .002 - a.S.lr * .75 * s; } }   // pie ovalado y plano, apoyado en el suelo (no de puntillas)
   // manos y pies de perro: muñeca sin bola, paleta (metacarpo) algo inclinada y pie redondo con cuatro dedos (nada de pezuña)
   { let pata = -1, eb = 0; const extra = [];
-    for (const q of a.P) { if (q.m === 'pata') { pata++; eb = 0; } else if (q.m === 'patab' && q.t === 0) { eb++; if (eb === 2) { const k = pata < 2 ? .45 : .6; q.rx *= k; q.ry *= k; q.rz *= k; } } else if (q.m === 'patab' && q.t === 2 && eb === 2) { q.r1 *= pata < 2 ? .9 : 1; q.r2 *= .85; }
-      else if (q.m === 'zarpa') { q.rx = .027 * s; q.ry = .016 * s; q.rz = .026 * s; q.cx -= .004 * s; for (let j = 0; j < 4; j++) { const o = j - 1.5; extra.push({ t: 0, cx: q.cx + (.024 - Math.abs(o) * .005) * s, cy: q.cy - .004 * s, cz: q.cz + o * .0135 * s, rx: .0125 * s, ry: .011 * s, rz: .0095 * s, m: 'zarpa', hard: true }); } } }
+    for (const q of a.P) { if (q.m === 'pata') { pata++; eb = 0; } else if (q.m === 'patab' && q.t === 0) { eb++; if (eb === 2) { const k = pata < 2 ? .3 : .55; q.rx *= k; q.ry *= k; q.rz *= k; } } else if (q.m === 'patab' && q.t === 2 && eb === 2) { q.r1 *= pata < 2 ? .72 : .95; q.r2 *= pata < 2 ? .8 : .85; } else if (q.m === 'patab' && q.t === 2 && eb === 1 && pata < 2) { q.r2 *= .75; }
+      else if (q.m === 'zarpa') { const suelo0 = q.cy - q.ry; q.cx += .012 * s; q.rx = .036 * s; q.ry = .017 * s; q.rz = .03 * s; q.cy = suelo0 + q.ry;   // almohadilla ancha (más que la caña), por delante de la pata
+        for (let j = 0; j < 4; j++) { const o = j - 1.5; extra.push({ t: 0, cx: q.cx + (.03 - Math.abs(o) * .008) * s, cy: suelo0 + .014 * s, cz: q.cz + o * .016 * s, rx: .016 * s, ry: .014 * s, rz: .0115 * s, m: 'dedo', hard: true }); }
+        extra.push({ t: 0, cx: q.cx - .028 * s, cy: suelo0 + .012 * s, cz: q.cz, rx: .014 * s, ry: .012 * s, rz: .016 * s, m: 'zarpa' }); } }   // talón (almohadilla trasera) }
     a.P.push(...extra); }
   const cu = a.P.find(q => q.m === 'cuello'), cb = a.P.find(q => q.m === 'cabeza'), ho = a.P.find(q => q.m === 'hocico');
   E((cu.ax + cu.bx) / 2 - .01, (cu.ay + cu.by) / 2 - .015, cu.az, .075, .09, .09, 'cuello');                                   // gorguera
@@ -94,6 +96,7 @@ function huskyNatural(a, t) {
 function prepara(t) { const px = V * t - .2, perro = huskyNatural(M.cuadrupedo('husky', px + 1.22, .42, t, .6, 1.08, { v: V }), t);
   const cu = perro.P.find(q => q.m === 'cuello' && q.t === 2), f = .62, cc = [cu.ax + (cu.bx - cu.ax) * f, cu.ay + (cu.by - cu.ay) * f, cu.az], ul = len(cu.bx - cu.ax, cu.by - cu.ay, 0), cuel = { c: cc, u: [(cu.bx - cu.ax) / ul, (cu.by - cu.ay) / ul, 0], r: (cu.r1 + (cu.r2 - cu.r1) * f) * 1.08 + .012 }, collar = [cc[0], cc[1] - .02, cc[2] + cuel.r], mano = [px + .32, .96, .2]; const medio = [(mano[0] + collar[0]) / 2, Math.min(mano[1], collar[1]) - .1, (mano[2] + collar[2]) / 2];
   S = { t, px, perro, collar, mano, medio, cuel };
+  if (process.env.CERCA) { const d = perro.P.find(q => q.m === "cuerpo"); return { t, eye: [d.cx + .2, .35, 1.9], target: [d.cx + .2, .25, .42], fov: 40, far: 40, pasos: 280 }; }   // plano de revisión de las patas
   return { t, eye: [px + .85, 1.25, 6.9], target: [px + .85, 1.0, 0], fov: 40, far: 40, pasos: 280 }; }
 // ------------------------------------------------ luz, lluvia y ondas
 const FAROLES = t => { const r = []; const b = Math.round((S.px - 1.6) / 6.4); for (let k = b - 2; k <= b + 2; k++) r.push([1.6 + k * 6.4, 2.32, -1.75]); return r; };
@@ -124,7 +127,7 @@ const E = {
       else if (p === 'paraguas') { const ang = Math.atan2(z, x - S.px - .22), costilla = Math.abs(Math.sin(ang * 12)) > .97; alb = costilla ? [.5, .02, .02] : [1, .05, .03]; emit = costilla ? [.25, .01, .01] : [.6, .03, .015]; spec = .3; rough = 25; }
       else if (p === 'mastil') { alb = [.25, .14, .07]; spec = .4; rough = 40; } }
     else if (m === 'perro') { const a = S.perro, q = M.primCercana(a, x, y, z), ly = y - a.oy, c = a.cab; const ss = (e0, e1, v) => { const u = clamp((v - e0) / (e1 - e0), 0, 1); return u * u * (3 - 2 * u); }; let wb = 0;
-      if (q.m === 'hocico' || q.m === 'zarpa' || q.m === 'patab') wb = 1; else if (q.m === 'pata') wb = ss(a.oy * .75, a.oy * .5, y);
+      if (q.m === 'hocico' || q.m === 'zarpa' || q.m === 'dedo' || q.m === 'patab') wb = 1; else if (q.m === 'pata') wb = ss(a.oy * .75, a.oy * .5, y);
       else if (q.m === 'cabeza') wb = Math.max(ss(q.cy + .01, q.cy - .03, y), ss(q.cx + .0, q.cx + .06, x) * ss(q.cy + .06, q.cy + .02, y)); else if (q.m === 'cuerpo' || q.m === 'cuello') wb = ss(.0, -.11, ly + .02 * Math.sin(x * 25)); else if (q.m === 'cola') wb = ss(-.05, -.5, ny); else if (q.m === 'mejilla') wb = 1;
       alb = [0, 1, 2].map(i => [.18, .2, .25][i] + ([1, 1, 1][i] - [.18, .2, .25][i]) * wb); if (q.m === 'oreja') alb = [.25, .27, .31]; if (q.m === 'nariz') { alb = [.02, .02, .02]; spec = 1.5; rough = 100; } if (q.m === 'ojo') { alb = [.25, .6, .95]; spec = 3; rough = 300; } if (q.m === 'lengua') { alb = [.95, .38, .45]; spec = 1.2; rough = 60; }
       if (q.m === 'cabeza') { const ex = x - (a.ox + c.ojx * a.s), ey = y - (a.oy + c.ojy * a.s); if (len(ex + .005, ey - .03, (Math.abs(z - a.oz) - .045) * 1.6) < .022) alb = [1, 1, 1]; }
