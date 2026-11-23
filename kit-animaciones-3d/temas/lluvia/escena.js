@@ -63,7 +63,7 @@ function calle(x, y, z) { let d = y, m = 'suelo'; const c = (dd, mm) => { if (dd
   return [d, m]; }
 function escena(x, y, z, lejos) { let [d, m] = calle(x, y, z); const c = (dd, mm) => { if (dd < d) { d = dd; m = mm; } };
   { const db = len(x - S.px - .1, y - 1.2, z) - 1.4; c(db > .2 ? db : persona(x, y, z, S.t)[0] * .85, 'persona'); }
-  { const a = S.perro, db = len(x - a.bx, y - a.by, z - a.bz) - a.br; let dd = db > .2 ? db : M.sdAnimal(a, x, y, z); if (dd < .02) { const fp = clamp((y - .05) / .2, .15, 1); dd += fp * (.0045 * (n3(x * 70, y * 28, z * 70) - .5) + .0025 * (n3(x * 160, y * 60, z * 160) - .5)); } c(dd * .9, 'perro'); }   // pelo corto en las patas
+  { const a = S.perro, db = len(x - a.bx, y - a.by, z - a.bz) - a.br; let dd = db > .2 ? db : sdPerro(a, x, y, z); if (dd < .02) { const fp = clamp((y - .05) / .2, .15, 1); dd += fp * (.0045 * (n3(x * 70, y * 28, z * 70) - .5) + .0025 * (n3(x * 160, y * 60, z * 160) - .5)); } c(dd * .9, 'perro'); }   // pelo corto en las patas
   { const K = S.cuel, vx = x - K.c[0], vy = y - K.c[1], vz = z - K.c[2], al = vx * K.u[0] + vy * K.u[1] + vz * K.u[2], rad = len(vx - al * K.u[0], vy - al * K.u[1], vz - al * K.u[2]); c(len(rad - K.r, al) - .011, 'correa'); }   // collar ceñido al cuello
   c(cap(x, y, z, S.mano, S.medio, .008), 'correa'); c(cap(x, y, z, S.medio, S.collar, .008), 'correa');
   return [d, m]; }
@@ -77,9 +77,10 @@ function huskyNatural(a, t) {
   // manos y pies de perro: muñeca sin bola, paleta (metacarpo) algo inclinada y pie redondo con cuatro dedos (nada de pezuña)
   { let pata = -1, eb = 0; const extra = [];
     for (const q of a.P) { if (q.m === 'pata') { pata++; eb = 0; } else if (q.m === 'patab' && q.t === 0) { eb++; if (eb === 2) { const k = pata < 2 ? .3 : .55; q.rx *= k; q.ry *= k; q.rz *= k; } } else if (q.m === 'patab' && q.t === 2 && eb === 2) { q.r1 *= pata < 2 ? .72 : .95; q.r2 *= pata < 2 ? .8 : .85; } else if (q.m === 'patab' && q.t === 2 && eb === 1 && pata < 2) { q.r2 *= .75; }
-      else if (q.m === 'zarpa') { const suelo0 = q.cy - q.ry; q.cx += .012 * s; q.rx = .036 * s; q.ry = .017 * s; q.rz = .03 * s; q.cy = suelo0 + q.ry;   // almohadilla ancha (más que la caña), por delante de la pata
-        for (let j = 0; j < 4; j++) { const o = j - 1.5; extra.push({ t: 0, cx: q.cx + (.03 - Math.abs(o) * .008) * s, cy: suelo0 + .014 * s, cz: q.cz + o * .016 * s, rx: .016 * s, ry: .014 * s, rz: .0115 * s, m: 'dedo', hard: true }); }
+      else if (q.m === 'zarpa') { const suelo0 = q.cy - q.ry; q.cx += .012 * s; q.rx = .028 * s; q.ry = .02 * s; q.rz = .031 * s; q.cx -= .005 * s; q.cy = suelo0 + q.ry;   // almohadilla ancha (más que la caña), por delante de la pata
+        for (let j = 0; j < 4; j++) { const o = j - 1.5; extra.push({ t: 0, cx: q.cx + (.03 - Math.abs(o) * .008) * s, cy: suelo0 + .014 * s, cz: q.cz + o * .016 * s, rx: .016 * s, ry: .014 * s, rz: .0115 * s, m: 'dedo' }); }
         extra.push({ t: 0, cx: q.cx - .028 * s, cy: suelo0 + .012 * s, cz: q.cz, rx: .014 * s, ry: .012 * s, rz: .016 * s, m: 'zarpa' }); } }   // talón (almohadilla trasera) }
+    for (const q of a.P) if (q.m === 'patab' && q.t === 2) { q.r1 *= 1.25; q.r2 *= 1.3; }   // caña con algo de cuerpo
     a.P.push(...extra); }
   const cu = a.P.find(q => q.m === 'cuello'), cb = a.P.find(q => q.m === 'cabeza'), ho = a.P.find(q => q.m === 'hocico');
   E((cu.ax + cu.bx) / 2 - .01, (cu.ay + cu.by) / 2 - .015, cu.az, .075, .09, .09, 'cuello');                                   // gorguera
@@ -93,10 +94,16 @@ function huskyNatural(a, t) {
     RC(pr, q, .05 - .012 * u + (i === 1 ? .01 : 0), .05 - .012 * (u + 1 / n), 'cola'); pr = q; }
   a.br += .12; a.bx = a.ox; a.by = a.oy; a.bz = a.oz; a.br = Math.max(a.br, .75 * s);
   return a; }
+// SDF del perro: el tronco y los muslos se funden con un suavizado amplio; caña, muñeca y pie con uno fino (si no, se hinchan como un casco)
+const PIE = new Set(['patab', 'zarpa', 'dedo']);
+const primD = q => q.t === 0 ? (x, y, z) => M.sdEll(x - q.cx, y - q.cy, z - q.cz, q.rx, q.ry, q.rz) : (x, y, z) => M.sdRC(x, y, z, q.ax, q.ay, q.az, q.bx, q.by, q.bz, q.r1, q.r2);
+function sdPerro(a, x, y, z) { let d = 1e9, p = 1e9, hd = 1e9;
+  for (const q of a.P) { const di = (q._f || (q._f = primD(q)))(x, y, z); if (q.hard) { if (di < hd) hd = di; } else if (PIE.has(q.m)) p = M.smin(p, di, .014 * a.s); else d = M.smin(d, di, a.k); }
+  return Math.min(M.smin(d, p, .03 * a.s), hd); }
 function prepara(t) { const px = V * t - .2, perro = huskyNatural(M.cuadrupedo('husky', px + 1.22, .42, t, .6, 1.08, { v: V }), t);
   const cu = perro.P.find(q => q.m === 'cuello' && q.t === 2), f = .62, cc = [cu.ax + (cu.bx - cu.ax) * f, cu.ay + (cu.by - cu.ay) * f, cu.az], ul = len(cu.bx - cu.ax, cu.by - cu.ay, 0), cuel = { c: cc, u: [(cu.bx - cu.ax) / ul, (cu.by - cu.ay) / ul, 0], r: (cu.r1 + (cu.r2 - cu.r1) * f) * 1.08 + .012 }, collar = [cc[0], cc[1] - .02, cc[2] + cuel.r], mano = [px + .32, .96, .2]; const medio = [(mano[0] + collar[0]) / 2, Math.min(mano[1], collar[1]) - .1, (mano[2] + collar[2]) / 2];
   S = { t, px, perro, collar, mano, medio, cuel };
-  if (process.env.CERCA) { const d = perro.P.find(q => q.m === "cuerpo"); return { t, eye: [d.cx + .2, .35, 1.9], target: [d.cx + .2, .25, .42], fov: 40, far: 40, pasos: 280 }; }   // plano de revisión de las patas
+  if (process.env.CERCA) { const d = perro.P.find(q => q.m === "cuerpo"), zx = +(process.env.CERCA_X || .2), zd = +(process.env.CERCA_D || 1.5); return { t, eye: [d.cx + zx, .3, .42 + zd], target: [d.cx + zx, .2, .42], fov: 40, far: 40, pasos: 280 }; }   // plano de revisión de las patas
   return { t, eye: [px + .85, 1.25, 6.9], target: [px + .85, 1.0, 0], fov: 40, far: 40, pasos: 280 }; }
 // ------------------------------------------------ luz, lluvia y ondas
 const FAROLES = t => { const r = []; const b = Math.round((S.px - 1.6) / 6.4); for (let k = b - 2; k <= b + 2; k++) r.push([1.6 + k * 6.4, 2.32, -1.75]); return r; };
