@@ -8,7 +8,7 @@ const h1 = n => fract(Math.sin(n * 127.1 + 311.7) * 43758.5453);
 const smax = (a, b, k) => -smin(-a, -b, k);
 const sdBox = (x, y, z, bx, by, bz) => { const qx = Math.abs(x) - bx, qy = Math.abs(y) - by, qz = Math.abs(z) - bz; return len(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qy, qz), 0); };
 const cap = (px, py, pz, a, b, r) => { const bx = b[0] - a[0], by = b[1] - a[1], bz = b[2] - a[2], h = clamp(((px - a[0]) * bx + (py - a[1]) * by + (pz - a[2]) * bz) / (bx * bx + by * by + bz * bz), 0, 1); return len(px - a[0] - bx * h, py - a[1] - by * h, pz - a[2] - bz * h) - r; };
-M.ESPECIES.husky = { ...M.ESPECIES.zorro, gait: M.PASO, freq: 1.45, amp: .55, bob: .015, bl: .31, bh: .145, bw: .125, L1: .29, L2: .31, lr: .025, tx: -.04, ty: .3, tw: .03, tr: .075, colaBase: 1.05, colaPunta: .75, el: .13, er: .05, orejaPunta: .18, nr: .075, nx: .13, ny: .15, sl: .15, sd: .04, sr: .045, hl: .135, hh: .095, hw: .092, cruz: .3 };
+M.ESPECIES.husky = { ...M.ESPECIES.zorro, gait: M.PASO, freq: 1.45, amp: .55, bob: .015, bl: .31, bh: .155, bw: .13, L1: .23, L2: .25, lr: .029, tx: -.04, ty: .3, tw: .03, tr: .075, colaBase: 1.05, colaPunta: .75, el: .13, er: .05, orejaPunta: .18, nr: .075, nx: .13, ny: .15, sl: .15, sd: .04, sr: .045, hl: .135, hh: .095, hw: .092, cruz: .3 };
 const V = .9;   // velocidad del paseo (m/s)
 let S = null;
 // ------------------------------------------------ persona estilizada (mira hacia +x)
@@ -73,7 +73,7 @@ function huskyNatural(a, t) {
   const s = a.s, E = (cx, cy, cz, rx, ry, rz, m, hard) => a.P.push({ t: 0, cx, cy, cz, rx: rx * s, ry: ry * s, rz: rz * s, m, hard }), RC = (A, B, r1, r2, m, hard) => a.P.push({ t: 2, ax: A[0], ay: A[1], az: A[2], bx: B[0], by: B[1], bz: B[2], r1: r1 * s, r2: r2 * s, m, hard });
   a.k = .055 * s;
   a.P = a.P.filter(q => q.m !== 'cola');
-  for (const q of a.P) { if (q.m === 'pata') { q.r1 *= 1.75; q.r2 *= .95; } else if (q.m === 'patab' && q.t === 0) { q.rx *= .72; q.ry *= .72; q.rz *= .72; } else if (q.m === 'zarpa') { q.rx *= .85; q.ry *= .8; q.rz *= .85; } }
+  for (const q of a.P) { if (q.m === 'pata') { q.r1 *= 1.6; q.r2 *= 1.0; } else if (q.m === 'patab' && q.t === 0) { q.rx *= .72; q.ry *= .72; q.rz *= .72; } else if (q.m === 'zarpa') { q.cx += .012 * s; q.rx = .043 * s; q.ry = .021 * s; q.rz = .034 * s; q.cy += q.ry + .002 - a.S.lr * .75 * s; } }   // pie ovalado y plano, apoyado en el suelo (no de puntillas)
   const cu = a.P.find(q => q.m === 'cuello'), cb = a.P.find(q => q.m === 'cabeza'), ho = a.P.find(q => q.m === 'hocico');
   E((cu.ax + cu.bx) / 2 - .01, (cu.ay + cu.by) / 2 - .015, cu.az, .075, .09, .09, 'cuello');                                   // gorguera
   E(cb.cx - .015, cb.cy - .035, cb.cz + .045 * s, .065, .055, .045, 'mejilla'); E(cb.cx - .015, cb.cy - .035, cb.cz - .045 * s, .065, .055, .045, 'mejilla');
