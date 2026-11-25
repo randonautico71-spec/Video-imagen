@@ -30,6 +30,10 @@
   /* Las palabras aparecen al decirse (suben 6 px y se funden); las dichas quedan en gris; la activa en blanco y negrita.
      clave: lista de palabras que se enmarcan como una seleccion (rectangulo azul con tiradores en las esquinas). */
   D.subtitulos = function (esc, grupos, tg, o = {}) {
+    if (o.franja) {   // franja oscura semitransparente de lado a lado, alto para 2 lineas + margen (fija, no parpadea entre grupos)
+      const fx = esc.ctx, ft = (o.tam || 46) * esc.k, fy = o.y || esc.seguro.y + 40 * esc.k, f0 = fy - ft * 1.0, f1 = fy + ft * 1.22 + ft * 1.0;
+      fx.save(); fx.fillStyle = `rgba(0,0,0,${o.franjaAlfa == null ? 0.5 : o.franjaAlfa})`; fx.fillRect(0, f0, esc.W, f1 - f0); fx.restore();
+    }
     const g = VE.grupoEn(grupos, tg, o.persistencia == null ? 0.35 : o.persistencia); if (!g) return;
     const x = esc.ctx, tam = o.tam || 46, w = (o.ancho || 0.78) * esc.W, cx = o.cx || esc.W / 2, y = o.y || esc.seguro.y + 40 * esc.k;
     const clave = new Set((o.clave || []).map(norm)), lh = tam * esc.k * 1.22;
