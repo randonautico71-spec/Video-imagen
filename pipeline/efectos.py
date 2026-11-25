@@ -19,7 +19,7 @@ Se declaran en meta.json y se colocan por palabra (tiempos de voz-importar) o po
   pan        : -1 izquierda ... 1 derecha.
   modo       : variantes de algunos tipos (motor: paso | ralenti | arranque | interior).
 
-Tipos: motor, claxon, frenazo, intermitente, seguros, puerta, pasos, golpe, mar, viento, lluvia, sirena, latido, tono_llamada, click.
+Tipos: motor, claxon, frenazo, intermitente, seguros, puerta, pasos, golpe, mar, viento, lluvia, sirena, latido, tono_llamada, click, chapuzon, cristal.
 Prueba de oido de todos:  python3 pipeline/efectos.py --demo salida.wav"""
 import argparse, json, re, unicodedata
 from pathlib import Path
@@ -288,13 +288,43 @@ def respiracion(rng, dur=3.0, **_):
     return _norm(x * env) * _env(n, 0.08, 0.35)
 
 
+def chapuzon(rng, dur=1.8, **_):
+    """Un coche (o un cuerpo grande) que cae al agua: golpe grave del impacto + salpicadura de ruido de banda ancha que se abre y
+    cae + burbujas (chasquidos resonantes que suben de tono) que se apagan. Sin musica."""
+    t = _t(dur); n = len(t)
+    thud = np.sin(_fase(38 + 90 * np.exp(-t / 0.05))) * np.exp(-t / 0.16) * 1.0
+    r = _ruido(rng, dur)
+    sal = (_bp(r, 500, 3800) * 0.8 + _bp(r, 3800, 9000) * 0.35) * (1 - np.exp(-t / 0.012)) * np.exp(-t / 0.28)
+    burb = np.zeros(n)
+    for _ in range(26):
+        t0 = rng.uniform(0.05, 1.3) ** 1.15; f0 = rng.uniform(380, 1300); d = rng.uniform(0.03, 0.09); i = int(t0 * SR); m = min(_n(d), n - i)
+        if m <= 8: continue
+        tt = np.arange(m) / SR; burb[i:i + m] += np.sin(_fase(f0 * (1 + 2.2 * tt / d))) * np.exp(-tt / (d * 0.45)) * rng.uniform(0.08, 0.28) * np.exp(-t0 / 0.9)
+    return _norm(thud * 0.9 + sal + burb) * _env(n, 0.002, 0.25)
+
+
+def cristal(rng, dur=1.3, **_):
+    """Cristal de ventanilla que se rompe de un golpe: chasquido seco + raja aguda de ruido + lluvia de fragmentos
+    (tintineos cortos y agudos a destiempo) que cae sobre el suelo."""
+    t = _t(dur); n = len(t); r = _ruido(rng, dur)
+    seco = _bp(r, 1500, 9000) * np.exp(-t / 0.018) * 1.0 + np.sin(_fase(210 + 140 * np.exp(-t / 0.02))) * np.exp(-t / 0.05) * 0.5
+    raja = _hp(r, 5000) * np.exp(-t / 0.09) * 0.35
+    frag = np.zeros(n)
+    for _ in range(34):
+        t0 = 0.03 + rng.uniform(0, 1.0) ** 1.6 * 0.9; f0 = rng.uniform(2200, 8600); d = rng.uniform(0.02, 0.07); i = int(t0 * SR); m = min(_n(d), n - i)
+        if m <= 8: continue
+        tt = np.arange(m) / SR; frag[i:i + m] += np.sin(2 * np.pi * f0 * tt + rng.uniform(0, 6)) * np.exp(-tt / (d * 0.5)) * rng.uniform(0.15, 0.5) * np.exp(-t0 / 0.6)
+    return _norm(seco + raja + frag) * _env(n, 0.0005, 0.2)
+
+
 TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por defecto)
     'motor': (motor, 4.0, -12), 'claxon': (claxon, 1.5, -6), 'frenazo': (frenazo, 1.4, -9), 'intermitente': (intermitente, 3.0, -14),
     'seguros': (seguros, 0.35, -10), 'puerta': (puerta, 0.6, -9), 'pasos': (pasos, 3.0, -14), 'golpe': (golpe, 1.8, -6),
     'mar': (mar, 8.0, -18), 'viento': (viento, 6.0, -20), 'lluvia': (lluvia, 6.0, -20), 'sirena': (sirena, 4.0, -12),
     'latido': (latido, 4.0, -10), 'tono_llamada': (tono_llamada, 4.5, -14), 'click': (click, 0.05, -12),
     'taza': (taza, 0.9, -12), 'copa': (copa, 1.6, -13), 'despertador': (despertador, 1.6, -14),
-    'vibracion': (vibracion, 1.4, -11), 'respiracion': (respiracion, 3.0, -13)}
+    'vibracion': (vibracion, 1.4, -11), 'respiracion': (respiracion, 3.0, -13),
+    'chapuzon': (chapuzon, 1.8, -7), 'cristal': (cristal, 1.3, -8)}
 
 
 def sintetizar(tipo, rng, dur=None, **op):
