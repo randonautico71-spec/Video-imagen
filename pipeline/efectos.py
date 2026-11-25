@@ -316,6 +316,31 @@ def cristal(rng, dur=1.3, **_):
         tt = np.arange(m) / SR; frag[i:i + m] += np.sin(2 * np.pi * f0 * tt + rng.uniform(0, 6)) * np.exp(-tt / (d * 0.5)) * rng.uniform(0.15, 0.5) * np.exp(-t0 / 0.6)
     return _norm(seco + raja + frag) * _env(n, 0.0005, 0.2)
 
+def tictac(rng, dur=2.0, **_):
+    """Reloj de pared: tic (agudo) y tac (algo mas grave) cada 0,5 s, con un golpe seco de madera y un tintineo corto."""
+    out = np.zeros(_n(dur)); per = 0.5
+    for k in range(int(dur / per) + 1):
+        f, g = (2650, 1.0) if k % 2 == 0 else (2150, 0.8)
+        d = 0.09; t = _t(d)
+        s = (_bp(_ruido(rng, d), 1200, 5200) * np.exp(-t / 0.006) + 0.7 * np.sin(2 * np.pi * f * t) * np.exp(-t / 0.012)
+             + 0.35 * np.sin(2 * np.pi * (f / 4.1) * t) * np.exp(-t / 0.02)) * g
+        i = int(k * per * SR)
+        if i < len(out): out[i:i + len(s)] += s[:len(out) - i]
+    return _norm(out)
+
+
+def goteo(rng, dur=1.6, **_):
+    """Goteo en una cueva: gotas de agua (seno que sube de tono y cae) con eco de sala grande."""
+    n = _n(dur); out = np.zeros(n)
+    for t0 in (0.05, 0.62, 1.1):
+        d = 0.18; t = _t(d); f = 900 + 1500 * (1 - np.exp(-t / 0.02))
+        s = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.035) * 0.9
+        i = int(t0 * SR); out[i:i + len(s)] += s[:n - i]
+    eco = np.zeros(n)
+    for dt, g in ((0.19, 0.45), (0.37, 0.28), (0.58, 0.16)):
+        j = int(dt * SR); eco[j:] += out[:n - j] * g
+    return _norm(_lp(out + eco, 5000) if '_lp' in globals() else out + eco)
+
 
 TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por defecto)
     'motor': (motor, 4.0, -12), 'claxon': (claxon, 1.5, -6), 'frenazo': (frenazo, 1.4, -9), 'intermitente': (intermitente, 3.0, -14),
@@ -324,7 +349,8 @@ TIPOS = {   # nombre: (funcion, duracion por defecto, dB respecto a la voz por d
     'latido': (latido, 4.0, -10), 'tono_llamada': (tono_llamada, 4.5, -14), 'click': (click, 0.05, -12),
     'taza': (taza, 0.9, -12), 'copa': (copa, 1.6, -13), 'despertador': (despertador, 1.6, -14),
     'vibracion': (vibracion, 1.4, -11), 'respiracion': (respiracion, 3.0, -13),
-    'chapuzon': (chapuzon, 1.8, -7), 'cristal': (cristal, 1.3, -8)}
+    'chapuzon': (chapuzon, 1.8, -7), 'cristal': (cristal, 1.3, -8),
+    'tictac': (tictac, 2.0, -14), 'goteo': (goteo, 1.6, -13)}
 
 
 def sintetizar(tipo, rng, dur=None, **op):
