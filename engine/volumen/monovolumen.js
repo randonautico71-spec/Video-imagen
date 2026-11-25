@@ -17,6 +17,7 @@
     const xr = Math.max(0, Math.min(1, o.xr || 0)), col = o.color || '#f1f5fa', vent = o.vent || 0, cin = o.cinturon == null ? 1 : o.cinturon;
     const pint = m(col, { tipo: 'brillo', esp: 0.55, dureza: 60 }), oscuro = m('#2a3140', { esp: 0.1 }), goma = m('#14171d');
     const cristal = { color: '#9fcdea', tipo: 'brillo', esp: 0.9, dureza: 90, envolver: 0.3, alfa: 0.36 };
+    const modo0 = (x) => x;
     const luz = (c, e) => ({ color: c, esp: 0.2, emision: e, envolver: 0.5 });
     const T = (c) => ({ color: XR, tipo: 'rayosx' });          // todas las piezas de chapa pasan a este material en rayos X
 
@@ -63,6 +64,13 @@
       det.push(nodo({ malla: MA.caja(0.05, 0.14, 0.3, 0.02, 3), pos: [2.26, 0.72, 0.58 * s], mat: luz('#fff4d0', 1), sinSombra: true }));
       det.push(nodo({ malla: MA.caja(0.05, 0.14, 0.26, 0.02, 3), pos: [-2.26, 0.78, 0.6 * s], mat: luz('#ff2a1a', 0.5), sinSombra: true }));
     }
+
+    for (const s of [1, -1]) {
+      for (const x of [1.45, -1.4]) det.push(nodo({ malla: MA.cilindro(0.47, 0.47, 0.03, 20, true), rot: [PI / 2, 0, 0], pos: [x, 0.38, 0.9 * s], mat: m('#0b0d12'), sinSombra: true }));          // pasarruedas
+      det.push(nodo({ malla: MA.caja(0.12, 0.1, 0.16, 0.03, 3), pos: [1.02, 1.12, 1.0 * s], mat: pint, sinRayos: true }));                                                              // retrovisor
+      det.push(nodo({ malla: MA.caja(3.4, 0.05, 0.03, 0.01, 2), pos: [-0.1, 0.42, 0.915 * s], mat: m('#1b1f28'), sinSombra: true, sinRayos: true }));                                   // zocalo
+    }
+    det.push(nodo({ malla: MA.caja(1.3, 0.1, 1.7, 0.05, 3), pos: [1.62, 0.99, 0], rot: [0, 0, -0.1], mat: modo0(pint), sinRayos: true }));                                              // capo en cuña
 
     // interior: asientos, volante, salpicadero
     const inte = [
