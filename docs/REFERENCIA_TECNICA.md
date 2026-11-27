@@ -63,6 +63,26 @@ Demo/revision: `demo/realismo.html?modo=paisaje|objetos|rayo&tipo=montanas|lago|
 - `VE.real.rayo(esc,{x0,y0,x1,y1,semilla,progreso,destello})` dinamico. La HORA fija luz/sombra/niebla de todo: usar la misma hora en paisaje y objetos.
 - Revisado a ojo solo en fotogramas fijos (sin video). Falta: ciudad/edificios, animales realistas, lluvia, mas objetos (torre, puente, barco de vapor...), personas.
 
+## EDICION EDITORIAL (engine/estilos/edicion.js, VE.ed)
+Subtitulos arriba: en escenas.js `subtitulos: { estilo: 'editorial', clave: ['palabra', ...], marca: 'RANDONAUTICO', tam: 46 }` (el cuerpo se desplaza hacia abajo).
+Piezas: dato, tarjeta, etiqueta, ondas, medida, lupa, lupaImagen, chip, particulas, chorro, grano, vineta, zoom (camara 2D para transiciones «a traves»), captura, movil (cierre). Firma y opciones en la cabecera del fichero. Revision: `demo/edicion.html`.
+
+## VOLUMEN 3D (engine/volumen/: motor.js, mallas.js, modelos.js, fondos.js, tierra_datos.js)
+Ya cargado en `engine/video/index.html`. Revision: `demo/volumen.html?modo=avion|maniqui|vikingos|piezas|tierra&rayosx=1&ss=1`. Video de una demo (sin audio): `node render/demo.cjs --pagina "demo/volumen.html?modo=vikingos" --duracion 22.5 --salida X.mp4`.
+    const V = VE.vol;
+    const cam = V.camara({ pos:[x,y,z], mira:[x,y,z], arriba:[0,1,0], fov:35 })   // o V.orbita(centro, dist, rumbo, elevacion)
+    V.render(esc, V.nodo({ hijos:[...] }), cam, { ambiente:'estudio', sombras:{ centro, radio }, rayosx:0..1, niebla:{color,cerca,lejos}, alfa })
+    V.proyectar(esc, cam, p) -> {x,y,delante}  ·  V.linea(esc, cam, puntos, {discontinua, progreso, oculta})  ·  V.marcador(esc, cam, p, {a})
+- Nodo: `{malla, mat, pos, rot:[rx,ry,rz] (Ry*Rx*Rz), esc, m (matriz), hijos, nombre, sinSombra, sinRayos, alfa}`. `V.posicion(arbol, 'mano_d')` = donde esta una pieza (para anclar texto).
+- Material: `{color, tipo:'mate'|'brillo'|'rayosx'|'plano'|'sombra', alfa, mapa:<canvas>, esp, dureza, envolver, borde, emision, fresnel, desvanecer, dobleCara}`. `sombra` = suelo invisible que solo recibe sombra (para poner objetos 3D sobre un fondo 2D).
+- Mallas (`V.malla`, en cache): esfera, capsula(r1,r2,largo) (hacia -Y, para extremidades), caja(w,h,d,bisel), cilindro(r1,r2,h), torno(perfil), toro, extrusion(poligono,prof), loft(secciones) (alas, cascos), plano, tubo(puntos,radio,{dinamica:'nombre'}) (estelas, cables), parametrica(nu,nv,f), fusionar(partes).
+- Modelos (`V.modelos`): tierra({nubes, atmosfera, giroNubes, resolucion}), avion({color, acento, m}), maniqui({pose, apoyo, piesX, resaltar}), silla, nube, arbol({tipo:'pino'}), sala. Texturas pintadas con `V.textura(clave, w, h, fn)` (una vez).
+- Exteriores (escenarios.js): `V.modelos.terreno({alto(x,z), x0,x1,z0,z1,n})` (textura por altura y pendiente: arena, espuma, hierba, roca) y `V.modelos.mar({t, color, reflejo})` (oleaje dinamico). Historia (historia.js): `barco_vikingo({vela:true|'recogida'})`, `vikingo({semilla, pose, apoyo, suelo})`, `defensor({semilla, pose})` (arquero), `castillo({lado, alto, t, puerta 0..1, golpe 0..1})`. Combate determinista: `V.efectos.flecha(de, a, t0, dur, t)` (parabola y queda clavada) y `V.efectos.astillas(semilla, origen, t0, t, {n, suelo})`. Poses de combate: `cubrirse` (escudo sobre la cabeza), `arquero`, `V.pose.hachazo(fase)` (impacto en fase 0,55). Maniqui: `colores` por pieza y `equipo: {cuello|tronco|codo_d|codo_i|maniqui: [nodos]}` para vestir y armar personajes.
+- Animales (animales.js): `V.modelos.serpiente({especie:'interior'|'parda'|'costero'|'tigre'|'marina', id, t, escala, amp, ondas, vel, pos, rumbo, alza, res})`: una sola piel con escamas y dibujo propio de cada especie, cabeza aplastada de hocico redondo, ojos con pupila y ceja, boca, labios y lengua bifida. `V.modelos.serpiente.cabeza(especie, {pos, rumbo, escala})` da el punto de la cabeza para etiquetas. Para otra especie: objeto con `largo, r, cab, cabW, cabH, cuello, ojo, iris, ceja, labio, piel` (+ entrada en `V.modelos.serpiente.pieles`). Regla general: animales y personajes con textura pintada y rasgos caracteristicos (no tubos ni bolas).
+- Fondos 2D (`V.fondo`): espacio, estudio, plano, cielo({hora}). Geografia (`V.geo`): punto(lat,lon,r), ruta(a,b,n,altura), enRuta(ruta,t,alabeo) -> {pos, m}, distancia(a,b) km, visible(p,cam).
+- Convenios: Y arriba; vehiculos con el morro hacia +Z; figura humana mirando a +X (vista lateral = camara en +Z). Escala libre (el maniqui mide ~1,75).
+- Rendimiento: el coste crece con los pixeles cubiertos y con el mapa de sombras (2048 por defecto, PCF 5x5). Mallas y texturas se suben una vez; los nodos se crean en cada fotograma sin coste apreciable.
+
 ## Reglas del usuario (no reabrir)
 - ESTILO GENERAL (videos de cualquier tema): coger solo la TEMATICA y el tipo de estilo de los ejemplos (rayos, castillos), NO su acabado exacto. Prioridad: dibujar BIEN objetos reales y paisajes reales de fondo (reconocibles, con volumen, luz y paralaje), no iconos esquematicos.
 - NO renderizar ni enviar videos de prueba si el usuario no lo pide. Se fia del entorno; validar con linter/medidas.
@@ -78,6 +98,12 @@ Demo/revision: `demo/realismo.html?modo=paisaje|objetos|rayo&tipo=montanas|lago|
 ctx: i, n, t(local), tg(global), dur, p, entra, sale, zonas.cuerpo/sub, palabra(texto,desde)->{ini,fin} local, palabras, voz(tg)->0..1.
 Herramientas: VE.ease/tramo/escalonado (movimiento), VE.texto.ajustar/trazar (texto medido), esc.cache.halo/disco/bokeh/panel (sprites
 precocidos), VE.rng('semilla') (determinista), VE.registrar(tipo,caja,{detras,nota}) para el linter.
+**Muñecos 2.5D** (`kit-animaciones-3d/munecos/munecos.js`, cargado en `engine/video/index.html`): `MUN.persona`, `MUN.actor` (acciones con `t` del párrafo, gestos en `ctx.palabra(...).ini`), `MUN.dibujar`, escenario básico (`MUN.sala/suelo/props`) y plan visual (`MUN.ajustar(planos, ctx.dur)` + `MUN.pintar(esc.ctx, esc.W, esc.H, plan, t)`; `MUN.revisar` exige planos de 3–6 s con cámara en movimiento). Probado: proyecto de ensayo con subtítulos editoriales, `qa` sin incidencias.
+**Clips de vídeo dentro de una escena** (`engine/video/clips.js`): los MP4 van en `proyectos/<tema>/clips/<nombre>.mp4` (p. ej. hechos con
+`kit-animaciones-3d/bin/tema.cjs` o `transicion.cjs`, en cualquiera de sus 14 estilos). En la escena: `VE.clip(esc, 'nombre', t, {x, y, w, h,
+ajuste: 'cubrir'|'contener', alfa, radio, bucle, velocidad})` (t = segundo del clip; sin x/y/w/h, pantalla completa). Subtítulos y grafismos
+se dibujan encima. `vid.py qa` y `vid.py render` extraen solos los fotogramas a los fps del render (`salida/clips/`, también `vid.py clips <tema>`)
+y el render espera a que cada fotograma esté cargado (`window.renderAtListo`). Medido: 90 fotogramas 1080×1920 a ~10 fps de render con 2 procesos.
 
 ## Lecciones MEDIDAS (no suposiciones)
 - Sin GPU: ctx.filter=blur y shadowBlur por fotograma cuestan ~1700 ms/fotograma; con sprites precocidos ~9 ms. NUNCA usarlos dentro de renderAt.

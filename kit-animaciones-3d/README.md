@@ -20,7 +20,7 @@ Con eso, cuando pidas una animación, Claude te preguntará primero la familia y
 
 ## Temas detallados (5 temas × 14 estilos)
 
-`leon`, `planeta`, `ciudad`, `persona` y `oceano` (ballena jorobada y tiburón blanco en el fondo marino), modelados con máximo detalle, en cualquiera de los estilos `pixel voxel iso lowpoly wire toon paper galaxy dither ascii info realista clay fieltro`:
+`leon`, `planeta`, `ciudad`, `persona`, `oceano` (ballena jorobada y tiburón blanco en el fondo marino) `delfin` (delfín mular en el mismo fondo marino) y `trafico` (ciudad y autopista con atasco y gráficos de velocidad, de noche o de día con `--dia`; estilos realista (acabado CGI rápido; `--exacto` para CGI por ray marching, muy lento), lowpoly, info, toon, paper, pixel, dither, ascii y wire), modelados con máximo detalle, en cualquiera de los estilos `pixel voxel iso lowpoly wire toon paper galaxy dither ascii info realista clay fieltro`:
 
 ```bash
 node kit-animaciones-3d/bin/tema.cjs ciudad toon salida/ciudad.png
@@ -42,6 +42,25 @@ node kit-animaciones-3d/bin/tema.cjs planeta realista salida/planeta.mp4 --seg 8
 | `bin/fotograma_sdf.cjs` | Fotograma SDF con suavizado 2× repartido entre núcleos |
 
 En vídeo, la cámara orbita despacio (`--orbita`, rad/s), el león camina, el planeta rota con el cohete en órbita, la gente de la ciudad avanza y en el océano nadan la ballena y el tiburón, se mecen las algas y se mueven las cáusticas.
+
+## 15 · Muñecos (2.5D explicativo)
+Personajes propios para vídeos explicativos, con acciones, planos de 3–6 s y transiciones: guía en [`munecos/README.md`](munecos/README.md), catálogo `catalogos/munecos.jpg`.
+
+## Transiciones entre estilos
+
+```bash
+node kit-animaciones-3d/bin/transicion.cjs leon toon realista salida/leon.mp4 --seg 6 --cambio 3 --dur 1 --tipo pincel
+node kit-animaciones-3d/bin/transicion.cjs a.mp4 b.mp4 salida/union.mp4 --cambio 4 --tipo circulo [--sincro]
+```
+Renderiza el tema en los dos estilos y pasa del uno al otro sin cortar el movimiento. Tipos: `fundido barrido cortina circulo pixeles radial disolver pincel`.
+En el cambio se ve el mismo instante en los dos estilos; el encuadre coincide cuando los dos estilos usan la misma cámara (realista y la mayoría de los de malla; algunos, como pixel o iso, tienen su propia composición, y clay/fieltro su propio plató).
+
+## Usar los clips en vídeos con voz
+- **CREATOR IMAGINE**: componente `video` del timeline.
+- **Video-imagen**: `VE.clip(esc, 'nombre', t, {...})` dentro de `escenas.js` (el MP4 en `proyectos/<tema>/clips/`), con subtítulos y grafismos encima.
+
+## Temas nuevos
+Los 5 temas son los que vienen hechos, no un límite: para cualquier otro tema se escribe su escena con las técnicas del estilo elegido (skill, paso 4). En plastilina y fieltro, `temas/clay/arcilla.js` (material) y `temas/clay/figuras.js` (personajes) se reutilizan: una escena nueva es un `temas/<tema>/clay.js` con `crearEscena({ escena, colores, camara })`.
 
 ## Uso directo
 

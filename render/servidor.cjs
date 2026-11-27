@@ -12,6 +12,7 @@ function iniciar(puerto = 0) {
       const f = path.resolve(RAIZ, '.' + u);
       if (!f.startsWith(RAIZ + path.sep) && f !== RAIZ) { res.writeHead(403); return res.end('fuera de la raiz'); }
       fs.readFile(f, (e, d) => {
+        if (e && /\/salida\/clips\/clips\.json$/.test(u)) { res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); return res.end('{}'); }   // proyecto sin clips (VE.clip)
         if (e) { res.writeHead(404); return res.end('no encontrado: ' + u); }
         res.writeHead(200, { 'Content-Type': TIPOS[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
         res.end(d);

@@ -36,6 +36,10 @@ if [ $nd = 1 ]; then
       CH=$(node -e "try{console.log(require('./render/navegador.cjs').EXE)}catch(e){}" 2>/dev/null | tail -1) && [ -e "$CH" ] && { ok "Chromium instalado: $CH"; ch=1; } || no "Chromium no disponible: SIN el no se puede renderizar aqui"
   fi
 fi
+if [ $ch = 1 ]; then
+  node -e "const n=require('./render/navegador.cjs');(async()=>{const {chromium}=require(n.PW);const b=await chromium.launch({executablePath:n.EXE,args:n.FLAGS});const p=await b.newPage();const r=await p.evaluate(()=>!!document.createElement('canvas').getContext('webgl2'));await b.close();process.exit(r?0:1)})().catch(()=>process.exit(1))" 2>/dev/null \
+    && { ok "WebGL2 en Chromium (motor 3D VE.vol)"; gl=1; } || { no "WebGL2 no disponible: los videos 3D (VE.vol) no se pueden renderizar aqui"; gl=0; }
+fi
 python3 -c "import faster_whisper" 2>/dev/null && { ok "faster-whisper (alineado de palabras)"; wh=1; } || { av "falta faster-whisper -> pip install faster-whisper (el modelo 'small' se baja de huggingface.co)"; pip install -q faster-whisper 2>/dev/null && wh=1 && ok "instalado"; }
 
 echo "== 3. Red (solo dominios que usa el motor)"
@@ -45,6 +49,7 @@ echo "== 4. Recursos"; echo "  CPU: $(nproc) nucleos · RAM: $(free -g 2>/dev/nu
 echo; echo "== RESUMEN: que se puede hacer en este contenedor"
 if [ $py = 1 ] && [ $np_ = 1 ] && [ $nd = 1 ] && [ $ff = 1 ] && [ $ch = 1 ] && [ $wh = 1 ]; then
   echo "  SHORT completo (voz importada de ElevenLabs + musica + render): SI. Estima el tiempo con: python3 pipeline/vid.py estimar <tema>"
+  [ "${gl:-0}" = 1 ] && echo "  SHORT en 3D / 2,5D (VE.vol): SI (WebGL2 disponible)" || echo "  SHORT en 3D / 2,5D (VE.vol): NO (sin WebGL2) -> paquete para Code"
   if [ "$(nproc)" -ge 4 ] && [ "$(free -g 2>/dev/null | awk '/Mem:/{print $2}')" -ge 12 ]; then
     echo "  LARGO (voz Serena local + 30-60 min de render): POSIBLE pero de horas (voz ~4,4 s de calculo por s de voz con 4 CPU; render ~1 min por min de video). Necesita .venv-qwen: bash pipeline/instalar.sh"
   else

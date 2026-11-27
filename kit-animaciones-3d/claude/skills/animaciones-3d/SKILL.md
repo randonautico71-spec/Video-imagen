@@ -16,7 +16,7 @@ Todo se genera por código, en CPU, sin GPU ni recursos externos. Las rutas son 
    - **Pregunta 1, familia:** «¿Qué tipo de animación quieres?»
      - *Retro y píxel*: pixel art 3D, vóxel, retro de consola, ASCII 3D
      - *Geométrico 3D*: low-poly, isométrico / diorama, wireframe retro, infografía 3D
-     - *Ilustrado*: toon / cel shading, 2.5D papercraft, partículas 3D, claymotion (plastilina en stop-motion, estilo `clay`) y fieltro (estilo `fieltro`), en cualquier tema
+     - *Ilustrado*: toon / cel shading, 2.5D papercraft, partículas 3D, claymotion (plastilina en stop-motion, estilo `clay`) y fieltro (estilo `fieltro`), en cualquier tema, y **muñecos 2.5D** (explicativo con personajes propios, catálogo `kit-animaciones-3d/catalogos/munecos.jpg`)
      - *Realista (SDF + texturas procedurales)*: gotas SDF, planeta, animales en el bosque o la sabana, y el estilo `realista` de cualquier tema
    - **Pregunta 2, estilo:** las opciones de la familia elegida (tabla de abajo). Con una recomendación, ponla la primera con «(Recomendado)» y di por qué en la descripción.
 3. Pregunta también, si no está claro: duración, si lleva letrero final «SIGUE A @…» y si lleva audio (el kit no compone música; usa un WAV del proyecto si lo hay).
@@ -31,6 +31,8 @@ Además de las demos de cada estilo, hay **5 temas modelados con máximo detalle
 | `planeta` | Planeta tipo Tierra (continentes inventados, no el mapa real), nubes con sombra, ciudades nocturnas, atmósfera, Luna y cohete en órbita | El planeta rota y el cohete recorre la órbita |
 | `ciudad` | Calle con ~220 personas distintas, edificios con ventanas, escaparates, farolas, árboles, semáforos y coches | La gente avanza; la cámara orbita |
 | `oceano` | Ballena jorobada y tiburón blanco esculpidos (tubérculos, pliegues, aletas, branquias, dientes) sobre arena con ondas y cáusticas, rocas con algas, bosque de kelp, cardumen, estrellas de mar y erizos, rayos de luz. En `realista`, ambos con la boca abierta y primeros planos con `TOMA=ballena` / `TOMA=tiburon` | Nadan; algas y cáusticas se mueven; la cámara orbita |
+| `delfin` | Delfín mular (hocico, melón, espiráculo, dorsal curvada, pectorales, cola horizontal) en el fondo marino del tema `oceano`; en `munecos/delfin.js`, ejemplo de muñecos viendo saltar a un delfín | Nada; algas y cáusticas se mueven |
+| `trafico` | Ciudad low-poly con autopista de 3 carriles por sentido, tráfico que forma un atasco, coche protagonista con pulsos, etiquetas de velocidad y hora, regla de distancia, carretera verde→roja, pin de destino con haz de luz. De noche o de día (`--dia`). Estilos: lowpoly (el natural), **realista = acabado CGI rápido** (pintura con brillo, asfalto mojado que refleja luces y coches, bloom, haces de faros, sombras de contacto, gradación de color; ~0,4 s por fotograma), info, toon, paper, pixel, dither, ascii, wire. `realista --exacto` = CGI por ray marching (temas/trafico/cgi.js), mucho más fiel pero 3–8 min por fotograma: solo para planos cortos | Tráfico simulado (cada coche frena según el de delante: cola y cabeza del atasco coherentes). Plan de 6 planos de 4,5–5 s (28,5 s): general amplio, aérea sobre el coche, seguimiento (distancia en 1 s = velocidad real), cenital de la cola mientras frena, de frente a la cabeza del atasco, alejamiento amplio al destino. Cifras ilustrativas |
 | `persona` | Persona esculpida como volumen SDF (cara con párpados, iris, nariz, labios, orejas; manos con dedos; ropa con botones y cordones) | Pose fija en malla; en `realista` camina (≈50 s por fotograma) |
 
 ```bash
@@ -39,6 +41,19 @@ node kit-animaciones-3d/bin/tema.cjs <tema> <estilo> salida.mp4 --seg 8 [--fps 3
 ```
 Coste medido (4 CPU): estilos de malla 0,1–4 s por fotograma; `realista`: planeta ~10 s, océano ~3 min, persona ~50 s, ciudad ~90 s, león ~100 s por fotograma a 1080×1920 (en vídeo usar `--w 540 --h 960`).
 Estilo `realista` = SDF + texturas procedurales (12). Estilo `clay` = **13 · Claymotion** (plastilina en stop-motion a 12 imágenes/s; ~4 min por fotograma a 1080×1920, en vídeo usar `--w 540 --h 960`). Estilo `fieltro` = **14 · Fieltro** (las mismas escenas en lana afieltrada, también a 12 imágenes/s y con el mismo coste).
+
+**Los 5 temas no son un límite.** Si el usuario pide otro tema, escribe su escena para ese vídeo (paso 4): en `clay`/`fieltro`, un `temas/<tema>/clay.js` nuevo con `crearEscena` de `temas/clay/arcilla.js` y las figuras de `temas/clay/figuras.js` (añade figuras nuevas si hacen falta); en los estilos de malla, un `ESC.<escena>` con el motor; en `realista`, una escena SDF como `temas/<tema>/realista.js`.
+
+**Combinar estilos:** un estilo por tramo del guion, o pasar de uno a otro sin cortar con `node kit-animaciones-3d/bin/transicion.cjs <tema> <estiloA> <estiloB> clip.mp4 --tipo pincel` (fundido, barrido, cortina, circulo, pixeles, radial, disolver, pincel). Como mucho 2–3 estilos por vídeo y cada cambio en un momento del guion (loop, giro).
+
+**Dentro de un vídeo con voz:** en Video-imagen, `VE.clip(esc, 'nombre', t, {...})` en `escenas.js` con el MP4 en `proyectos/<tema>/clips/`; en CREATOR IMAGINE, el componente `video`.
+
+**15 · Muñecos (2.5D explicativo)** — `kit-animaciones-3d/munecos/` (guía en su `README.md`). Personajes propios del canal (figura blanca redondeada, ojos de punto, expresión y accesorio de color) con acciones encadenadas, sombra y reflejo, y un sistema de planos. Los personajes y la cámara están hechos; **escenario, objetos e historia se crean para cada vídeo** según el guion. Reglas del plan visual:
+- planos de **3–6 s**, cámara siempre en movimiento, transición de entrada (`corte fundido zoom barrido deslizar`); comprobar con `MUN.revisar(plan)` (debe devolver `[]`);
+- un plano = una idea del guion; los gestos y objetos entran **en su palabra** (`ctx.palabra('…').ini`);
+- variar el tamaño de plano (general, medio, detalle) y cerrar ideas alejándose para mostrar el conjunto;
+- lo importante por encima del 21 % inferior (subtítulos);
+- en Video-imagen, `MUN` ya está cargado: un plan por párrafo con `MUN.ajustar(planos, ctx.dur)` y `MUN.pintar(esc.ctx, esc.W, esc.H, plan, t)`; como clip suelto, `bin/estilo.cjs <escena> … --extra kit-animaciones-3d/munecos/munecos.js,mi_escena.js`.
 
 ## Paso 2 · Catálogo
 

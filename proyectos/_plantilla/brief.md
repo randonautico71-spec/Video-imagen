@@ -2,7 +2,7 @@
 
 ## Datos
 - Tema / titulo:
-- Formato: short (vertical, max 3 min) | youtube (16:9, 3 min-1 h) | instagram (vertical ~5 min)
+- Formato: short (vertical, 60-90 s) | youtube (16:9, 3 min-1 h) | instagram (vertical ~5 min)
   (youtube de 3 a 5 min => se entregan DOS versiones: youtube + instagram)
 - Voz: curiosos | aprender | meditacion
 - Musica: meditacion | curiosos | aprender
@@ -16,4 +16,4 @@
 Estilo general, colores, fondos, que aparece cuando se dice cada palabra clave.
 
 ## Datos a verificar  (cifra | fuente primaria)
-Toda cifra sin fuente primaria se queda FUERA del guion. Code rellena el estado V (verificado) / T (tecnico) / X (no entra).
+Lo que se cuente como hecho lleva fuente primaria. Mitos, suposiciones o creencias generalizadas pueden entrar si la narracion dice que lo son («se dice que…», «es un mito»). Code rellena el estado V (verificado) / V* (fuente secundaria fiable) / S (suposicion: se aclara en el video) / X (no entra).

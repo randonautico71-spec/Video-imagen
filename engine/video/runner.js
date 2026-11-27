@@ -9,7 +9,8 @@
        estilo: 'LAB' | { ...paleta propia },          // opcional
        fondo(esc, tg, ctx)  {...},                    // opcional: capa persistente bajo las escenas
        escenas: [ (esc, t, ctx) => {...}, ... ],      // UNA por parrafo del guion, en orden
-       subtitulos: false | { palabras (por grupo), tam (letra maxima), resalte },     // opcional
+       subtitulos: false | { palabras (por grupo), tam (letra maxima), resalte } | { estilo: 'editorial', clave: [...], marca, tam },  // editorial = arriba (VE.ed)
+       // Clips de video (p. ej. del kit-animaciones-3d) dentro de una escena: VE.clip(esc, 'nombre', t, {x,y,w,h,ajuste,alfa}) -> engine/video/clips.js
        progreso: true|false, transicion: {entrada, salida}
      });
    ctx: { i, n, ini, fin, dur, t (local), tg (global), p (0-1), entra (0-1), sale (0-1), zonas, tp/dp (tiempo y duracion del PARRAFO actual), pars (limites de parrafos), pw(palabra,n)=segundos desde el inicio del parrafo,
@@ -52,6 +53,7 @@
     const [meta, tl, palabras, env] = await Promise.all([
       json(base + 'meta.json'), json(base + 'salida/timeline.json'),
       json(base + 'salida/palabras.json'), json(base + 'salida/envolvente.json')]);
+    try { const r = await fetch(base + 'salida/clips/clips.json'); if (r.ok && VE.clips) VE.clips.cargar(base, await r.json()); } catch (e) { /* proyecto sin clips */ }
     await cargarScript(base + 'escenas.js?v=' + Date.now());
     if (!CFG) throw new Error('escenas.js no llamo a VE.proyecto({...})');
     // Unidades de dibujo: una por parrafo (CFG.escenas) o una por CAPITULO que agrupa varios parrafos (CFG.capitulos),
@@ -75,7 +77,9 @@
     const lienzo = Q.get('lienzo') || meta.lienzo || 'yt';
     const esc = VE.crearEscenario({ formato: lienzo, estilo: CFG.estilo || meta.estilo || 'LAB', ss: parseFloat(Q.get('ss') || '1.5') });
     VE.__esc = esc; VE.lintCfg = CFG.lint || {};
-    const zonas = VE.zonas(esc, CFG.subtitulos !== false);
+    const editorial = CFG.subtitulos && CFG.subtitulos.estilo === 'editorial';      // subtitulos arriba (VE.ed): el cuerpo empieza debajo
+    const zonas = VE.zonas(esc, CFG.subtitulos !== false && !editorial);
+    if (editorial) { const d = Math.round((esc.vertical ? 190 : 130) * esc.k); zonas.cuerpo.y += d; zonas.cuerpo.h -= d; zonas.cuerpo.cy = zonas.cuerpo.y + zonas.cuerpo.h / 2; }
     const x = esc.ctx, W = esc.W, H = esc.H;
 
     const so = parseFloat(Q.get('so') || '1');                                          // escala de SALIDA: 0.5 = 960x540 para calidad baja
@@ -99,7 +103,7 @@
       const i = escenaEn(tg), e = esce[i];                      // la escena se resuelve ANTES de pintar el fondo
       ctx.i = i; ctx.ini = e.ini; ctx.fin = e.fin; ctx.dur = e.fin - e.ini; ctx.tg = tg; ctx.t = tg - e.ini;
       ctx.p = Math.min(1, Math.max(0, ctx.t / ctx.dur));
-      ctx.entra = Math.min(1, ctx.t / tr.entrada); ctx.sale = Math.min(1, (e.fin - tg) / tr.salida);
+      ctx.entra = i === 0 ? 1 : Math.min(1, ctx.t / tr.entrada); ctx.sale = Math.min(1, (e.fin - tg) / tr.salida);   // la 1.a escena no funde: el fotograma 0 es el gancho (y la miniatura)
       ctx.palabras = e.pal.map(w => Object.assign({}, w, { ini: w.ini - e.ini, fin: w.fin - e.ini }));
       ctx.palabra = (txt, desde = 0) => { const n = norm(txt); return ctx.palabras.find(w => w.ini >= desde && norm(w.t) === n) || null; };
       ctx.parrafo = Math.max(0, e.parrafos.findIndex(q => tg < q.fin)); if (ctx.parrafo < 0) ctx.parrafo = e.parrafos.length - 1;
@@ -114,15 +118,20 @@
       x.restore();
       x.setTransform(esc.ss, 0, 0, esc.ss, 0, 0);
       const g = VE.grupoEn(grupos, tg);
-      if (g) VE.texto.subtitulo(esc, g, tg, Object.assign({ caja: zonas.sub, resalte: esc.estilo.aviso }, subOpt));
+      if (editorial) VE.ed.subtitulos(esc, grupos, tg, subOpt);
+      else if (g) VE.texto.subtitulo(esc, g, tg, Object.assign({ caja: zonas.sub, resalte: esc.estilo.aviso }, subOpt));
       if (CFG.progreso !== false) {
         const h = 6 * esc.k;
         x.fillStyle = 'rgba(255,255,255,0.14)'; x.fillRect(0, H - h, W, h);
         x.fillStyle = esc.estilo.acento; x.fillRect(0, H - h, W * Math.min(1, tg / tl.duracion_total), h);
       }
     };
-    window.capturar = function (tg, q = 0.92) {
-      window.renderAt(tg);
+    // Igual que renderAt, pero si una escena pidio fotogramas de un clip que aun no estaban cargados, los espera y repite.
+    window.renderAtListo = async function (tg) {
+      for (let k = 0; k < 6; k++) { if (VE.clips) VE.clips.faltan = false; window.renderAt(tg); if (!VE.clips || !VE.clips.faltan) return; await VE.clips.esperar(); }
+    };
+    window.capturar = async function (tg, q = 0.92) {
+      await window.renderAtListo(tg);
       ox.drawImage(esc.canvas, 0, 0, out.width, out.height);
       return out.toDataURL('image/jpeg', q).slice(23);
     };

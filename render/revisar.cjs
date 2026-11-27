@@ -13,7 +13,7 @@ for (let i = 0; i < v.length; i++) if (v[i].startsWith('--')) A[v[i].slice(2)] =
   const dur = await page.evaluate(() => window.DURACION), paso = parseFloat(A.paso || 0.5);
   const informes = [];
   for (let t = 0; t < dur; t += paso)
-    informes.push(await page.evaluate(tt => { window.renderAt(tt); return VE.lint(VE.__esc, tt); }, Math.round(t * 1000) / 1000));
+    informes.push(await page.evaluate(async tt => { VE.limpiarRegistro && VE.limpiarRegistro(); if (window.renderAtListo) await window.renderAtListo(tt); else window.renderAt(tt); return VE.lint(VE.__esc, tt); }, Math.round(t * 1000) / 1000));
   if (A.stills) {
     const dir = path.resolve(A.salida || path.join(RAIZ, A.proyecto, 'salida/stills')); fs.mkdirSync(dir, { recursive: true });
     for (const s of String(A.stills).split(',')) {

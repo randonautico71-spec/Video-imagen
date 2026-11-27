@@ -53,8 +53,8 @@ async function abrir({ formato = 'yt', estilo = 'DARK', ss = 1.5, pagina, demo }
    toDataURL 36 ms · CDP 52 ms · page.screenshot jpeg 66-79 ms · PNG 393 ms.
    Por eso aqui se usa toDataURL y no screenshot. */
 async function capturar(page, t, calidad = 0.92) {
-  const b64 = await page.evaluate(([tt, q]) => {
-    window.renderAt(tt);
+  const b64 = await page.evaluate(async ([tt, q]) => {
+    if (window.renderAtListo) await window.renderAtListo(tt); else window.renderAt(tt);
     return document.getElementById('c').toDataURL('image/jpeg', q).slice(23);
   }, [t, calidad]);
   return Buffer.from(b64, 'base64');
