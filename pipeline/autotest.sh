@@ -52,7 +52,7 @@ await pg.goto('file://'+process.cwd()+'/demo/realismo.html?modo=$m&ss=0.5');awai
   node -e "
 const n=require('./render/navegador.cjs');(async()=>{const {chromium}=require(n.PW);const b=await chromium.launch({executablePath:n.EXE,args:n.FLAGS});const pg=await b.newPage({viewport:{width:540,height:960}});const er=[];pg.on('pageerror',e=>er.push(String(e)));pg.on('console',m=>{if(m.type()==='error')er.push(m.text())});
 await pg.goto('file://'+process.cwd()+'/demo/edicion.html?ss=0.5');await pg.evaluate(()=>window.ready);for(const t of [3,7,11,15])await pg.evaluate(t=>window.renderAt(t),t);await b.close();if(er.length){console.error(er.join('|'));process.exit(1)}})()" 2>/dev/null && ok "demo/edicion.html (montaje editorial)" || mal "demo edicion"
-  for m in "avion" "maniqui" "piezas" "vikingos"; do
+  for m in "avion" "maniqui" "piezas" "vikingos" "persona" "mar"; do
     node -e "
 const n=require('./render/navegador.cjs');(async()=>{const {chromium}=require(n.PW);const b=await chromium.launch({executablePath:n.EXE,args:n.FLAGS});const pg=await b.newPage({viewport:{width:540,height:960}});const er=[];pg.on('pageerror',e=>er.push(String(e)));pg.on('console',m=>{if(m.type()==='error')er.push(m.text())});
 await pg.goto('file://'+process.cwd()+'/demo/volumen.html?modo=$m&ss=0.5');await pg.evaluate(()=>window.ready);await pg.evaluate(()=>window.renderAt(6));const d=await pg.evaluate(()=>document.getElementById('c').toDataURL('image/jpeg',0.8).length);await b.close();if(er.length||d<5000){console.error(er.join('|')||'imagen vacia');process.exit(1)}})()" 2>/dev/null && ok "demo/volumen.html?modo=$m (3D WebGL)" || mal "demo volumen $m"
